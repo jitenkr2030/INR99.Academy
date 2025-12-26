@@ -15,21 +15,13 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const result = await signIn('credentials', {
+      // Use redirect: true to let NextAuth handle the redirect server-side
+      await signIn('credentials', {
         email,
         password,
-        redirect: false,
+        redirect: true,
+        callbackUrl: '/dashboard',
       })
-
-      if (result?.error) {
-        setError('Invalid email or password')
-        setLoading(false)
-      } else {
-        // Success - wait for cookie to be set, then redirect
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 500)
-      }
     } catch (err) {
       setError('An error occurred')
       setLoading(false)
