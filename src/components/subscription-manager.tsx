@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { PaymentForm } from "@/components/payment-form"
-import { useAuth } from "@/contexts/auth-context"
 import { IndianRupee, CheckCircle, X, Calendar, Crown } from "lucide-react"
 
 interface SubscriptionPlan {
@@ -78,7 +78,7 @@ const subscriptionPlans: SubscriptionPlan[] = [
 ]
 
 export function SubscriptionManager() {
-  const { user, isAuthenticated } = useAuth()
+  const { data: session, status } = useSession()
   const [subscription, setSubscription] = useState<UserSubscription | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -86,18 +86,23 @@ export function SubscriptionManager() {
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (isAuthenticated && user) {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (mounted && status === 'authenticated' && session?.user) {
       fetchSubscription()
     }
-  }, [isAuthenticated, user])
+  }, [mounted, status, session])
 
   const fetchSubscription = async () => {
-    if (!user) return
+    if (!session?.user?.email) return
 
     try {
-      const response = await fetch(`/api/subscription?userId=${user.id}`)
+      const response = await fetch(`/api/subscription?email=${session.user.email}`)
       const data = await response.json()
 
       if (data.success) {
@@ -109,15 +114,15 @@ export function SubscriptionManager() {
   }
 
   const handleSubscribe = async (plan: SubscriptionPlan) => {
-    if (!user) return
-    
+    if (!session?.user) return
+
     setSelectedPlan(plan)
     setShowPaymentDialog(true)
   }
 
   const handlePaymentSuccess = async (paymentId: string) => {
     // After successful payment, create the subscription
-    if (!selectedPlan || !user) return
+    if (!selectedPlan || !session?.user) return
 
     setLoading(true)
     setError('')
@@ -130,7 +135,7 @@ export function SubscriptionManager() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: user.id,
+          userId: session.user.email, // Use email as ID for demo
           type: selectedPlan.type,
           paymentId: paymentId
         }),
@@ -211,7 +216,15 @@ export function SubscriptionManager() {
     return diffDays > 0 ? diffDays : 0
   }
 
-  if (!isAuthenticated) {
+  if (!mounted || status === 'loading') {
+    return (
+      <div className="text-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated') {
     return (
       <div className="text-center py-12">
         <h3 className="text-xl font-semibold mb-4">Login to View Subscription Plans</h3>

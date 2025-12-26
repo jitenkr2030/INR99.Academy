@@ -1,18 +1,19 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { 
-  CreditCard, 
-  Smartphone, 
-  Wallet, 
-  IndianRupee, 
-  Shield, 
+import {
+  CreditCard,
+  Smartphone,
+  Wallet,
+  IndianRupee,
+  Shield,
   CheckCircle,
   Clock,
   ArrowRight,
@@ -20,8 +21,6 @@ import {
   QrCode
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/contexts/auth-context"
-import { createAuthToken } from "@/lib/auth"
 
 interface PaymentMethod {
   id: string
@@ -46,17 +45,18 @@ interface PaymentPlan {
   popular?: boolean
 }
 
-export function PaymentProcessor({ 
-  amount = 99, 
+export function PaymentProcessor({
+  amount = 99,
   type = 'SUBSCRIPTION',
   onSuccess,
-  onCancel 
+  onCancel
 }: {
   amount?: number
   type?: 'SUBSCRIPTION' | 'CERTIFICATE'
   onSuccess?: () => void
   onCancel?: () => void
 }) {
+  const { data: session, status } = useSession()
   const [selectedMethod, setSelectedMethod] = useState<string>('')
   const [selectedPlan, setSelectedPlan] = useState<string>('monthly')
   const [processing, setProcessing] = useState(false)
@@ -64,7 +64,11 @@ export function PaymentProcessor({
   const [upiId, setUpiId] = useState('inr99@upi')
   const [showQR, setShowQR] = useState(false)
   const { toast } = useToast()
-  const { user, isAuthenticated } = useAuth()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const paymentMethods: PaymentMethod[] = [
     {
@@ -156,7 +160,7 @@ export function PaymentProcessor({
   }
 
   const handlePayment = async () => {
-    if (!isAuthenticated || !user) {
+    if (status !== 'authenticated' || !session?.user) {
       toast({
         title: "Authentication Required",
         description: "Please log in to make a payment",
@@ -194,14 +198,11 @@ export function PaymentProcessor({
     setProcessing(true)
 
     try {
-      const token = createAuthToken(user)
-      
       // Create payment record
       const paymentResponse = await fetch('/api/payments', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           type,
@@ -222,7 +223,6 @@ export function PaymentProcessor({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({
             paymentId: paymentData.paymentId,
