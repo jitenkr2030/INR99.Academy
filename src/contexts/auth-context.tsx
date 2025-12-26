@@ -1,13 +1,12 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { SessionProvider, useSession } from 'next-auth/react'
 
 interface User {
   id: string
-  email: string
+  mobileNumber: string
+  email?: string
   name?: string
-  role?: 'STUDENT' | 'INSTRUCTOR' | 'ADMIN' | 'SUPER_ADMIN'
 }
 
 interface AuthContextType {
@@ -22,48 +21,40 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-function AuthContent({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false)
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
 
-  // Safe session handling with SSR protection
-  const sessionResult = useSession()
-  const { data: session, status } = sessionResult || {}
-
-  // Handle mounting for client-side only features
+  // Check for existing user session on mount
   useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Only sync with NextAuth session after mounting
-  useEffect(() => {
-    if (mounted && session?.user) {
-      setUser({
-        id: (session.user as any).id || '',
-        email: session.user.email || '',
-        name: session.user.name || undefined,
-        role: (session.user as any).role || 'STUDENT'
-      })
-    } else if (mounted) {
-      setUser(null)
+    const savedUser = localStorage.getItem('inr99_user')
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser)
+        setUser(parsedUser)
+      } catch (error) {
+        console.error('Error parsing saved user:', error)
+        localStorage.removeItem('inr99_user')
+      }
     }
-  }, [session, status, mounted])
+  }, [])
 
   const login = (userData: User) => {
     setUser(userData)
+    localStorage.setItem('inr99_user', JSON.stringify(userData))
   }
 
   const logout = () => {
     setUser(null)
+    localStorage.removeItem('inr99_user')
   }
 
   const showAuthModal = () => setIsAuthModalOpen(true)
   const hideAuthModal = () => setIsAuthModalOpen(false)
 
   const value: AuthContextType = {
-    user: mounted ? user : null,
-    isAuthenticated: mounted ? !!user : false,
+    user,
+    isAuthenticated: !!user,
     login,
     logout,
     showAuthModal,
@@ -75,14 +66,6 @@ function AuthContent({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-  )
-}
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  return (
-    <SessionProvider>
-      <AuthContent>{children}</AuthContent>
-    </SessionProvider>
   )
 }
 
