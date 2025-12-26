@@ -45,7 +45,10 @@ function LoginForm() {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '1rem'
+        padding: '1rem',
+        paddingTop: '80px',
+        position: 'relative',
+        zIndex: 1
       }}>
         {/* Minimal placeholder - no loading spinner */}
         <div style={{ width: '100%', maxWidth: '400px' }}></div>
@@ -103,7 +106,10 @@ function LoginForm() {
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
-      padding: '1rem'
+      padding: '1rem',
+      paddingTop: '80px',
+      position: 'relative',
+      zIndex: 1
     }}>
       <div style={{ width: '100%', maxWidth: '400px' }}>
         {/* Back to Home */}
@@ -326,7 +332,8 @@ function LoginLoading() {
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
-      padding: '1rem'
+      padding: '1rem',
+      paddingTop: '80px' // Account for fixed navigation header
     }}>
       <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
         <div style={{ 
