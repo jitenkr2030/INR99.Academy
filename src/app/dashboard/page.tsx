@@ -1,0 +1,26 @@
+import { auth } from '@/auth'
+import { redirect } from 'next/navigation'
+
+export default async function DashboardPage() {
+  const session = await auth()
+
+  // Redirect to login if not authenticated
+  if (!session || !session.user) {
+    redirect('/auth/login')
+  }
+
+  const userRole = (session.user as any).role || 'STUDENT'
+
+  // Route to role-specific dashboard
+  switch (userRole) {
+    case 'ADMIN':
+    case 'SUPER_ADMIN':
+      redirect('/admin')
+    case 'INSTRUCTOR':
+      redirect('/instructor')
+    case 'STUDENT':
+    default:
+      // For students, show the student dashboard inline
+      redirect('/dashboard/student')
+  }
+}
