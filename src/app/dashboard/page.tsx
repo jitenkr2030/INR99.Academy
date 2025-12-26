@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
-import Link from 'next/link'
 
 // Demo course data - very simple
 const demoCourses = [
@@ -10,15 +9,25 @@ const demoCourses = [
 ]
 
 export default async function DashboardPage() {
-  const session = await auth()
+  let session = null
+  let isAuthenticated = false
 
-  if (!session?.user) {
-    redirect('/auth/login')
+  try {
+    session = await auth()
+    isAuthenticated = !!session?.user
+  } catch (error) {
+    // If session check fails, try to continue
+    isAuthenticated = false
+  }
+
+  if (!isAuthenticated || !session?.user) {
+    // Don't redirect immediately - let middleware handle it
+    // This prevents redirect loops
+    return null
   }
 
   const user = session.user
   const userName = (user as { name?: string }).name || user.name || 'User'
-  const userEmail = user.email || ''
 
   // Calculate simple stats
   const totalCourses = demoCourses.length
@@ -35,11 +44,21 @@ export default async function DashboardPage() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span style={{ color: '#6b7280' }}>{userName}</span>
-          <form action="/api/auth/signout" method="POST">
-            <button type="submit" style={{ background: '#dc2626', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '0.375rem', cursor: 'pointer' }}>
-              Logout
-            </button>
-          </form>
+          <a
+            href="/api/auth/signout"
+            style={{
+              background: '#dc2626',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              border: 'none',
+              borderRadius: '0.375rem',
+              textDecoration: 'none',
+              fontSize: '0.875rem',
+              display: 'inline-block'
+            }}
+          >
+            Logout
+          </a>
         </div>
       </header>
 

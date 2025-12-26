@@ -6,15 +6,6 @@ import { auth } from '@/auth'
 const protectedRoutes = [
   '/dashboard',
   '/profile',
-  '/courses/*/learn',
-  '/certificates',
-  '/learning-ledger',
-]
-
-// Routes that require admin role
-const adminRoutes = [
-  '/admin',
-  '/instructor',
 ]
 
 // Routes that should be accessible only to unauthenticated users
@@ -26,40 +17,7 @@ const authRoutes = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // 1. Security Headers - Apply to all responses
-  const response = NextResponse.next()
-
-  // Strict Transport Security (HSTS) - Force HTTPS
-  response.headers.set(
-    'Strict-Transport-Security',
-    'max-age=31536000; includeSubDomains; preload'
-  )
-
-  // Content Security Policy - Prevent XSS attacks
-  response.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.shrtco.de;"
-  )
-
-  // X-Frame-Options - Prevent clickjacking
-  response.headers.set('X-Frame-Options', 'DENY')
-
-  // X-Content-Type-Options - Prevent MIME type sniffing
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-
-  // Referrer Policy - Control referrer information
-  response.headers.set(
-    'Referrer-Policy',
-    'strict-origin-when-cross-origin'
-  )
-
-  // Permissions Policy - Restrict browser features
-  response.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), payment=()'
-  )
-
-  // 2. Check route types
+  // Check if this is a protected route
   const isProtectedRoute = protectedRoutes.some(route => {
     if (route.endsWith('/*')) {
       const baseRoute = route.slice(0, -2)
@@ -68,73 +26,38 @@ export async function middleware(request: NextRequest) {
     return pathname === route
   })
 
-  const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
+  // Check if this is an auth route
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
 
-  // 3. Get session - use try-catch to handle any auth errors
-  let session = null
+  // Get session - simple approach
   let isAuthenticated = false
-  let userRole = undefined
-
   try {
-    session = await auth(request)
+    const session = await auth(request)
     isAuthenticated = !!session?.user
-    if (session?.user) {
-      userRole = (session.user as any).role
-    }
   } catch (error) {
-    console.error('Auth middleware error:', error)
-    // On error, treat as unauthenticated
+    // If there's an error checking session, don't block access
+    // This prevents the redirect loop issue
     isAuthenticated = false
   }
 
-  // 4. Auth routes redirect - redirect to dashboard if already logged in
+  // If on login/register page and already logged in, redirect to dashboard
   if (isAuthRoute && isAuthenticated) {
-    // User is already logged in, redirect to dashboard
-    const dashboardUrl = new URL('/dashboard', request.url)
-    return NextResponse.redirect(dashboardUrl)
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // 5. Protected route access control
+  // If on protected route and not logged in, redirect to login
   if (isProtectedRoute && !isAuthenticated) {
-    // Redirect to login with return URL
     const loginUrl = new URL('/auth/login', request.url)
-    loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  // 6. Admin route role-based access control
-  if (isAdminRoute) {
-    if (!isAuthenticated) {
-      // Not logged in - redirect to login
-      const loginUrl = new URL('/auth/login', request.url)
-      loginUrl.searchParams.set('callbackUrl', pathname)
-      return NextResponse.redirect(loginUrl)
-    }
-
-    // Check if user has admin role
-    const adminRoles = ['ADMIN', 'SUPER_ADMIN']
-    if (!adminRoles.includes(userRole || '')) {
-      // User doesn't have permission - redirect to dashboard
-      const dashboardUrl = new URL('/dashboard', request.url)
-      return NextResponse.redirect(dashboardUrl)
-    }
-  }
-
-  return response
+  // Continue with the request
+  return NextResponse.next()
 }
 
 // Configure which routes the middleware runs on
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     * - api routes that don't need authentication
-     */
     '/((?!_next/static|_next/image|favicon.ico|public|api/auth/logout).*)',
   ],
 }
