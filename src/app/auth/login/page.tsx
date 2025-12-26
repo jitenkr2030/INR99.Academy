@@ -2,14 +2,12 @@
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,9 +25,8 @@ export default function LoginPage() {
         setError('Invalid email or password')
         setLoading(false)
       } else {
-        // Success - refresh to update session and redirect
-        router.refresh()
-        router.push('/dashboard')
+        // Success - use full page redirect to ensure session is recognized
+        window.location.href = '/dashboard'
       }
     } catch (err) {
       setError('An error occurred')

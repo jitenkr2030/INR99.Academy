@@ -21,9 +21,8 @@ export default async function DashboardPage() {
   }
 
   if (!isAuthenticated || !session?.user) {
-    // Don't redirect immediately - let middleware handle it
-    // This prevents redirect loops
-    return null
+    // Redirect to login if not authenticated
+    redirect('/auth/login')
   }
 
   const user = session.user
