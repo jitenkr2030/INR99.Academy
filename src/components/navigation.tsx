@@ -11,14 +11,15 @@ import Link from "next/link"
 import { CategoriesDropdown } from "@/components/categories-dropdown"
 
 export function Navigation() {
-  const sessionResult = useSession()
-  const { data: session, status } = sessionResult || {}
+  const { data: session, status } = useSession()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  // Don't render auth state until mounted to avoid hydration mismatch
+  const isLoading = status === 'loading'
   const isAuthenticated = mounted && status === 'authenticated'
   const user = session?.user
 
@@ -65,7 +66,7 @@ export function Navigation() {
               <BandwidthToggle />
               
               {/* Auth Section */}
-              {isAuthenticated && user ? (
+              {!isLoading && isAuthenticated && user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">

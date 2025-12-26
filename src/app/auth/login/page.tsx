@@ -1,30 +1,43 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { signIn, useSession } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useAuth } from '@/contexts/auth-context'
 
-export default function LoginPage() {
+// Inner component that uses useSearchParams
+function LoginForm() {
+  const { data: session, status } = useSession()
   const router = useRouter()
-  const { login, isAuthenticated, loading } = useAuth()
+  const searchParams = useSearchParams()
   
+  const [mounted, setMounted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState<'error' | 'success' | ''>('')
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   })
-  const [error, setError] = useState('')
-  const [submitLoading, setSubmitLoading] = useState(false)
 
-  // Redirect if already authenticated
+  // Callback URL - where to redirect after login
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+
   useEffect(() => {
-    if (!loading && isAuthenticated) {
-      router.push('/dashboard')
+    setMounted(true)
+  }, [])
+
+  // Redirect if already authenticated - immediate redirect
+  useEffect(() => {
+    if (mounted && status === 'authenticated' && session?.user) {
+      console.log('User already authenticated, redirecting to:', callbackUrl)
+      // Use window.location for full page reload to ensure session is synced
+      window.location.href = callbackUrl
     }
-  }, [loading, isAuthenticated, router])
+  }, [mounted, status, session, callbackUrl])
 
   // Show loading while checking session
-  if (loading) {
+  if (status === 'loading' || !mounted) {
     return (
       <div style={{ 
         minHeight: '100vh', 
@@ -44,6 +57,7 @@ export default function LoginPage() {
             animation: 'spin 1s linear infinite',
             margin: '0 auto'
           }}></div>
+          <p style={{ marginTop: '1rem', color: '#6b7280' }}>Checking session...</p>
           <style>{`
             @keyframes spin {
               0% { transform: rotate(0deg); }
@@ -55,26 +69,83 @@ export default function LoginPage() {
     )
   }
 
-  // Don't render form if authenticated (will redirect)
-  if (isAuthenticated) {
-    return null
+  // If already authenticated, show loading (will redirect)
+  if (status === 'authenticated') {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #fef7f0, #ffffff, #f0fdf4)',
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '1rem'
+      }}>
+        <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+          <div style={{ 
+            width: '48px', 
+            height: '48px', 
+            border: '3px solid #16a34a', 
+            borderTop: '3px solid transparent',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto'
+          }}></div>
+          <p style={{ marginTop: '1rem', color: '#16a34a', fontWeight: '500' }}>
+            Redirecting to dashboard...
+          </p>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
-    setSubmitLoading(true)
+    setLoading(true)
+    setMessage('')
+    setMessageType('')
 
-    const result = await login(formData.email, formData.password)
-    
-    if (result.success) {
-      // Login successful - redirect to dashboard
-      router.push('/dashboard')
-    } else {
-      setError(result.error || 'An error occurred')
+    try {
+      // Use NextAuth's signIn function
+      const result = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      })
+
+      console.log('SignIn result:', result)
+
+      if (result?.error) {
+        // Handle specific error messages
+        if (result.error.includes('Too many login attempts')) {
+          setMessage('Too many login attempts. Please wait 15 minutes before trying again.')
+        } else if (result.error.includes('Account locked')) {
+          setMessage('Your account has been locked due to too many failed login attempts. Please try again later.')
+        } else {
+          // Generic error message to prevent user enumeration
+          setMessage('Invalid email or password')
+        }
+        setMessageType('error')
+      } else if (result?.ok) {
+        // Login successful - redirect with full page reload
+        console.log('Login successful, redirecting to:', callbackUrl)
+        window.location.href = callbackUrl
+      } else {
+        setMessage('An error occurred. Please try again.')
+        setMessageType('error')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      setMessage('An error occurred. Please try again.')
+      setMessageType('error')
     }
-    
-    setSubmitLoading(false)
+
+    setLoading(false)
   }
 
   return (
@@ -142,18 +213,18 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Error Message */}
-          {error && (
+          {/* Message Display */}
+          {message && (
             <div style={{
               padding: '0.75rem',
               borderRadius: '6px',
               marginBottom: '1rem',
               fontSize: '0.875rem',
-              backgroundColor: '#fef2f2',
-              color: '#dc2626',
-              border: '1px solid #fecaca'
+              backgroundColor: messageType === 'error' ? '#fef2f2' : '#f0fdf4',
+              color: messageType === 'error' ? '#dc2626' : '#16a34a',
+              border: `1px solid ${messageType === 'error' ? '#fecaca' : '#bbf7d0'}`
             }}>
-              {error}
+              {message}
             </div>
           )}
 
@@ -219,32 +290,32 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={submitLoading}
+              disabled={loading}
               style={{
                 width: '100%',
                 height: '44px',
-                backgroundColor: submitLoading ? '#9ca3af' : '#ea580c',
+                backgroundColor: loading ? '#9ca3af' : '#ea580c',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
                 fontSize: '0.875rem',
                 fontWeight: '600',
-                cursor: submitLoading ? 'not-allowed' : 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 marginTop: '0.5rem',
                 transition: 'background 0.2s'
               }}
               onMouseEnter={(e) => {
-                if (!submitLoading) {
+                if (!loading) {
                   e.currentTarget.style.backgroundColor = '#c2410c'
                 }
               }}
               onMouseLeave={(e) => {
-                if (!submitLoading) {
+                if (!loading) {
                   e.currentTarget.style.backgroundColor = '#ea580c'
                 }
               }}
             >
-              {submitLoading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
@@ -295,5 +366,46 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Loading fallback for Suspense
+function LoginLoading() {
+  return (
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #fef7f0, #ffffff, #f0fdf4)',
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      padding: '1rem'
+    }}>
+      <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+        <div style={{ 
+          width: '48px', 
+          height: '48px', 
+          border: '3px solid #f97316', 
+          borderTop: '3px solid transparent',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto'
+        }}></div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    </div>
+  )
+}
+
+// Main page component with Suspense boundary
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginForm />
+    </Suspense>
   )
 }

@@ -59,16 +59,9 @@ export async function middleware(request: NextRequest) {
     'camera=(), microphone=(), geolocation=(), payment=()'
   )
   
-  // 2. Get the session using new v5 auth function
-  const session = await auth(request)
-  const token = session?.user
-  const isAuthenticated = !!token
-  const userRole = (token as any)?.role as string | undefined
-  
-  // 3. Check protected routes
+  // 2. Check route types
   const isProtectedRoute = protectedRoutes.some(route => {
     if (route.endsWith('/*')) {
-      // Wildcard route matching
       const baseRoute = route.slice(0, -2)
       return pathname.startsWith(baseRoute)
     }
@@ -78,7 +71,31 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
   
-  // 4. Protected route access control
+  // 3. Get session - use try-catch to handle any auth errors
+  let session = null
+  let isAuthenticated = false
+  let userRole = undefined
+  
+  try {
+    session = await auth(request)
+    isAuthenticated = !!session?.user
+    if (session?.user) {
+      userRole = (session.user as any).role
+    }
+  } catch (error) {
+    console.error('Auth middleware error:', error)
+    // On error, treat as unauthenticated
+    isAuthenticated = false
+  }
+  
+  // 4. Auth routes redirect - redirect to dashboard if already logged in
+  if (isAuthRoute && isAuthenticated) {
+    // User is already logged in, redirect to dashboard
+    const dashboardUrl = new URL('/dashboard', request.url)
+    return NextResponse.redirect(dashboardUrl)
+  }
+  
+  // 5. Protected route access control
   if (isProtectedRoute && !isAuthenticated) {
     // Redirect to login with return URL
     const loginUrl = new URL('/auth/login', request.url)
@@ -86,7 +103,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
   
-  // 5. Admin route role-based access control
+  // 6. Admin route role-based access control
   if (isAdminRoute) {
     if (!isAuthenticated) {
       // Not logged in - redirect to login
@@ -98,32 +115,12 @@ export async function middleware(request: NextRequest) {
     // Check if user has admin role
     const adminRoles = ['ADMIN', 'SUPER_ADMIN']
     if (!adminRoles.includes(userRole || '')) {
-      // User doesn't have permission - redirect to home or dashboard
+      // User doesn't have permission - redirect to dashboard
       const dashboardUrl = new URL('/dashboard', request.url)
       return NextResponse.redirect(dashboardUrl)
     }
   }
-  
-  // 6. Auth routes (login/register) - redirect if already authenticated
-  if (isAuthRoute && isAuthenticated) {
-    // User is already logged in, redirect to dashboard
-    const dashboardUrl = new URL('/dashboard', request.url)
-    dashboardUrl.searchParams.set('callbackUrl', pathname)
-    return NextResponse.redirect(dashboardUrl)
-  }
-  
-  // 6b. Also check for session cookie to catch edge cases
-  // If there's a session cookie but session() didn't return valid auth, still redirect
-  if (isAuthRoute) {
-    const hasSessionCookie = request.cookies.get('next-auth.session-token') || 
-                             request.cookies.get('__Secure-next-auth.session-token')
-    if (hasSessionCookie && !isAuthenticated) {
-      // Session cookie exists but session not loaded yet - still redirect to dashboard
-      const dashboardUrl = new URL('/dashboard', request.url)
-      return NextResponse.redirect(dashboardUrl)
-    }
-  }
-  
+
   return response
 }
 

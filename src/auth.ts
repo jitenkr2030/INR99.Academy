@@ -100,7 +100,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // Callbacks
   callbacks: {
     // JWT callback
-    async jwt({ token, user }) {
+    async jwt({ token, user, session }) {
       if (user) {
         token.id = user.id
         token.role = (user as any).role
@@ -122,6 +122,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const isLoggedIn = !!auth
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard")
       const isOnAdmin = nextUrl.pathname.startsWith("/admin")
+      const isOnLogin = nextUrl.pathname === "/auth/login"
+      
+      // If on login page and logged in, redirect to dashboard
+      if (isOnLogin && isLoggedIn) {
+        return Response.redirect(new URL('/dashboard', nextUrl))
+      }
       
       if (isOnDashboard || isOnAdmin) {
         if (isLoggedIn) return true
@@ -140,4 +146,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   // Trust host
   trustHost: true,
+  debug: true, // Enable debug mode for troubleshooting
 })
