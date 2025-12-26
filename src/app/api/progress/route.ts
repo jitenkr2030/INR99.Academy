@@ -1,6 +1,89 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
 import { z } from 'zod'
+
+// Demo users for progress data
+const demoProgress: Record<string, Array<{
+  id: string
+  userId: string
+  courseId: string
+  lessonId?: string
+  progress: number
+  timeSpent: number
+  completed: boolean
+  lastAccess: string
+  course: {
+    id: string
+    title: string
+    thumbnail?: string
+    difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+    duration: number
+    instructor: {
+      id: string
+      name: string
+      avatar?: string
+    }
+  }
+  lesson?: {
+    id: string
+    title: string
+    duration: number
+    order: number
+  }
+}>> = {
+  'student1@inr99.com': [
+    {
+      id: 'prog_1',
+      userId: 'student1',
+      courseId: 'course_react',
+      progress: 65,
+      timeSpent: 320,
+      completed: false,
+      lastAccess: new Date().toISOString(),
+      course: {
+        id: 'course_react',
+        title: 'Complete React Course - From Zero to Hero',
+        thumbnail: undefined,
+        difficulty: 'INTERMEDIATE' as const,
+        duration: 1200,
+        instructor: { id: 'inst_1', name: 'John Instructor', avatar: undefined }
+      }
+    },
+    {
+      id: 'prog_2',
+      userId: 'student1',
+      courseId: 'course_js',
+      progress: 30,
+      timeSpent: 180,
+      completed: false,
+      lastAccess: new Date(Date.now() - 86400000).toISOString(),
+      course: {
+        id: 'course_js',
+        title: 'Advanced JavaScript Mastery',
+        thumbnail: undefined,
+        difficulty: 'ADVANCED' as const,
+        duration: 900,
+        instructor: { id: 'inst_2', name: 'Jane Instructor', avatar: undefined }
+      }
+    },
+    {
+      id: 'prog_3',
+      userId: 'student1',
+      courseId: 'course_web',
+      progress: 100,
+      timeSpent: 600,
+      completed: true,
+      lastAccess: new Date(Date.now() - 604800000).toISOString(),
+      course: {
+        id: 'course_web',
+        title: 'Web Development Basics',
+        thumbnail: undefined,
+        difficulty: 'BEGINNER' as const,
+        duration: 600,
+        instructor: { id: 'inst_3', name: 'Bob Instructor', avatar: undefined }
+      }
+    }
+  ]
+}
 
 const updateProgressSchema = z.object({
   userId: z.string(),
@@ -14,91 +97,32 @@ const updateProgressSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
+    const email = searchParams.get('email')
     const courseId = searchParams.get('courseId')
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, message: 'User ID is required' },
-        { status: 400 }
-      )
-    }
-
-    if (courseId) {
-      // Get progress for a specific course
-      const progress = await db.courseProgress.findUnique({
-        where: {
-          userId_courseId: {
-            userId,
-            courseId
-          }
-        },
-        include: {
-          course: {
-            select: {
-              id: true,
-              title: true,
-              thumbnail: true,
-              difficulty: true,
-              duration: true,
-              instructor: {
-                select: {
-                  id: true,
-                  name: true,
-                  avatar: true
-                }
-              }
-            }
-          },
-          lesson: {
-            select: {
-              id: true,
-              title: true,
-              duration: true,
-              order: true
-            }
-          }
-        }
-      })
-
-      return NextResponse.json({
-        success: true,
-        progress
-      })
-    } else {
-      // Get all progress for the user
-      const progressList = await db.courseProgress.findMany({
-        where: {
-          userId
-        },
-        include: {
-          course: {
-            select: {
-              id: true,
-              title: true,
-              thumbnail: true,
-              difficulty: true,
-              duration: true,
-              instructor: {
-                select: {
-                  id: true,
-                  name: true,
-                  avatar: true
-                }
-              }
-            }
-          }
-        },
-        orderBy: {
-          lastAccess: 'desc'
-        }
-      })
+    // For demo mode, return mock data based on email
+    if (email && demoProgress[email]) {
+      const progressList = demoProgress[email]
+      
+      if (courseId) {
+        const progress = progressList.find(p => p.courseId === courseId)
+        return NextResponse.json({
+          success: true,
+          progress: progress || null
+        })
+      }
 
       return NextResponse.json({
         success: true,
         progress: progressList
       })
     }
+
+    // If no demo data, return empty array
+    return NextResponse.json({
+      success: true,
+      progress: []
+    })
 
   } catch (error) {
     console.error('Get progress error:', error)
@@ -112,53 +136,13 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { userId, courseId, lessonId, progress, timeSpent, completed } = updateProgressSchema.parse(body)
-
-    // Check if progress record exists
-    let existingProgress = await db.courseProgress.findUnique({
-      where: {
-        userId_courseId: {
-          userId,
-          courseId
-        }
-      }
-    })
-
-    let updatedProgress
-
-    if (existingProgress) {
-      // Update existing progress
-      updatedProgress = await db.courseProgress.update({
-        where: {
-          id: existingProgress.id
-        },
-        data: {
-          progress: Math.max(existingProgress.progress, progress),
-          timeSpent: (existingProgress.timeSpent || 0) + (timeSpent || 0),
-          completed: completed || existingProgress.completed,
-          lessonId: lessonId || existingProgress.lessonId,
-          lastAccess: new Date()
-        }
-      })
-    } else {
-      // Create new progress record
-      updatedProgress = await db.courseProgress.create({
-        data: {
-          userId,
-          courseId,
-          lessonId,
-          progress,
-          timeSpent: timeSpent || 0,
-          completed: completed || false,
-          lastAccess: new Date()
-        }
-      })
-    }
-
+    // For demo mode, just return success without saving
+    console.log('Demo mode: Progress update received', body)
+    
     return NextResponse.json({
       success: true,
-      message: 'Progress updated successfully',
-      progress: updatedProgress
+      message: 'Progress updated successfully (demo mode)',
+      progress: body
     })
 
   } catch (error) {
