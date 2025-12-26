@@ -33,10 +33,12 @@ export function NewNavigation() {
   }, [])
 
   const handleLogout = async () => {
-    await signOut({ 
+    await signOut({
       redirect: false,
       callbackUrl: '/'
     })
+    // Force page reload to clear any state
+    window.location.reload()
   }
 
   const navLinks = [
@@ -48,7 +50,6 @@ export function NewNavigation() {
   ]
 
   // Show minimal nav while mounting to prevent hydration mismatch
-  // Session is passed from server in Providers, so useSession won't show loading state
   if (!mounted) {
     return (
       <nav style={{
@@ -75,15 +76,8 @@ export function NewNavigation() {
     )
   }
 
-  // For demo mode, show logged-in state if session exists
-  // Session is passed from server, so we trust this data
   const user = session?.user as User | undefined
   const dashboardLink = user ? getDashboardLink(user.role) : '/dashboard'
-
-  // Determine if we should show user menu or login button
-  // Priority: mounted check > session data > loading state
-  // Once mounted with session, show user menu immediately
-  const showUserMenu = mounted && user
 
   return (
     <nav style={{
@@ -137,21 +131,18 @@ export function NewNavigation() {
           gap: '1.5rem'
         }} className="nav-links">
           {navLinks.map((link, index) => (
-            <Link
+            <a
               key={index}
               href={link.href}
               style={{
                 color: '#4b5563',
                 textDecoration: 'none',
                 fontSize: '0.875rem',
-                fontWeight: '500',
-                transition: 'color 0.2s'
+                fontWeight: '500'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#ea580c'}
-              onMouseLeave={(e) => e.currentTarget.style.color = '#4b5563'}
             >
               {link.label}
-            </Link>
+            </a>
           ))}
         </div>
 
@@ -193,7 +184,7 @@ export function NewNavigation() {
               </svg>
             </button>
 
-            {/* Dropdown */}
+            {/* Dropdown - Use anchor tags for reliable navigation */}
             {showDropdown && (
               <div style={{
                 position: 'absolute',
@@ -205,7 +196,8 @@ export function NewNavigation() {
                 boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
                 border: '1px solid #e5e7eb',
                 minWidth: '200px',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                zIndex: 200
               }}>
                 <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #e5e7eb' }}>
                   <p style={{ fontWeight: '600', color: '#1f2937', fontSize: '0.875rem' }}>{user.name}</p>
@@ -223,50 +215,33 @@ export function NewNavigation() {
                     {user.role}
                   </span>
                 </div>
-                
-                <Link href={dashboardLink} style={{ display: 'block', padding: '0.75rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-                >
+
+                {/* Use anchor tags instead of Link components for dropdown items */}
+                <a href={dashboardLink} style={{ display: 'block', padding: '0.75rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}>
                   📊 My Dashboard
-                </Link>
-                <Link href={dashboardLink} style={{ display: 'block', padding: '0.75rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-                >
+                </a>
+                <a href="/profile" style={{ display: 'block', padding: '0.75rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}>
                   👤 My Profile
-                </Link>
-                <Link href={dashboardLink} style={{ display: 'block', padding: '0.75rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-                >
+                </a>
+                <a href="/dashboard/student/courses" style={{ display: 'block', padding: '0.75rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}>
                   📚 My Courses
-                </Link>
-                <Link href={dashboardLink} style={{ display: 'block', padding: '0.75rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-                >
+                </a>
+                <a href="/dashboard/student/certificates" style={{ display: 'block', padding: '0.75rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}>
                   🎓 Certificates
-                </Link>
-                
+                </a>
+
                 {(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && (
-                  <Link href="/admin" style={{ display: 'block', padding: '0.75rem 1rem', color: '#7c3aed', textDecoration: 'none', fontSize: '0.875rem', fontWeight: '500' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-                  >
+                  <a href="/admin" style={{ display: 'block', padding: '0.75rem 1rem', color: '#7c3aed', textDecoration: 'none', fontSize: '0.875rem', fontWeight: '500' }}>
                     ⚙️ Admin Dashboard
-                  </Link>
+                  </a>
                 )}
-                
+
                 {user.role === 'INSTRUCTOR' && (
-                  <Link href="/instructor" style={{ display: 'block', padding: '0.75rem 1rem', color: '#7c3aed', textDecoration: 'none', fontSize: '0.875rem', fontWeight: '500' }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#f9fafb' }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-                  >
+                  <a href="/instructor" style={{ display: 'block', padding: '0.75rem 1rem', color: '#7c3aed', textDecoration: 'none', fontSize: '0.875rem', fontWeight: '500' }}>
                     📚 Instructor Dashboard
-                  </Link>
+                  </a>
                 )}
-                
+
                 <div style={{ borderTop: '1px solid #e5e7eb', padding: '0.5rem' }}>
                   <button
                     onClick={handleLogout}
@@ -300,12 +275,8 @@ export function NewNavigation() {
             fontSize: '0.875rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.background = '#c2410c'}
-          onMouseLeave={(e) => e.currentTarget.style.background = '#ea580c'}
-          >
+            gap: '0.5rem'
+          }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
               <polyline points="10 17 15 12 10 7" />
