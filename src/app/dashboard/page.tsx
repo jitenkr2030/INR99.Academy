@@ -15,12 +15,11 @@ export default async function DashboardPage() {
   switch (userRole) {
     case 'ADMIN':
     case 'SUPER_ADMIN':
-      redirect('/admin')
+      redirect('/dashboard/admin/overview')
     case 'INSTRUCTOR':
-      redirect('/instructor')
+      redirect('/dashboard/instructor/overview')
     case 'STUDENT':
     default:
-      // For students, show the student dashboard inline
-      redirect('/dashboard/student')
+      redirect('/dashboard/student/overview')
   }
 }
