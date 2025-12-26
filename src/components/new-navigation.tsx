@@ -75,8 +75,15 @@ export function NewNavigation() {
     )
   }
 
+  // For demo mode, show logged-in state if session exists
+  // Session is passed from server, so we trust this data
   const user = session?.user as User | undefined
   const dashboardLink = user ? getDashboardLink(user.role) : '/dashboard'
+
+  // Determine if we should show user menu or login button
+  // Priority: mounted check > session data > loading state
+  // Once mounted with session, show user menu immediately
+  const showUserMenu = mounted && user
 
   return (
     <nav style={{
