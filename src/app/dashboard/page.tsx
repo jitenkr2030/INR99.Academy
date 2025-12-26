@@ -1,14 +1,89 @@
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import Link from 'next/link'
+
+// Demo course data - very simple
+const demoCourses = [
+  { id: '1', title: 'Complete React Course', progress: 65 },
+  { id: '2', title: 'Advanced JavaScript', progress: 30 },
+  { id: '3', title: 'Web Development Basics', progress: 100 },
+]
 
 export default async function DashboardPage() {
   const session = await auth()
 
-  // Server-side authentication check - redirect to standalone dashboard
   if (!session?.user) {
     redirect('/auth/login')
   }
 
-  // Redirect to standalone dashboard that bypasses all potential client-side issues
-  redirect('/dashboard/standalone')
+  const user = session.user
+  const userName = (user as { name?: string }).name || user.name || 'User'
+  const userEmail = user.email || ''
+
+  // Calculate simple stats
+  const totalCourses = demoCourses.length
+  const completedCourses = demoCourses.filter(c => c.progress === 100).length
+  const avgProgress = Math.round(demoCourses.reduce((sum, c) => sum + c.progress, 0) / totalCourses)
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      {/* Simple Header */}
+      <header style={{ background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ background: '#ea580c', color: 'white', padding: '0.5rem', borderRadius: '0.5rem', fontWeight: 'bold' }}>INR99</div>
+          <span style={{ fontWeight: 'bold', fontSize: '1.25rem' }}>Academy</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <span style={{ color: '#6b7280' }}>{userName}</span>
+          <form action="/api/auth/signout" method="POST">
+            <button type="submit" style={{ background: '#dc2626', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '0.375rem', cursor: 'pointer' }}>
+              Logout
+            </button>
+          </form>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+          Welcome back, {userName}!
+        </h1>
+        <p style={{ color: '#6b7280', marginBottom: '2rem' }}>Continue your learning journey</p>
+
+        {/* Stats */}
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1 }}>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Total Courses</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{totalCourses}</p>
+          </div>
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1 }}>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Completed</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{completedCourses}</p>
+          </div>
+          <div style={{ background: 'white', padding: '1.5rem', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', flex: 1 }}>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Avg Progress</p>
+            <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{avgProgress}%</p>
+          </div>
+        </div>
+
+        {/* Courses */}
+        <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>My Courses</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {demoCourses.map(course => (
+            <div key={course.id} style={{ background: 'white', padding: '1.5rem', borderRadius: '0.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <h3 style={{ fontWeight: '600' }}>{course.title}</h3>
+                <span style={{ background: course.progress === 100 ? '#22c55e' : '#f59e0b', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.75rem' }}>
+                  {course.progress}%
+                </span>
+              </div>
+              <div style={{ width: '100%', height: '8px', background: '#e5e7eb', borderRadius: '4px' }}>
+                <div style={{ width: `${course.progress}%`, height: '100%', background: course.progress === 100 ? '#22c55e' : '#ea580c', borderRadius: '4px' }}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
+  )
 }

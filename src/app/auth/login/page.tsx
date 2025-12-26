@@ -1,241 +1,84 @@
 "use client"
 
-import { useState, useEffect, Suspense } from 'react'
-import { signIn, useSession } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { signIn } from 'next-auth/react'
 import Link from 'next/link'
 
-// Inner component that uses useSearchParams
-function LoginForm() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
-  const [mounted, setMounted] = useState(false)
+export default function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'error' | 'success' | ''>('')
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
-  const [redirecting, setRedirecting] = useState(false)
-
-  // Callback URL - where to redirect after login
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (mounted && status === 'authenticated' && session?.user) {
-      router.push(callbackUrl)
-    }
-  }, [mounted, status, session, callbackUrl, router])
-
-  // Show minimal loading state only for initial mount
-  if (!mounted) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #fef7f0, #ffffff, #f0fdf4)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-        paddingTop: '80px',
-        position: 'relative',
-        zIndex: 1
-      }}>
-        <div style={{ width: '100%', maxWidth: '400px' }}></div>
-      </div>
-    )
-  }
-
-  // Show redirecting message
-  if (redirecting) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #fef7f0, #ffffff, #f0fdf4)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-        paddingTop: '80px'
-      }}>
-        <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            border: '3px solid #22c55e',
-            borderTop: '3px solid transparent',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto'
-          }}></div>
-          <p style={{ marginTop: '1rem', color: '#16a34a', fontWeight: '500' }}>
-            Login successful! Redirecting to dashboard...
-          </p>
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-        </div>
-      </div>
-    )
-  }
+  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setMessage('')
-    setMessageType('')
+    setError('')
 
     try {
-      // Use NextAuth's signIn function
       const result = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
+        email,
+        password,
+        redirect: true,
+        callbackUrl: '/dashboard'
       })
 
-      console.log('SignIn result:', result)
-
       if (result?.error) {
-        // Handle specific error messages
-        if (result.error.includes('Too many login attempts')) {
-          setMessage('Too many login attempts. Please try again later.')
-        } else if (result.error.includes('Account locked')) {
-          setMessage('Your account has been locked due to too many failed login attempts. Please try again later.')
-        } else {
-          // Generic error message to prevent user enumeration
-          setMessage('Invalid email or password')
-        }
-        setMessageType('error')
-      } else {
-        // No error means login was successful
-        // Show redirecting message and then redirect
-        setRedirecting(true)
-        setTimeout(() => {
-          window.location.href = callbackUrl
-        }, 1000)
+        setError('Invalid email or password')
+        setLoading(false)
       }
-    } catch (error) {
-      console.error('Login error:', error)
-      setMessage('An error occurred. Please try again.')
-      setMessageType('error')
+    } catch (err) {
+      setError('An error occurred')
+      setLoading(false)
     }
-
-    setLoading(false)
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
+    <div style={{ 
+      minHeight: '100vh', 
       background: 'linear-gradient(135deg, #fef7f0, #ffffff, #f0fdf4)',
-      display: 'flex',
-      alignItems: 'center',
+      display: 'flex', 
+      alignItems: 'center', 
       justifyContent: 'center',
-      padding: '1rem',
-      paddingTop: '80px',
-      position: 'relative',
-      zIndex: 1
+      padding: '1rem'
     }}>
       <div style={{ width: '100%', maxWidth: '400px' }}>
-        {/* Back to Home */}
-        <Link href="/" style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          color: '#6b7280',
-          textDecoration: 'none',
-          marginBottom: '1.5rem',
-          fontSize: '0.875rem'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.color = '#ea580c'}
-        onMouseLeave={(e) => e.currentTarget.style.color = '#6b7280'}
-        >
-          <span style={{ marginRight: '0.5rem' }}>←</span>
-          Back to Home
-        </Link>
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
+          <div style={{ background: '#ea580c', color: 'white', padding: '0.5rem', borderRadius: '0.5rem', fontWeight: 'bold' }}>INR99</div>
+          <span style={{ fontWeight: 'bold', fontSize: '1.5rem', color: '#1f2937' }}>Academy</span>
+        </div>
 
         <div style={{
           backgroundColor: 'white',
           borderRadius: '12px',
           padding: '2rem',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-          border: '1px solid #f3f4f6'
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
         }}>
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-            <div style={{
-              width: '48px',
-              height: '48px',
-              background: 'linear-gradient(135deg, #ea580c, #16a34a)',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 1rem',
-              fontSize: '1.5rem'
-            }}>
-              📚
-            </div>
-            <h1 style={{
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
-              color: '#1f2937',
-              margin: 0
-            }}>
-              Welcome Back
-            </h1>
-            <p style={{
-              color: '#6b7280',
-              marginTop: '0.5rem',
-              fontSize: '0.875rem'
-            }}>
-              Sign in to continue your learning journey
-            </p>
-          </div>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', textAlign: 'center', marginBottom: '0.5rem' }}>
+            Welcome Back
+          </h1>
+          <p style={{ color: '#6b7280', textAlign: 'center', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+            Sign in to continue learning
+          </p>
 
-          {/* Message Display */}
-          {message && (
-            <div style={{
-              padding: '0.75rem',
-              borderRadius: '6px',
-              marginBottom: '1rem',
-              fontSize: '0.875rem',
-              backgroundColor: messageType === 'error' ? '#fef2f2' : '#f0fdf4',
-              color: messageType === 'error' ? '#dc2626' : '#16a34a',
-              border: `1px solid ${messageType === 'error' ? '#fecaca' : '#bbf7d0'}`
-            }}>
-              {message}
+          {error && (
+            <div style={{ padding: '0.75rem', background: '#fef2f2', color: '#dc2626', borderRadius: '6px', marginBottom: '1rem', fontSize: '0.875rem' }}>
+              {error}
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                color: '#374151',
-                marginBottom: '0.5rem'
-              }}>
-                Email Address
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
+                Email
               </label>
               <input
                 type="email"
                 placeholder="your@email.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                autoComplete="email"
                 style={{
                   width: '100%',
                   height: '44px',
@@ -249,22 +92,15 @@ function LoginForm() {
             </div>
 
             <div>
-              <label style={{
-                display: 'block',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                color: '#374151',
-                marginBottom: '0.5rem'
-              }}>
+              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
                 Password
               </label>
               <input
                 type="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
-                autoComplete="current-password"
                 style={{
                   width: '100%',
                   height: '44px',
@@ -290,112 +126,23 @@ function LoginForm() {
                 fontSize: '0.875rem',
                 fontWeight: '600',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                marginTop: '0.5rem',
-                transition: 'background 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.backgroundColor = '#c2410c'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.backgroundColor = '#ea580c'
-                }
+                marginTop: '0.5rem'
               }}
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
-          {/* Demo Accounts Info */}
-          <div style={{
-            backgroundColor: '#f9fafb',
-            padding: '1rem',
-            borderRadius: '6px',
-            marginTop: '1.5rem'
-          }}>
-            <p style={{
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              color: '#374151',
-              margin: '0 0 0.5rem 0'
-            }}>
-              Demo Accounts:
-            </p>
-            <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: '1.6' }}>
-              <p style={{ margin: '0 0 0.25rem 0' }}><strong>Student:</strong> student1@inr99.com</p>
-              <p style={{ margin: '0 0 0.25rem 0' }}><strong>Instructor:</strong> instructor1@inr99.com</p>
-              <p style={{ margin: '0 0 0.25rem 0' }}><strong>Admin:</strong> admin1@inr99.com</p>
-              <p style={{ margin: '0 0 0.25rem 0' }}><strong>Super Admin:</strong> superadmin1@inr99.com</p>
-              <p style={{ marginTop: '0.5rem', color: '#ea580c', fontWeight: '500' }}>
-                Password for all: demo123
-              </p>
+          {/* Demo Accounts */}
+          <div style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '6px', marginTop: '1.5rem' }}>
+            <p style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>Demo:</p>
+            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+              <p>Student: student1@inr99.com</p>
+              <p>Password: demo123</p>
             </div>
-          </div>
-
-          {/* Register Link */}
-          <div style={{
-            textAlign: 'center',
-            marginTop: '1.5rem',
-            fontSize: '0.875rem'
-          }}>
-            <span style={{ color: '#6b7280' }}>Don't have an account? </span>
-            <Link href="/auth/register" style={{
-              fontWeight: '600',
-              color: '#ea580c',
-              textDecoration: 'none'
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-            onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-            >
-              Create one
-            </Link>
           </div>
         </div>
       </div>
     </div>
-  )
-}
-
-// Loading fallback for Suspense
-function LoginLoading() {
-  return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #fef7f0, #ffffff, #f0fdf4)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem',
-      paddingTop: '80px'
-    }}>
-      <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          border: '3px solid #f97316',
-          borderTop: '3px solid transparent',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite',
-          margin: '0 auto'
-        }}></div>
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
-      </div>
-    </div>
-  )
-}
-
-// Main page component with Suspense boundary
-export default function LoginPage() {
-  return (
-    <Suspense fallback={<LoginLoading />}>
-      <LoginForm />
-    </Suspense>
   )
 }
