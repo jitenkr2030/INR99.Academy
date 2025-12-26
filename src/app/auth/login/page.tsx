@@ -84,9 +84,11 @@ function LoginForm() {
         }
         setMessageType('error')
       } else if (result?.ok) {
-        // Login successful - use window.location for full page reload
-        // This ensures session is properly synced across all components
-        window.location.href = callbackUrl
+        // Login successful - wait for session cookie to be set before redirecting
+        // This prevents middleware from not seeing the session
+        setTimeout(() => {
+          window.location.href = callbackUrl
+        }, 500)
       } else {
         setMessage('An error occurred. Please try again.')
         setMessageType('error')
