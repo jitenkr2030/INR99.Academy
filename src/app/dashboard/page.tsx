@@ -1,20 +1,21 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/contexts/auth-context'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { 
-  BookOpen, 
-  Clock, 
-  Trophy, 
-  Target, 
-  TrendingUp, 
-  PlayCircle, 
+import {
+  BookOpen,
+  Clock,
+  Trophy,
+  Target,
+  TrendingUp,
+  PlayCircle,
   CheckCircle,
   Calendar,
   BarChart3
@@ -59,7 +60,8 @@ interface LearningStats {
 }
 
 export default function DashboardPage() {
-  const { user, isAuthenticated } = useAuth()
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [progressData, setProgressData] = useState<CourseProgress[]>([])
   const [stats, setStats] = useState<LearningStats>({
     totalCourses: 0,
@@ -69,27 +71,44 @@ export default function DashboardPage() {
     averageProgress: 0
   })
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (isAuthenticated && user) {
+    setMounted(true)
+  }, [])
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (mounted && status === 'unauthenticated') {
+      router.push('/auth/login')
+    }
+  }, [mounted, status, router])
+
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
       fetchProgressData()
     }
-  }, [isAuthenticated, user])
+  }, [status, session])
 
   const fetchProgressData = async () => {
-    if (!user) return
+    if (!session?.user?.email) return
 
     setLoading(true)
     try {
-      const response = await fetch(`/api/progress?userId=${user.id}`)
+      const response = await fetch(`/api/progress?email=${session.user.email}`)
       const data = await response.json()
 
       if (data.success) {
-        setProgressData(data.progress)
-        calculateStats(data.progress)
+        setProgressData(data.progress || [])
+        calculateStats(data.progress || [])
+      } else {
+        // If no progress data, use empty array
+        calculateStats([])
       }
     } catch (error) {
       console.error('Fetch progress error:', error)
+      // Use empty data on error
+      calculateStats([])
     } finally {
       setLoading(false)
     }
@@ -99,8 +118,8 @@ export default function DashboardPage() {
     const totalCourses = progress.length
     const completedCourses = progress.filter(p => p.completed).length
     const totalTimeSpent = progress.reduce((sum, p) => sum + p.timeSpent, 0)
-    const averageProgress = totalCourses > 0 
-      ? progress.reduce((sum, p) => sum + p.progress, 0) / totalCourses 
+    const averageProgress = totalCourses > 0
+      ? progress.reduce((sum, p) => sum + p.progress, 0) / totalCourses
       : 0
 
     // Calculate streak (simplified - in real app this would be more sophisticated)
@@ -151,18 +170,8 @@ export default function DashboardPage() {
       .sort((a, b) => new Date(b.lastAccess).getTime() - new Date(a.lastAccess).getTime())[0]
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please login to view your dashboard</h2>
-          <p className="text-gray-600 mb-6">Access your learning progress and continue your journey</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (loading) {
+  // Show loading while checking session or redirecting
+  if (!mounted || status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
@@ -170,6 +179,12 @@ export default function DashboardPage() {
     )
   }
 
+  // Redirect if not authenticated
+  if (status === 'unauthenticated') {
+    return null // Will redirect via useEffect
+  }
+
+  const user = session?.user
   const continueCourse = getContinueLearningCourse()
 
   return (
