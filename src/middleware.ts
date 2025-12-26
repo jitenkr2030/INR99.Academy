@@ -25,40 +25,40 @@ const authRoutes = [
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  
+
   // 1. Security Headers - Apply to all responses
   const response = NextResponse.next()
-  
+
   // Strict Transport Security (HSTS) - Force HTTPS
   response.headers.set(
     'Strict-Transport-Security',
     'max-age=31536000; includeSubDomains; preload'
   )
-  
+
   // Content Security Policy - Prevent XSS attacks
   response.headers.set(
     'Content-Security-Policy',
     "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.shrtco.de;"
   )
-  
+
   // X-Frame-Options - Prevent clickjacking
   response.headers.set('X-Frame-Options', 'DENY')
-  
+
   // X-Content-Type-Options - Prevent MIME type sniffing
   response.headers.set('X-Content-Type-Options', 'nosniff')
-  
+
   // Referrer Policy - Control referrer information
   response.headers.set(
     'Referrer-Policy',
     'strict-origin-when-cross-origin'
   )
-  
+
   // Permissions Policy - Restrict browser features
   response.headers.set(
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=(), payment=()'
   )
-  
+
   // 2. Check route types
   const isProtectedRoute = protectedRoutes.some(route => {
     if (route.endsWith('/*')) {
@@ -67,15 +67,15 @@ export async function middleware(request: NextRequest) {
     }
     return pathname === route
   })
-  
+
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
-  
+
   // 3. Get session - use try-catch to handle any auth errors
   let session = null
   let isAuthenticated = false
   let userRole = undefined
-  
+
   try {
     session = await auth(request)
     isAuthenticated = !!session?.user
@@ -87,14 +87,14 @@ export async function middleware(request: NextRequest) {
     // On error, treat as unauthenticated
     isAuthenticated = false
   }
-  
+
   // 4. Auth routes redirect - redirect to dashboard if already logged in
   if (isAuthRoute && isAuthenticated) {
     // User is already logged in, redirect to dashboard
     const dashboardUrl = new URL('/dashboard', request.url)
     return NextResponse.redirect(dashboardUrl)
   }
-  
+
   // 5. Protected route access control
   if (isProtectedRoute && !isAuthenticated) {
     // Redirect to login with return URL
@@ -102,7 +102,7 @@ export async function middleware(request: NextRequest) {
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
   }
-  
+
   // 6. Admin route role-based access control
   if (isAdminRoute) {
     if (!isAuthenticated) {
@@ -111,7 +111,7 @@ export async function middleware(request: NextRequest) {
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
-    
+
     // Check if user has admin role
     const adminRoles = ['ADMIN', 'SUPER_ADMIN']
     if (!adminRoles.includes(userRole || '')) {
