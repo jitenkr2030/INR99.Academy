@@ -84,8 +84,9 @@ function LoginForm() {
         }
         setMessageType('error')
       } else if (result?.ok) {
-        // Login successful - use router for smooth navigation
-        router.push(callbackUrl)
+        // Login successful - use window.location for full page reload
+        // This ensures session is properly synced across all components
+        window.location.href = callbackUrl
       } else {
         setMessage('An error occurred. Please try again.')
         setMessageType('error')
