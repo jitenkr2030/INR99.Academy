@@ -35,32 +35,6 @@ export default async function DashboardPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-      {/* Simple Header */}
-      <header style={{ background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '1rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{ background: '#ea580c', color: 'white', padding: '0.5rem', borderRadius: '0.5rem', fontWeight: 'bold' }}>INR99</div>
-          <span style={{ fontWeight: 'bold', fontSize: '1.25rem' }}>Academy</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ color: '#6b7280' }}>{userName}</span>
-          <a
-            href="/api/auth/signout"
-            style={{
-              background: '#dc2626',
-              color: 'white',
-              padding: '0.5rem 1rem',
-              border: 'none',
-              borderRadius: '0.375rem',
-              textDecoration: 'none',
-              fontSize: '0.875rem',
-              display: 'inline-block'
-            }}
-          >
-            Logout
-          </a>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
