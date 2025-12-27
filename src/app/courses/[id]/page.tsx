@@ -30,6 +30,7 @@ interface Course {
   title: string
   description: string
   thumbnail?: string
+  price?: number
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
   duration: number
   instructor: {
@@ -75,6 +76,9 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState<Course | null>(null)
   const [loading, setLoading] = useState(true)
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
+  const [isEnrolled, setIsEnrolled] = useState(false)
+  const [enrollmentLoading, setEnrollmentLoading] = useState(false)
+  const [showEnrollmentModal, setShowEnrollmentModal] = useState(false)
 
   useEffect(() => {
     fetchCourse()
@@ -96,6 +100,61 @@ export default function CourseDetailPage() {
       router.push('/courses')
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Check enrollment status
+  useEffect(() => {
+    if (courseId && session?.user) {
+      checkEnrollment()
+    }
+  }, [courseId, session])
+
+  const checkEnrollment = async () => {
+    try {
+      const response = await fetch('/api/user/enrollments')
+      const data = await response.json()
+
+      if (data.success) {
+        const enrolled = data.enrollments.find((e: any) => e.course.id === courseId)
+        setIsEnrolled(!!enrolled)
+      }
+    } catch (error) {
+      console.error('Check enrollment error:', error)
+    }
+  }
+
+  const handleEnroll = async () => {
+    if (!session?.user) {
+      router.push('/auth/login')
+      return
+    }
+
+    setEnrollmentLoading(true)
+    try {
+      const response = await fetch('/api/enrollments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          courseId,
+          paymentMethod: 'CREDIT_CARD',
+          paymentAmount: course?.price || 0
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setIsEnrolled(true)
+        setShowEnrollmentModal(false)
+      } else {
+        alert(data.error || 'Failed to enroll')
+      }
+    } catch (error) {
+      console.error('Enrollment error:', error)
+      alert('Failed to enroll. Please try again.')
+    } finally {
+      setEnrollmentLoading(false)
     }
   }
 
@@ -285,14 +344,33 @@ export default function CourseDetailPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-4">
-                <Button 
-                  size="lg" 
-                  className="bg-orange-500 hover:bg-orange-600"
-                  onClick={completedLessons.size > 0 ? handleContinueLearning : handleStartLearning}
-                  disabled={!course.lessons || course.lessons.length === 0}
-                >
-                  {completedLessons.size > 0 ? 'Continue Learning' : 'Start Learning'}
-                </Button>
+                {isEnrolled ? (
+                  <Button 
+                    size="lg" 
+                    className="bg-orange-500 hover:bg-orange-600"
+                    onClick={completedLessons.size > 0 ? handleContinueLearning : handleStartLearning}
+                    disabled={!course.lessons || course.lessons.length === 0}
+                  >
+                    {completedLessons.size > 0 ? 'Continue Learning' : 'Start Learning'}
+                  </Button>
+                ) : course && course.price === 0 ? (
+                  <Button 
+                    size="lg" 
+                    className="bg-green-500 hover:bg-green-600"
+                    onClick={handleEnroll}
+                    disabled={enrollmentLoading}
+                  >
+                    {enrollmentLoading ? 'Enrolling...' : 'Enroll for Free'}
+                  </Button>
+                ) : course && course.price ? (
+                  <Button 
+                    size="lg" 
+                    className="bg-orange-500 hover:bg-orange-600"
+                    onClick={() => setShowEnrollmentModal(true)}
+                  >
+                    Enroll Now - ${course.price}
+                  </Button>
+                ) : null}
                 <Button size="lg" variant="outline">
                   <Download className="h-4 w-4 mr-2" />
                   Resources
@@ -510,6 +588,41 @@ export default function CourseDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Enrollment Modal */}
+      {showEnrollmentModal && course && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h2 className="text-xl font-bold mb-4">Enroll in {course.title}</h2>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                <span className="text-gray-600">Course Price</span>
+                <span className="text-xl font-bold">${course.price}</span>
+              </div>
+              <div className="text-sm text-gray-500">
+                This is a demo enrollment. In a real application, you would be redirected to a payment processor like Stripe.
+              </div>
+            </div>
+            <div className="flex gap-4 mt-6">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setShowEnrollmentModal(false)}
+                disabled={enrollmentLoading}
+              >
+                Cancel
+              </Button>
+              <Button 
+                className="flex-1 bg-orange-500 hover:bg-orange-600"
+                onClick={handleEnroll}
+                disabled={enrollmentLoading}
+              >
+                {enrollmentLoading ? 'Processing...' : 'Confirm Payment'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

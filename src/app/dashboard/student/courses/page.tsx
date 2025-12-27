@@ -18,9 +18,10 @@ interface EnrolledCourse {
     name: string
     avatar?: string
   }
-  _count: {
-    lessons: number
-  }
+  lessonCount: number
+  enrolledCount: number
+  enrolledAt: string
+  status: string
   progress?: {
     progress: number
     completed: boolean
@@ -49,11 +50,30 @@ export default function StudentCourses() {
     }
 
     try {
-      const res = await fetch(`/api/user/progress/courses?userId=${session.user.id}`)
+      const res = await fetch('/api/user/enrollments')
       const data = await res.json()
       
-      if (data.success && Array.isArray(data.courses)) {
-        setCourses(data.courses)
+      if (data.success && Array.isArray(data.enrollments)) {
+        // Transform enrollment data to match interface
+        const enrolledCourses = data.enrollments.map((enrollment: any) => ({
+          id: enrollment.course.id,
+          title: enrollment.course.title,
+          description: enrollment.course.description || '',
+          thumbnail: enrollment.course.thumbnail,
+          difficulty: 'BEGINNER', // Default, would come from API
+          duration: 600, // Default, would come from API
+          instructor: enrollment.course.instructor,
+          lessonCount: enrollment.course.lessonCount || 10,
+          enrolledCount: enrollment.course.enrolledCount || 0,
+          enrolledAt: enrollment.enrolledAt,
+          status: enrollment.status,
+          progress: {
+            progress: 0, // Will be calculated from progress context
+            completed: false,
+            lastAccess: enrollment.enrolledAt
+          }
+        }))
+        setCourses(enrolledCourses)
       } else {
         // Fallback to empty array if no enrolled courses
         setCourses([])
@@ -277,11 +297,11 @@ export default function StudentCourses() {
                         👨‍🏫 {course.instructor.name}
                       </p>
                       <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.25rem' }}>
-                        ⏱️ {formatDuration(course.duration)} • 📚 {course._count.lessons} lessons
+                        ⏱️ {formatDuration(course.duration)} • 📚 {course.lessonCount} lessons
                       </p>
-                      {course.progress?.lastAccess && (
+                      {course.enrolledAt && (
                         <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                          📅 Last accessed: {new Date(course.progress.lastAccess).toLocaleDateString()}
+                          📅 Enrolled: {new Date(course.enrolledAt).toLocaleDateString()}
                         </p>
                       )}
                     </div>
