@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation'
+import { auth } from '@/auth'
 import DashboardLayout from '@/components/DashboardLayout'
 
 // Mock data for instructor
@@ -13,18 +15,22 @@ const recentStudents = [
   { name: 'Carol Davis', course: 'Web Dev Basics', progress: 95, lastActive: '2024-03-08' }
 ]
 
-export default function InstructorOverview() {
-  const profile = {
-    name: 'Demo Instructor 1',
-    email: 'instructor1@inr99.com'
+export default async function InstructorOverview() {
+  const session = await auth()
+  
+  if (!session?.user) {
+    redirect('/auth/login')
   }
+
+  const userName = session.user.name || 'Instructor'
+  const userEmail = session.user.email || ''
 
   const totalStudents = instructorCourses.reduce((sum, course) => sum + course.students, 0)
   const totalCourses = instructorCourses.length
   const avgStudentsPerCourse = Math.round(totalStudents / totalCourses)
 
   return (
-    <DashboardLayout userRole="instructor" userInfo={profile}>
+    <DashboardLayout userRole="instructor" userInfo={{ name: userName, email: userEmail }}>
       <div>
         {/* Welcome Section */}
         <div style={{ 
@@ -40,7 +46,7 @@ export default function InstructorOverview() {
             color: '#1f2937', 
             marginBottom: '0.5rem' 
           }}>
-            Welcome back, {profile.name.split(' ')[0]}! 👨‍🏫
+            Welcome back, {userName.split(' ')[0]}! 👨‍🏫
           </h1>
           <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
             Here's your teaching overview and student progress
