@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useLearningProgress } from '@/contexts/learning-progress-context'
 import { 
   Clock, 
   BookOpen, 
@@ -65,11 +67,13 @@ interface Course {
 export default function CourseDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { data: session } = useSession()
+  const { getCourseProgress, markLessonComplete } = useLearningProgress()
+  
   const courseId = params.id as string
   
   const [course, setCourse] = useState<Course | null>(null)
   const [loading, setLoading] = useState(true)
-  const [currentLesson, setCurrentLesson] = useState(0)
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
 
   useEffect(() => {
@@ -95,6 +99,23 @@ export default function CourseDetailPage() {
     }
   }
 
+  // Sync with progress context when course loads
+  useEffect(() => {
+    if (course && session?.user) {
+      const progress = getCourseProgress(course.id)
+      if (progress) {
+        // In a real app, you'd track which specific lessons are completed
+        // For now, we'll estimate based on progress percentage
+        const completedCount = Math.floor((progress.progress / 100) * course.totalLessons)
+        const completed = new Set<string>()
+        for (let i = 0; i < completedCount && i < course.lessons.length; i++) {
+          completed.add(course.lessons[i].id)
+        }
+        setCompletedLessons(completed)
+      }
+    }
+  }, [course, session, getCourseProgress])
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'BEGINNER':
@@ -117,10 +138,14 @@ export default function CourseDetailPage() {
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`
   }
 
-  const markLessonComplete = (lessonId: string) => {
+  const markLessonCompleteHandler = async (lessonId: string) => {
+    if (!session?.user || !course) return
+    
     const newCompleted = new Set(completedLessons)
     newCompleted.add(lessonId)
     setCompletedLessons(newCompleted)
+    
+    await markLessonComplete(course.id, lessonId)
   }
 
   const handleStartLearning = () => {
@@ -129,7 +154,6 @@ export default function CourseDetailPage() {
       router.push(`/lessons/${course.lessons[0].id}`)
     } else {
       console.error('No lessons available for this course')
-      // Show a message to the user
       alert('No lessons available for this course yet. Please check back later.')
     }
   }
@@ -147,7 +171,7 @@ export default function CourseDetailPage() {
   }
 
   const getProgressPercentage = () => {
-    if (!course || course.totalLessons === 0) return 0
+    if (!course || course.totalLessons === 0) return completedLessons.size > 0 ? 100 : 0
     return (completedLessons.size / course.totalLessons) * 100
   }
 
@@ -246,16 +270,18 @@ export default function CourseDetailPage() {
                 </div>
               </div>
 
-              {/* Progress */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">Progress</span>
-                  <span className="text-sm text-gray-600">
-                    {completedLessons.size} of {course.totalLessons} completed
-                  </span>
+              {/* Progress - Only show if logged in */}
+              {session?.user && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-700">Your Progress</span>
+                    <span className="text-sm text-gray-600">
+                      {completedLessons.size} of {course.totalLessons} completed
+                    </span>
+                  </div>
+                  <Progress value={getProgressPercentage()} className="h-2" />
                 </div>
-                <Progress value={getProgressPercentage()} className="h-2" />
-              </div>
+              )}
 
               {/* Action Buttons */}
               <div className="flex gap-4">
@@ -327,8 +353,16 @@ export default function CourseDetailPage() {
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-semibold text-sm">
-                              {index + 1}
+                            <div className={`flex items-center justify-center w-8 h-8 rounded-full font-semibold text-sm ${
+                              completedLessons.has(lesson.id)
+                                ? 'bg-green-500 text-white'
+                                : 'bg-orange-100 text-orange-600'
+                            }`}>
+                              {completedLessons.has(lesson.id) ? (
+                                <CheckCircle className="h-5 w-5" />
+                              ) : (
+                                index + 1
+                              )}
                             </div>
                             <div>
                               <h3 className="font-medium text-gray-900">{lesson.title}</h3>
@@ -346,16 +380,23 @@ export default function CourseDetailPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            {completedLessons.has(lesson.id) && (
-                              <CheckCircle className="h-5 w-5 text-green-500" />
+                            {completedLessons.has(lesson.id) ? (
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => router.push(`/lessons/${lesson.id}`)}
+                              >
+                                Review
+                              </Button>
+                            ) : (
+                              <Button 
+                                size="sm"
+                                className="bg-orange-500 hover:bg-orange-600"
+                                onClick={() => router.push(`/lessons/${lesson.id}`)}
+                              >
+                                Start
+                              </Button>
                             )}
-                            <Button 
-                              size="sm"
-                              variant={completedLessons.has(lesson.id) ? "outline" : "default"}
-                              onClick={() => router.push(`/lessons/${lesson.id}`)}
-                            >
-                              {completedLessons.has(lesson.id) ? 'Review' : 'Start'}
-                            </Button>
                           </div>
                         </div>
                       </CardContent>
@@ -376,7 +417,9 @@ export default function CourseDetailPage() {
                               {assessment.type}
                             </Badge>
                           </div>
-                          <Button size="sm">Start Assessment</Button>
+                          <Button size="sm" onClick={() => router.push(`/assessments/${assessment.id}`)}>
+                            Start Assessment
+                          </Button>
                         </div>
                       </CardContent>
                     </Card>
@@ -398,19 +441,17 @@ export default function CourseDetailPage() {
                   <button
                     key={lesson.id}
                     className={`w-full text-left p-3 rounded-lg transition-colors ${
-                      index === currentLesson
-                        ? 'bg-orange-100 text-orange-700'
+                      completedLessons.has(lesson.id)
+                        ? 'bg-green-50 hover:bg-green-100'
                         : 'hover:bg-gray-100'
                     }`}
-                    onClick={() => setCurrentLesson(index)}
+                    onClick={() => router.push(`/lessons/${lesson.id}`)}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
                           completedLessons.has(lesson.id)
                             ? 'bg-green-500 text-white'
-                            : index === currentLesson
-                            ? 'bg-orange-500 text-white'
                             : 'bg-gray-200 text-gray-600'
                         }`}>
                           {completedLessons.has(lesson.id) ? '✓' : index + 1}
@@ -446,6 +487,26 @@ export default function CourseDetailPage() {
                 </Button>
               </CardContent>
             </Card>
+
+            {/* Login Prompt for Progress Tracking */}
+            {!session?.user && (
+              <Card className="bg-orange-50 border-orange-200">
+                <CardHeader>
+                  <CardTitle className="text-lg text-orange-800">Track Your Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700 mb-4">
+                    Sign in to save your progress, earn certificates, and track your learning journey!
+                  </p>
+                  <Button 
+                    className="w-full bg-orange-500 hover:bg-orange-600"
+                    onClick={() => router.push('/auth/login')}
+                  >
+                    Sign In to Track Progress
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

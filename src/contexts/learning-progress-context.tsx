@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { useSession } from 'next-auth/react'
 
 interface ProgressData {
   id: string
@@ -22,26 +23,36 @@ interface LearningProgressContextType {
     timeSpent?: number
     completed?: boolean
   }) => Promise<void>
+  markLessonComplete: (courseId: string, lessonId: string) => Promise<void>
   getCourseProgress: (courseId: string) => ProgressData | null
+  getLessonProgress: (courseId: string, lessonId: string) => ProgressData | null
   isLoading: boolean
 }
 
 const LearningProgressContext = createContext<LearningProgressContextType | undefined>(undefined)
 
 export function LearningProgressProvider({ children }: { children: ReactNode }) {
+  const { data: session, status } = useSession()
   const [progressData, setProgressData] = useState<ProgressData[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   const fetchProgressData = async () => {
+    if (!session?.user?.id || status === 'loading') {
+      return
+    }
+
     try {
-      const response = await fetch('/api/progress')
+      const response = await fetch(`/api/progress?userId=${session.user.id}`)
       const data = await response.json()
       
-      if (data.success) {
+      if (data.success && Array.isArray(data.progress)) {
         setProgressData(data.progress)
       }
     } catch (error) {
       console.error('Fetch progress error:', error)
+    } finally {
+      setIsInitialized(true)
     }
   }
 
@@ -52,6 +63,11 @@ export function LearningProgressProvider({ children }: { children: ReactNode }) 
     timeSpent?: number
     completed?: boolean
   }) => {
+    if (!session?.user?.id) {
+      console.warn('Cannot update progress: User not authenticated')
+      return
+    }
+
     setIsLoading(true)
     
     try {
@@ -61,7 +77,7 @@ export function LearningProgressProvider({ children }: { children: ReactNode }) 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: 'current-user-id', // In real app, get from auth context
+          userId: session.user.id,
           ...data
         }),
       })
@@ -88,8 +104,8 @@ export function LearningProgressProvider({ children }: { children: ReactNode }) 
             return [
               ...prev,
               {
-                id: result.progress.id,
-                userId: 'current-user-id',
+                id: result.progress?.id || `temp-${Date.now()}`,
+                userId: session.user.id,
                 courseId: data.courseId,
                 lessonId: data.lessonId,
                 progress: data.progress,
@@ -108,19 +124,48 @@ export function LearningProgressProvider({ children }: { children: ReactNode }) 
     }
   }
 
+  const markLessonComplete = async (courseId: string, lessonId: string) => {
+    // Calculate progress based on total lessons in course
+    // For now, we'll use a simple increment approach
+    // In a real app, you'd fetch the total lesson count and calculate properly
+    
+    const currentProgress = progressData.find(p => p.courseId === courseId)
+    const currentPercent = currentProgress?.progress || 0
+    const newPercent = Math.min(currentPercent + 10, 100) // Increment by 10% per lesson
+    
+    await updateProgress({
+      courseId,
+      lessonId,
+      progress: newPercent,
+      timeSpent: 0,
+      completed: newPercent >= 100
+    })
+  }
+
   const getCourseProgress = (courseId: string) => {
     return progressData.find(p => p.courseId === courseId) || null
   }
 
+  const getLessonProgress = (courseId: string, lessonId: string) => {
+    return progressData.find(p => p.courseId === courseId && p.lessonId === lessonId) || null
+  }
+
+  // Fetch progress data when user is authenticated
   useEffect(() => {
-    fetchProgressData()
-  }, [])
+    if (status === 'authenticated') {
+      fetchProgressData()
+    } else if (status === 'unauthenticated') {
+      setIsInitialized(true)
+    }
+  }, [status])
 
   const value: LearningProgressContextType = {
     progressData,
     updateProgress,
+    markLessonComplete,
     getCourseProgress,
-    isLoading
+    getLessonProgress,
+    isLoading: isLoading || (!isInitialized && status === 'loading')
   }
 
   return (

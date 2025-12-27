@@ -1,6 +1,7 @@
 'use client'
 
 import { SessionProvider } from 'next-auth/react'
+import { LearningProgressProvider } from '@/contexts/learning-progress-context'
 import type { Session } from 'next-auth'
 
 interface ProvidersProps {
@@ -11,7 +12,9 @@ interface ProvidersProps {
 export function Providers({ children, session }: ProvidersProps) {
   return (
     <SessionProvider session={session}>
-      {children}
+      <LearningProgressProvider>
+        {children}
+      </LearningProgressProvider>
     </SessionProvider>
   )
 }

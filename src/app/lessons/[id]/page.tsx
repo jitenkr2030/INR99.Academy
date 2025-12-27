@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,12 +8,17 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LowBandwidthMediaPlayer } from "@/components/low-bandwidth-media-player"
+import { useLearningProgress } from '@/contexts/learning-progress-context'
+import { useSession } from 'next-auth/react'
 import { 
   ChevronLeft, 
   ChevronRight,
   Clock,
   BookOpen,
-  CheckCircle
+  CheckCircle,
+  Play,
+  Headphones,
+  FileText
 } from "lucide-react"
 import Link from "next/link"
 
@@ -59,14 +64,34 @@ interface Lesson {
 export default function LessonDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { data: session } = useSession()
+  const { markLessonComplete, getCourseProgress, updateProgress } = useLearningProgress()
+  
   const lessonId = params.id as string
   
   const [lesson, setLesson] = useState<Lesson | null>(null)
   const [loading, setLoading] = useState(true)
-  const [progress, setProgress] = useState(0)
+  const [isCompleted, setIsCompleted] = useState(false)
+  const [mediaProgress, setMediaProgress] = useState(0)
+  const [timeSpent, setTimeSpent] = useState(0)
+  const [showCompletionToast, setShowCompletionToast] = useState(false)
+  
+  const startTimeRef = useRef<number>(Date.now())
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     fetchLesson()
+    
+    // Start tracking time spent
+    intervalRef.current = setInterval(() => {
+      setTimeSpent(prev => prev + 1)
+    }, 60000) // Track every minute
+    
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
   }, [lessonId])
 
   const fetchLesson = async () => {
@@ -77,6 +102,12 @@ export default function LessonDetailPage() {
 
       if (data.success) {
         setLesson(data.lesson)
+        
+        // Check if this lesson was already completed
+        const progress = getCourseProgress(data.lesson.course.id)
+        if (progress?.completed) {
+          setIsCompleted(true)
+        }
       } else {
         router.push('/courses')
       }
@@ -97,17 +128,47 @@ export default function LessonDetailPage() {
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`
   }
 
-  const navigateToLesson = (lessonId: string) => {
-    router.push(`/lessons/${lessonId}`)
+  const navigateToLesson = (id: string) => {
+    router.push(`/lessons/${id}`)
   }
 
-  const handleProgress = (newProgress: number) => {
-    setProgress(newProgress)
+  const handleMediaProgress = (progress: number) => {
+    setMediaProgress(progress)
   }
 
-  const handleComplete = () => {
-    // In a real app, this would update the user's progress
-    console.log('Lesson completed')
+  const handleComplete = async () => {
+    if (!lesson || !session?.user) {
+      // If not logged in, just show completion locally
+      setIsCompleted(true)
+      setShowCompletionToast(true)
+      setTimeout(() => setShowCompletionToast(false), 3000)
+      return
+    }
+
+    try {
+      await markLessonComplete(lesson.course.id, lesson.id)
+      setIsCompleted(true)
+      setShowCompletionToast(true)
+      setTimeout(() => setShowCompletionToast(false), 3000)
+      
+      // Update time spent when completing
+      await updateProgress({
+        courseId: lesson.course.id,
+        lessonId: lesson.id,
+        progress: 100, // Will be incremented by markLessonComplete
+        timeSpent: Math.floor((Date.now() - startTimeRef.current) / 60000), // Convert to minutes
+        completed: true
+      })
+    } catch (error) {
+      console.error('Complete lesson error:', error)
+    }
+  }
+
+  // Calculate overall course progress for the progress bar
+  const getCourseProgressValue = () => {
+    if (!lesson) return 0
+    const progress = getCourseProgress(lesson.course.id)
+    return progress?.progress || ((lesson.navigation.currentIndex / lesson.navigation.totalLessons) * 100)
   }
 
   if (loading) {
@@ -133,6 +194,14 @@ export default function LessonDetailPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Completion Toast */}
+      {showCompletionToast && (
+        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
+          <CheckCircle className="h-5 w-5" />
+          <span>Lesson completed! Great job! 🎉</span>
+        </div>
+      )}
+
       {/* Lesson Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4">
@@ -151,6 +220,14 @@ export default function LessonDetailPage() {
                 </p>
               </div>
             </div>
+            <div className="flex items-center gap-2">
+              {isCompleted && (
+                <Badge className="bg-green-500">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Completed
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -159,11 +236,11 @@ export default function LessonDetailPage() {
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
-            <span>Progress</span>
-            <span>Lesson {lesson.navigation.currentIndex} of {lesson.navigation.totalLessons}</span>
+            <span>Course Progress</span>
+            <span>{Math.round(getCourseProgressValue())}%</span>
           </div>
           <Progress 
-            value={(lesson.navigation.currentIndex / lesson.navigation.totalLessons) * 100} 
+            value={getCourseProgressValue()} 
             className="h-2"
           />
         </div>
@@ -182,9 +259,36 @@ export default function LessonDetailPage() {
               textContent={lesson.content}
               pdfUrl={lesson.pdfUrl}
               duration={lesson.duration}
-              onProgress={handleProgress}
+              onProgress={handleMediaProgress}
               onComplete={handleComplete}
             />
+
+            {/* Lesson Content Text */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  Lesson Content
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="prose max-w-none">
+                  {lesson.content.split('\n').map((paragraph, index) => {
+                    if (paragraph.startsWith('## ')) {
+                      return <h2 key={index} className="text-xl font-semibold mt-6 mb-3">{paragraph.replace('## ', '')}</h2>
+                    } else if (paragraph.startsWith('### ')) {
+                      return <h3 key={index} className="text-lg font-medium mt-4 mb-2">{paragraph.replace('### ', '')}</h3>
+                    } else if (paragraph.startsWith('- ')) {
+                      return <li key={index} className="ml-4">{paragraph.replace('- ', '')}</li>
+                    } else if (paragraph.trim() === '') {
+                      return <br key={index} />
+                    } else {
+                      return <p key={index} className="text-gray-700 leading-relaxed my-2">{paragraph}</p>
+                    }
+                  })}
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Assessments */}
             {lesson.assessments.length > 0 && (
@@ -242,14 +346,25 @@ export default function LessonDetailPage() {
                   </Button>
                 )}
                 
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={handleComplete}
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Mark as Complete
-                </Button>
+                {!isCompleted ? (
+                  <Button 
+                    variant="default"
+                    className="w-full justify-start bg-green-600 hover:bg-green-700"
+                    onClick={handleComplete}
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Mark as Complete
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => setIsCompleted(false)}
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Completed (Click to undo)
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
@@ -266,15 +381,36 @@ export default function LessonDetailPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Format</span>
                   <div className="flex gap-1">
-                    {lesson.videoUrl && <Badge variant="outline" className="text-xs">Video</Badge>}
-                    {lesson.audioUrl && <Badge variant="outline" className="text-xs">Audio</Badge>}
-                    {lesson.pdfUrl && <Badge variant="outline" className="text-xs">PDF</Badge>}
+                    {lesson.videoUrl && (
+                      <Badge variant="outline" className="text-xs flex items-center gap-1">
+                        <Play className="h-3 w-3" /> Video
+                      </Badge>
+                    )}
+                    {lesson.audioUrl && (
+                      <Badge variant="outline" className="text-xs flex items-center gap-1">
+                        <Headphones className="h-3 w-3" /> Audio
+                      </Badge>
+                    )}
+                    {lesson.pdfUrl && (
+                      <Badge variant="outline" className="text-xs flex items-center gap-1">
+                        <FileText className="h-3 w-3" /> PDF
+                      </Badge>
+                    )}
+                    {!lesson.videoUrl && !lesson.audioUrl && !lesson.pdfUrl && (
+                      <Badge variant="outline" className="text-xs">Text Only</Badge>
+                    )}
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Assessments</span>
                   <span className="text-sm font-medium">{lesson.assessments.length}</span>
                 </div>
+                {session?.user && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Time Spent</span>
+                    <span className="text-sm font-medium">{Math.floor(timeSpent)} min</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -298,6 +434,26 @@ export default function LessonDetailPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Login Prompt for Progress Tracking */}
+            {!session?.user && (
+              <Card className="bg-orange-50 border-orange-200">
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <p className="text-sm text-gray-700 mb-3">
+                      Sign in to save your progress and track your learning journey!
+                    </p>
+                    <Button 
+                      size="sm" 
+                      className="bg-orange-500 hover:bg-orange-600"
+                      onClick={() => router.push('/auth/login')}
+                    >
+                      Sign In
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
