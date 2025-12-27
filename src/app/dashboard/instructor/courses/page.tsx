@@ -16,6 +16,21 @@ interface Course {
   createdAt: string
 }
 
+interface Lesson {
+  id: string
+  title: string
+  content: string
+  videoUrl?: string
+  audioUrl?: string
+  pdfUrl?: string
+  duration: number
+  order: number
+  isActive: boolean
+  _count?: {
+    progress: number
+  }
+}
+
 interface Category {
   id: string
   name: string
@@ -39,10 +54,16 @@ export default function InstructorCourses() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showLessonsModal, setShowLessonsModal] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
+  const [lessons, setLessons] = useState<Lesson[]>([])
+  const [lessonsLoading, setLessonsLoading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [learningPaths, setLearningPaths] = useState<LearningPath[]>([])
   const [submitting, setSubmitting] = useState(false)
+  const [lessonSubmitting, setLessonSubmitting] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [lessonMessage, setLessonMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   
   // Form state
   const [formData, setFormData] = useState({
@@ -53,6 +74,19 @@ export default function InstructorCourses() {
     subCategoryId: '',
     learningPathId: ''
   })
+
+  // Lesson form state
+  const [lessonForm, setLessonForm] = useState({
+    title: '',
+    content: '',
+    videoUrl: '',
+    audioUrl: '',
+    pdfUrl: '',
+    duration: 10,
+    order: 0
+  })
+
+  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null)
 
   useEffect(() => {
     fetchCourses()
@@ -98,12 +132,52 @@ export default function InstructorCourses() {
     }
   }
 
+  const fetchLessons = async (courseId: string) => {
+    setLessonsLoading(true)
+    try {
+      const res = await fetch(`/api/instructor/lessons?courseId=${courseId}`)
+      const data = await res.json()
+      if (data.success) {
+        setLessons(data.lessons)
+      }
+    } catch (error) {
+      console.error('Error fetching lessons:', error)
+    } finally {
+      setLessonsLoading(false)
+    }
+  }
+
+  const openLessonsModal = async (course: Course) => {
+    setSelectedCourse(course)
+    setShowLessonsModal(true)
+    setLessonMessage(null)
+    setEditingLesson(null)
+    setLessonForm({
+      title: '',
+      content: '',
+      videoUrl: '',
+      audioUrl: '',
+      pdfUrl: '',
+      duration: 10,
+      order: 0
+    })
+    await fetchLessons(course.id)
+  }
+
   const userName = session?.user?.name || 'Instructor'
   const userEmail = session?.user?.email || ''
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleLessonInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setLessonForm(prev => ({ 
+      ...prev, 
+      [name]: name === 'duration' || name === 'order' ? parseInt(value) || 0 : value 
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -130,7 +204,7 @@ export default function InstructorCourses() {
           subCategoryId: '',
           learningPathId: ''
         })
-        fetchCourses() // Refresh courses list
+        fetchCourses()
         setTimeout(() => {
           setShowCreateModal(false)
           setMessage(null)
@@ -144,6 +218,146 @@ export default function InstructorCourses() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleCreateLesson = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedCourse) return
+
+    setLessonSubmitting(true)
+    setLessonMessage(null)
+
+    try {
+      const res = await fetch('/api/instructor/lessons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...lessonForm,
+          courseId: selectedCourse.id
+        })
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
+        setLessonMessage({ type: 'success', text: 'Lesson created successfully!' })
+        setLessonForm({
+          title: '',
+          content: '',
+          videoUrl: '',
+          audioUrl: '',
+          pdfUrl: '',
+          duration: 10,
+          order: 0
+        })
+        fetchLessons(selectedCourse.id)
+        fetchCourses()
+      } else {
+        setLessonMessage({ type: 'error', text: data.error || 'Failed to create lesson' })
+      }
+    } catch (error) {
+      console.error('Create lesson error:', error)
+      setLessonMessage({ type: 'error', text: 'Failed to create lesson' })
+    } finally {
+      setLessonSubmitting(false)
+    }
+  }
+
+  const handleUpdateLesson = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editingLesson || !selectedCourse) return
+
+    setLessonSubmitting(true)
+    setLessonMessage(null)
+
+    try {
+      const res = await fetch(`/api/instructor/lessons/${editingLesson.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lessonForm)
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
+        setLessonMessage({ type: 'success', text: 'Lesson updated successfully!' })
+        setEditingLesson(null)
+        setLessonForm({
+          title: '',
+          content: '',
+          videoUrl: '',
+          audioUrl: '',
+          pdfUrl: '',
+          duration: 10,
+          order: 0
+        })
+        fetchLessons(selectedCourse.id)
+        fetchCourses()
+      } else {
+        setLessonMessage({ type: 'error', text: data.error || 'Failed to update lesson' })
+      }
+    } catch (error) {
+      console.error('Update lesson error:', error)
+      setLessonMessage({ type: 'error', text: 'Failed to update lesson' })
+    } finally {
+      setLessonSubmitting(false)
+    }
+  }
+
+  const handleDeleteLesson = async (lessonId: string) => {
+    if (!confirm('Are you sure you want to delete this lesson? This action cannot be undone.')) {
+      return
+    }
+
+    setLessonSubmitting(true)
+    setLessonMessage(null)
+
+    try {
+      const res = await fetch(`/api/instructor/lessons/${lessonId}`, {
+        method: 'DELETE'
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
+        setLessonMessage({ type: 'success', text: 'Lesson deleted successfully!' })
+        fetchLessons(selectedCourse!.id)
+        fetchCourses()
+      } else {
+        setLessonMessage({ type: 'error', text: data.error || 'Failed to delete lesson' })
+      }
+    } catch (error) {
+      console.error('Delete lesson error:', error)
+      setLessonMessage({ type: 'error', text: 'Failed to delete lesson' })
+    } finally {
+      setLessonSubmitting(false)
+    }
+  }
+
+  const startEditLesson = (lesson: Lesson) => {
+    setEditingLesson(lesson)
+    setLessonForm({
+      title: lesson.title,
+      content: lesson.content,
+      videoUrl: lesson.videoUrl || '',
+      audioUrl: lesson.audioUrl || '',
+      pdfUrl: lesson.pdfUrl || '',
+      duration: lesson.duration,
+      order: lesson.order
+    })
+  }
+
+  const cancelEditLesson = () => {
+    setEditingLesson(null)
+    setLessonForm({
+      title: '',
+      content: '',
+      videoUrl: '',
+      audioUrl: '',
+      pdfUrl: '',
+      duration: 10,
+      order: 0
+    })
   }
 
   const selectedCategory = categories.find(c => c.id === formData.categoryId)
@@ -272,12 +486,29 @@ export default function InstructorCourses() {
                   <span>📅 {new Date(course.createdAt).toLocaleDateString()}</span>
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <button 
+                    onClick={() => openLessonsModal(course)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      background: '#7c3aed',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.375rem',
+                      fontSize: '0.875rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <span>📖</span> Manage Lessons
+                  </button>
                   <button style={{
                     padding: '0.5rem 1rem',
-                    background: '#9333ea',
-                    color: 'white',
-                    border: 'none',
+                    background: '#f3f4f6',
+                    color: '#374151',
+                    border: '1px solid #d1d5db',
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem',
                     cursor: 'pointer'
@@ -574,6 +805,381 @@ export default function InstructorCourses() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Manage Lessons Modal */}
+      {showLessonsModal && selectedCourse && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '0.75rem',
+            padding: '2rem',
+            maxWidth: '900px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937' }}>
+                  Manage Lessons
+                </h2>
+                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                  Course: {selectedCourse.title}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowLessonsModal(false)
+                  setSelectedCourse(null)
+                  setLessons([])
+                  setEditingLesson(null)
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  color: '#6b7280'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {lessonMessage && (
+              <div style={{
+                padding: '1rem',
+                borderRadius: '0.5rem',
+                marginBottom: '1rem',
+                background: lessonMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+                color: lessonMessage.type === 'success' ? '#16a34a' : '#dc2626'
+              }}>
+                {lessonMessage.text}
+              </div>
+            )}
+
+            {/* Lesson Form */}
+            <div style={{
+              background: '#f9fafb',
+              borderRadius: '0.5rem',
+              padding: '1.5rem',
+              marginBottom: '1.5rem'
+            }}>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+                {editingLesson ? 'Edit Lesson' : 'Add New Lesson'}
+              </h3>
+              <form onSubmit={editingLesson ? handleUpdateLesson : handleCreateLesson}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+                    Lesson Title *
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={lessonForm.title}
+                    onChange={handleLessonInputChange}
+                    required
+                    placeholder="e.g., Introduction to Variables"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontSize: '1rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+                    Lesson Content *
+                  </label>
+                  <textarea
+                    name="content"
+                    value={lessonForm.content}
+                    onChange={handleLessonInputChange}
+                    required
+                    placeholder="Write your lesson content here..."
+                    rows={6}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontSize: '1rem',
+                      resize: 'vertical',
+                      fontFamily: 'inherit',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+                      Video URL (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      name="videoUrl"
+                      value={lessonForm.videoUrl}
+                      onChange={handleLessonInputChange}
+                      placeholder="https://example.com/video.mp4"
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.5rem',
+                        fontSize: '1rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+                      Audio URL (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      name="audioUrl"
+                      value={lessonForm.audioUrl}
+                      onChange={handleLessonInputChange}
+                      placeholder="https://example.com/audio.mp3"
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.5rem',
+                        fontSize: '1rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+                      PDF URL (Optional)
+                    </label>
+                    <input
+                      type="url"
+                      name="pdfUrl"
+                      value={lessonForm.pdfUrl}
+                      onChange={handleLessonInputChange}
+                      placeholder="https://example.com/document.pdf"
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.5rem',
+                        fontSize: '1rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+                      Duration (minutes)
+                    </label>
+                    <input
+                      type="number"
+                      name="duration"
+                      value={lessonForm.duration}
+                      onChange={handleLessonInputChange}
+                      min="1"
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.5rem',
+                        fontSize: '1rem',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
+                    Order (Lesson Number)
+                  </label>
+                  <input
+                    type="number"
+                    name="order"
+                    value={lessonForm.order}
+                    onChange={handleLessonInputChange}
+                    min="1"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontSize: '1rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                  <button
+                    type="submit"
+                    disabled={lessonSubmitting}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      background: '#7c3aed',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.5rem',
+                      fontWeight: '600',
+                      cursor: lessonSubmitting ? 'not-allowed' : 'pointer',
+                      opacity: lessonSubmitting ? 0.7 : 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    {lessonSubmitting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      editingLesson ? 'Update Lesson' : 'Add Lesson'
+                    )}
+                  </button>
+                  {editingLesson && (
+                    <button
+                      type="button"
+                      onClick={cancelEditLesson}
+                      style={{
+                        padding: '0.75rem 1.5rem',
+                        background: '#f3f4f6',
+                        color: '#374151',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.5rem',
+                        fontWeight: '500',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* Lessons List */}
+            <div>
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+                Existing Lessons ({lessons.length})
+              </h3>
+              {lessonsLoading ? (
+                <div style={{ textAlign: 'center', padding: '2rem' }}>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                  <p style={{ marginTop: '1rem', color: '#6b7280' }}>Loading lessons...</p>
+                </div>
+              ) : lessons.length === 0 ? (
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '2rem', 
+                  background: '#f9fafb', 
+                  borderRadius: '0.5rem',
+                  color: '#6b7280'
+                }}>
+                  <p>No lessons added yet. Add your first lesson above!</p>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '0.75rem' }}>
+                  {lessons.map((lesson, index) => (
+                    <div 
+                      key={lesson.id}
+                      style={{
+                        background: '#f9fafb',
+                        borderRadius: '0.5rem',
+                        padding: '1rem',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{
+                          width: '2rem',
+                          height: '2rem',
+                          borderRadius: '50%',
+                          background: '#7c3aed',
+                          color: 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontWeight: '600',
+                          fontSize: '0.875rem'
+                        }}>
+                          {lesson.order || index + 1}
+                        </div>
+                        <div>
+                          <h4 style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+                            {lesson.title}
+                          </h4>
+                          <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                            {lesson.duration} min
+                            {lesson.videoUrl && ' • Video'}
+                            {lesson.pdfUrl && ' • PDF'}
+                          </p>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                          onClick={() => startEditLesson(lesson)}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            background: '#7c3aed',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.875rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteLesson(lesson.id)}
+                          style={{
+                            padding: '0.5rem 1rem',
+                            background: '#fee2e2',
+                            color: '#dc2626',
+                            border: 'none',
+                            borderRadius: '0.375rem',
+                            fontSize: '0.875rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
