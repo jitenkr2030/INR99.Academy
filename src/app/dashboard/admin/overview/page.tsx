@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation'
+import { auth } from '@/auth'
 import DashboardLayout from '@/components/DashboardLayout'
 
 // Mock admin data
@@ -17,14 +19,18 @@ const recentActivity = [
   { type: 'user', action: 'New instructor joined', user: 'Prof. Wilson', time: '2 hours ago' }
 ]
 
-export default function AdminOverview() {
-  const profile = {
-    name: 'Demo Admin',
-    email: 'admin@inr99.com'
+export default async function AdminOverview() {
+  const session = await auth()
+  
+  if (!session?.user) {
+    redirect('/auth/login')
   }
 
+  const userName = session.user.name || 'Admin'
+  const userEmail = session.user.email || ''
+
   return (
-    <DashboardLayout userRole="admin" userInfo={profile}>
+    <DashboardLayout userRole="admin" userInfo={{ name: userName, email: userEmail }}>
       <div>
         {/* Welcome Section */}
         <div style={{ 

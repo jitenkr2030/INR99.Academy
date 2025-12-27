@@ -112,7 +112,7 @@ export default function DashboardLayout({ children, userRole, userInfo }: Dashbo
             </div>
 
             {/* Logout */}
-            <a href="/" style={{ 
+            <a href="/api/auth/signout" style={{ 
               padding: '0.5rem 1rem', 
               borderRadius: '0.5rem', 
               border: '1px solid #d1d5db', 
