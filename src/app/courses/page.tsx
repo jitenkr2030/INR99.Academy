@@ -4,110 +4,79 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { NewNavigation } from '@/components/new-navigation'
 
-// Demo courses data
-const demoCourses = [
-  {
-    id: '1',
-    title: 'Complete React Development',
-    description: 'Master React from scratch with hands-on projects',
-    instructor: 'John Doe',
-    difficulty: 'BEGINNER',
-    duration: '20 hours',
-    lessonCount: 45,
-    color: '#dbeafe'
-  },
-  {
-    id: '2',
-    title: 'Advanced JavaScript Patterns',
-    description: 'Learn advanced JS concepts and design patterns',
-    instructor: 'Jane Smith',
-    difficulty: 'ADVANCED',
-    duration: '15 hours',
-    lessonCount: 32,
-    color: '#f3e8ff'
-  },
-  {
-    id: '3',
-    title: 'Python for Data Science',
-    description: 'Start your data science journey with Python',
-    instructor: 'Bob Wilson',
-    difficulty: 'INTERMEDIATE',
-    duration: '25 hours',
-    lessonCount: 50,
-    color: '#dcfce7'
-  },
-  {
-    id: '4',
-    title: 'Web Development Basics',
-    description: 'Learn HTML, CSS, and JavaScript fundamentals',
-    instructor: 'Alice Brown',
-    difficulty: 'BEGINNER',
-    duration: '18 hours',
-    lessonCount: 40,
-    color: '#fef3c7'
-  },
-  {
-    id: '5',
-    title: 'Node.js Backend Development',
-    description: 'Build scalable backend services with Node.js',
-    instructor: 'Charlie Davis',
-    difficulty: 'INTERMEDIATE',
-    duration: '22 hours',
-    lessonCount: 38,
-    color: '#fee2e2'
-  },
-  {
-    id: '6',
-    title: 'UI/UX Design Fundamentals',
-    description: 'Create beautiful and user-friendly interfaces',
-    instructor: 'Diana Lee',
-    difficulty: 'BEGINNER',
-    duration: '16 hours',
-    lessonCount: 28,
-    color: '#e0e7ff'
+interface Course {
+  id: string
+  title: string
+  description: string
+  thumbnail?: string
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+  duration: number
+  instructor?: {
+    id: string
+    name: string
+    avatar?: string
+    expertise?: string
   }
-]
+  learningPath?: {
+    id: string
+    title: string
+    color: string
+    icon?: string
+  }
+  lessonCount: number
+  assessmentCount: number
+}
 
-const demoLearningPaths = [
-  {
-    id: 'school',
-    title: 'School Learning',
-    description: 'Class 1-12 with all boards',
-    courseCount: 150,
-    color: '#dbeafe'
-  },
-  {
-    id: 'college',
-    title: 'College Foundation',
-    description: 'UG degrees preparation',
-    courseCount: 80,
-    color: '#f3e8ff'
-  },
-  {
-    id: 'career',
-    title: 'Career Skills',
-    description: 'Professional development',
-    courseCount: 100,
-    color: '#dcfce7'
-  },
-  {
-    id: 'business',
-    title: 'Money & Business',
-    description: 'Financial literacy',
-    courseCount: 60,
-    color: '#fef3c7'
-  }
-]
+interface LearningPath {
+  id: string
+  title: string
+  description: string
+  courseCount: number
+  color: string
+}
 
 export default function CoursesPage() {
   const [mounted, setMounted] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [activeTab, setActiveTab] = useState<'courses' | 'paths'>('courses')
+  const [courses, setCourses] = useState<Course[]>([])
+  const [learningPaths, setLearningPaths] = useState<LearningPath[]>([])
+  const [loading, setLoading] = useState(true)
+  const [totalCourses, setTotalCourses] = useState(0)
 
   useEffect(() => {
     setMounted(true)
+    fetchData()
   }, [])
+
+  const fetchData = async () => {
+    try {
+      // Fetch courses from API
+      const coursesRes = await fetch('/api/courses')
+      const coursesData = await coursesRes.json()
+      
+      if (coursesData.success) {
+        setCourses(coursesData.courses)
+        setTotalCourses(coursesData.pagination?.total || coursesData.courses.length)
+      }
+
+      // Fetch learning paths
+      const pathsRes = await fetch('/api/learning-paths')
+      const pathsData = await pathsRes.json()
+      
+      if (pathsData.success) {
+        setLearningPaths(pathsData.learningPaths || [])
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error)
+      // Set empty arrays on error - page will show empty state
+      setCourses([])
+      setLearningPaths([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   if (!mounted) {
     return (
@@ -117,13 +86,15 @@ export default function CoursesPage() {
     )
   }
 
-  const filteredCourses = demoCourses.filter(course =>
+  const filteredCourses = courses.filter(course =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+    (course.instructor?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false)
+  ).filter(course =>
+    !selectedDifficulty || course.difficulty === selectedDifficulty
   )
 
-  const filteredPaths = demoLearningPaths.filter(path =>
+  const filteredPaths = learningPaths.filter(path =>
     path.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     path.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -135,6 +106,29 @@ export default function CoursesPage() {
       case 'ADVANCED': return { bg: '#fee2e2', text: '#dc2626' }
       default: return { bg: '#f3f4f6', text: '#6b7280' }
     }
+  }
+
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) return `${minutes} min`
+    const hours = Math.floor(minutes / 60)
+    const remainingMinutes = minutes % 60
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`
+  }
+
+  if (loading) {
+    return (
+      <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+        <NewNavigation />
+        <div style={{ paddingTop: '64px', minHeight: '100vh', background: '#f9fafb' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+              <p style={{ marginTop: '1rem', color: '#6b7280' }}>Loading courses...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -291,22 +285,159 @@ export default function CoursesPage() {
 
           {/* Content */}
           {activeTab === 'courses' ? (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: '1.5rem'
-            }}>
-              {filteredCourses.map((course) => {
-                const diffColors = getDifficultyColor(course.difficulty)
-                return (
+            filteredCourses.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
+                <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>No courses found matching your criteria.</p>
+                <p style={{ color: '#9ca3af', marginTop: '0.5rem' }}>Try adjusting your search or filters.</p>
+              </div>
+            ) : (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                gap: '1.5rem'
+              }}>
+                {filteredCourses.map((course) => {
+                  const diffColors = getDifficultyColor(course.difficulty)
+                  return (
+                    <div
+                      key={course.id}
+                      style={{
+                        background: 'white',
+                        borderRadius: '0.75rem',
+                        overflow: 'hidden',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        transition: 'transform 0.2s, box-shadow 0.2s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)'
+                        e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      {/* Thumbnail */}
+                      <div style={{
+                        aspectRatio: '16/9',
+                        background: course.learningPath?.color || '#dbeafe',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '3rem'
+                      }}>
+                        {course.thumbnail ? (
+                          <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <span style={{ fontSize: '4rem' }}>📚</span>
+                        )}
+                      </div>
+                      
+                      {/* Content */}
+                      <div style={{ padding: '1.25rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                          {course.learningPath && (
+                            <span style={{
+                              background: course.learningPath.color || '#e0e7ff',
+                              color: 'white',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '9999px',
+                              fontSize: '0.75rem',
+                              fontWeight: '500'
+                            }}>
+                              {course.learningPath.title}
+                            </span>
+                          )}
+                          <span style={{
+                            background: diffColors.bg,
+                            color: diffColors.text,
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '9999px',
+                            fontSize: '0.75rem',
+                            fontWeight: '500'
+                          }}>
+                            {course.difficulty}
+                          </span>
+                        </div>
+                        
+                        <h3 style={{
+                          fontSize: '1.125rem',
+                          fontWeight: '600',
+                          color: '#111827',
+                          marginBottom: '0.5rem'
+                        }}>
+                          {course.title}
+                        </h3>
+                        
+                        <p style={{
+                          color: '#6b7280',
+                          fontSize: '0.875rem',
+                          marginBottom: '1rem',
+                          lineHeight: '1.5',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>
+                          {course.description}
+                        </p>
+                        
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          paddingTop: '1rem',
+                          borderTop: '1px solid #f3f4f6'
+                        }}>
+                          <div>
+                            <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                              By {course.instructor?.name || 'Unknown Instructor'}
+                            </p>
+                            <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                              {formatDuration(course.duration)} • {course.lessonCount} lessons
+                            </p>
+                          </div>
+                          <Link href={`/courses/${course.id}`} style={{
+                            display: 'inline-block',
+                            background: '#ea580c',
+                            color: 'white',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '0.375rem',
+                            textDecoration: 'none',
+                            fontWeight: '600',
+                            fontSize: '0.875rem'
+                          }}>
+                            View Course
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          ) : (
+            filteredPaths.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
+                <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>No learning paths found.</p>
+              </div>
+            ) : (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: '1.5rem'
+              }}>
+                {filteredPaths.map((path) => (
                   <div
-                    key={course.id}
+                    key={path.id}
                     style={{
                       background: 'white',
                       borderRadius: '0.75rem',
-                      overflow: 'hidden',
+                      padding: '2rem',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                      transition: 'transform 0.2s, box-shadow 0.2s'
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                      cursor: 'pointer'
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.transform = 'translateY(-4px)'
@@ -317,161 +448,58 @@ export default function CoursesPage() {
                       e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
                     }}
                   >
-                    {/* Thumbnail */}
                     <div style={{
-                      aspectRatio: '16/9',
-                      background: course.color,
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '0.75rem',
+                      background: path.color,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '3rem'
+                      fontSize: '2rem',
+                      marginBottom: '1rem'
                     }}>
-                      📚
+                      {path.icon || '🎯'}
                     </div>
                     
-                    {/* Content */}
-                    <div style={{ padding: '1.25rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                        <span style={{
-                          background: diffColors.bg,
-                          color: diffColors.text,
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '9999px',
-                          fontSize: '0.75rem',
-                          fontWeight: '500'
-                        }}>
-                          {course.difficulty}
-                        </span>
-                      </div>
-                      
-                      <h3 style={{
-                        fontSize: '1.125rem',
+                    <h3 style={{
+                      fontSize: '1.25rem',
+                      fontWeight: '600',
+                      color: '#111827',
+                      marginBottom: '0.5rem'
+                    }}>
+                      {path.title}
+                    </h3>
+                    
+                    <p style={{
+                      color: '#6b7280',
+                      fontSize: '0.875rem',
+                      marginBottom: '1rem'
+                    }}>
+                      {path.description}
+                    </p>
+                    
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                        {path.courseCount} courses
+                      </span>
+                      <Link href={`/learning-paths/${path.id}`} style={{
+                        color: '#ea580c',
+                        textDecoration: 'none',
                         fontWeight: '600',
-                        color: '#111827',
-                        marginBottom: '0.5rem'
+                        fontSize: '0.875rem'
                       }}>
-                        {course.title}
-                      </h3>
-                      
-                      <p style={{
-                        color: '#6b7280',
-                        fontSize: '0.875rem',
-                        marginBottom: '1rem',
-                        lineHeight: '1.5'
-                      }}>
-                        {course.description}
-                      </p>
-                      
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingTop: '1rem',
-                        borderTop: '1px solid #f3f4f6'
-                      }}>
-                        <div>
-                          <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                            By {course.instructor}
-                          </p>
-                          <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                            {course.duration} • {course.lessonCount} lessons
-                          </p>
-                        </div>
-                        <Link href={`/courses/${course.id}`} style={{
-                          display: 'inline-block',
-                          background: '#ea580c',
-                          color: 'white',
-                          padding: '0.5rem 1rem',
-                          borderRadius: '0.375rem',
-                          textDecoration: 'none',
-                          fontWeight: '600',
-                          fontSize: '0.875rem'
-                        }}>
-                          View Course
-                        </Link>
-                      </div>
+                        Explore →
+                      </Link>
                     </div>
                   </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '1.5rem'
-            }}>
-              {filteredPaths.map((path) => (
-                <div
-                  key={path.id}
-                  style={{
-                    background: 'white',
-                    borderRadius: '0.75rem',
-                    padding: '2rem',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                    transition: 'transform 0.2s, box-shadow 0.2s',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)'
-                    e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-                  }}
-                >
-                  <div style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '0.75rem',
-                    background: path.color,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '2rem',
-                    marginBottom: '1rem'
-                  }}>
-                    {path.id === 'school' ? '📚' : path.id === 'college' ? '🎓' : path.id === 'career' ? '💼' : '💰'}
-                  </div>
-                  
-                  <h3 style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '600',
-                    color: '#111827',
-                    marginBottom: '0.5rem'
-                  }}>
-                    {path.title}
-                  </h3>
-                  
-                  <p style={{
-                    color: '#6b7280',
-                    fontSize: '0.875rem',
-                    marginBottom: '1rem'
-                  }}>
-                    {path.description}
-                  </p>
-                  
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}>
-                    <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                      {path.courseCount} courses
-                    </span>
-                    <Link href={`/learning-paths/${path.id}`} style={{
-                      color: '#ea580c',
-                      textDecoration: 'none',
-                      fontWeight: '600',
-                      fontSize: '0.875rem'
-                    }}>
-                      Explore →
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )
           )}
         </div>
 
@@ -485,8 +513,8 @@ export default function CoursesPage() {
               textAlign: 'center'
             }}>
               {[
-                { icon: '📚', number: '150+', label: 'Expert Courses', color: '#ea580c' },
-                { icon: '🎯', number: '4', label: 'Learning Paths', color: '#16a34a' },
+                { icon: '📚', number: totalCourses.toString(), label: 'Expert Courses', color: '#ea580c' },
+                { icon: '🎯', number: learningPaths.length.toString(), label: 'Learning Paths', color: '#16a34a' },
                 { icon: '⏱️', number: '500+', label: 'Video Lessons', color: '#2563eb' },
                 { icon: '👨‍🏫', number: '50+', label: 'Expert Instructors', color: '#9333ea' }
               ].map((stat, index) => (
