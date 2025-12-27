@@ -286,9 +286,21 @@ export async function GET(request: NextRequest) {
           // Fallback to sample data
           const samplePath = sampleLearningPaths.find(p => p.id === pathId)
           if (samplePath) {
+            // Transform sample path to match expected format
+            const fullPath = {
+              ...samplePath,
+              isActive: true,
+              sortOrder: 0,
+              courses: samplePath.previewCourses.map(course => ({
+                ...course,
+                isActive: true,
+                thumbnail: null,
+                _count: { lessons: course.lessonCount || 0 }
+              }))
+            }
             return NextResponse.json({
               success: true,
-              learningPaths: [samplePath]
+              learningPath: fullPath
             })
           }
           return NextResponse.json(
@@ -371,10 +383,54 @@ export async function GET(request: NextRequest) {
       if (learningPathsData.length === 0 || useDemo) {
         learningPathsData = sampleLearningPaths
       }
+
+      // If specific pathId was requested but not found in DB, try sample data
+      if (pathId && learningPathsData.length === 1 && !learningPathsData[0].courses) {
+        const samplePath = sampleLearningPaths.find(p => p.id === pathId)
+        if (samplePath) {
+          const fullPath = {
+            ...samplePath,
+            isActive: true,
+            sortOrder: 0,
+            courses: samplePath.previewCourses.map(course => ({
+              ...course,
+              isActive: true,
+              thumbnail: null,
+              _count: { lessons: course.lessonCount || 0 }
+            }))
+          }
+          return NextResponse.json({
+            success: true,
+            learningPath: fullPath
+          })
+        }
+      }
     } catch (dbError) {
       // If database import or query fails, use sample data
       console.log('Database not available, using sample learning paths')
       learningPathsData = sampleLearningPaths
+
+      // If specific pathId was requested, return just that path
+      if (pathId) {
+        const samplePath = sampleLearningPaths.find(p => p.id === pathId)
+        if (samplePath) {
+          const fullPath = {
+            ...samplePath,
+            isActive: true,
+            sortOrder: 0,
+            courses: samplePath.previewCourses.map(course => ({
+              ...course,
+              isActive: true,
+              thumbnail: null,
+              _count: { lessons: course.lessonCount || 0 }
+            }))
+          }
+          return NextResponse.json({
+            success: true,
+            learningPath: fullPath
+          })
+        }
+      }
     }
 
     return NextResponse.json({
