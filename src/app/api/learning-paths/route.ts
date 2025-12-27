@@ -1,25 +1,95 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getLearningPaths, getCourses } from '@/lib/simple-db'
+import { db } from '@/lib/db'
 
+// GET /api/learning-paths - Get all learning paths
 export async function GET(request: NextRequest) {
   try {
-    // Get data from simple fallback database
-    const learningPaths = getLearningPaths().filter(path => path.isActive)
-    const courses = getCourses()
+    const { searchParams } = new URL(request.url)
+    const pathId = searchParams.get('id')
 
-    // Map learning paths with course counts and preview courses
+    if (pathId) {
+      // Get a specific learning path with its courses
+      const learningPath = await db.learningPath.findUnique({
+        where: { id: pathId },
+        include: {
+          courses: {
+            where: { isActive: true },
+            orderBy: { order: 'asc' },
+            include: {
+              instructor: {
+                select: {
+                  id: true,
+                  name: true,
+                  avatar: true
+                }
+              },
+              _count: {
+                select: {
+                  lessons: true
+                }
+              }
+            }
+          },
+          _count: {
+            select: {
+              courses: true
+            }
+          }
+        }
+      })
+
+      if (!learningPath) {
+        return NextResponse.json(
+          { success: false, message: 'Learning path not found' },
+          { status: 404 }
+        )
+      }
+
+      return NextResponse.json({
+        success: true,
+        learningPath: {
+          ...learningPath,
+          courseCount: learningPath.courses.length
+        }
+      })
+    }
+
+    // Get all learning paths with preview courses
+    const learningPaths = await db.learningPath.findMany({
+      where: { isActive: true },
+      orderBy: { sortOrder: 'asc' },
+      include: {
+        _count: {
+          select: {
+            courses: true
+          }
+        },
+        courses: {
+          where: { isActive: true },
+          orderBy: { order: 'asc' },
+          take: 3,
+          include: {
+            instructor: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true
+              }
+            },
+            _count: {
+              select: {
+                lessons: true
+              }
+            }
+          }
+        }
+      }
+    })
+
+    // Transform the response
     const learningPathsWithDetails = learningPaths.map(path => {
-      const pathCourses = courses.filter(course => 
-        course.learningPathId === path.id && course.isActive
-      )
-
-      const previewCourses = pathCourses.slice(0, 3).map(course => ({
-        id: course.id,
-        title: course.title,
-        difficulty: course.difficulty,
-        duration: course.duration,
-        thumbnail: course.thumbnail
-      }))
+      const totalDuration = path.courses.reduce((sum, course) => sum + course.duration, 0)
+      const totalLessons = path.courses.reduce((sum, course) => sum + course._count.lessons, 0)
 
       return {
         id: path.id,
@@ -27,8 +97,21 @@ export async function GET(request: NextRequest) {
         description: path.description,
         icon: path.icon,
         color: path.color,
-        courseCount: pathCourses.length,
-        previewCourses
+        sortOrder: path.sortOrder,
+        isActive: path.isActive,
+        courseCount: path._count.courses,
+        totalDuration,
+        totalLessons,
+        previewCourses: path.courses.map(course => ({
+          id: course.id,
+          title: course.title,
+          description: course.description,
+          difficulty: course.difficulty,
+          duration: course.duration,
+          thumbnail: course.thumbnail,
+          lessonCount: course._count.lessons,
+          instructor: course.instructor
+        }))
       }
     })
 
@@ -40,7 +123,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Get learning paths error:', error)
     return NextResponse.json(
-      { success: false, message: 'Internal server error', error: error.message },
+      { success: false, message: 'Internal server error' },
       { status: 500 }
     )
   }
