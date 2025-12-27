@@ -5,7 +5,8 @@ import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import DashboardLayout from '@/components/DashboardLayout'
+import { NewNavigation } from '@/components/new-navigation'
+import { Footer } from '@/components/footer'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,7 +17,8 @@ import {
   MessageCircle, 
   TrendingUp, 
   Clock,
-  Loader2
+  Loader2,
+  User
 } from "lucide-react"
 import {
   Dialog,
@@ -101,7 +103,7 @@ export default function CommunityPage() {
       const response = await fetch('/api/courses')
       const data = await response.json()
       
-      if (data.success && data.courses) {
+      if (data.courses) {
         setCourses(data.courses)
       }
     } catch (error) {
@@ -110,15 +112,10 @@ export default function CommunityPage() {
   }
 
   const fetchDiscussions = async () => {
-    setLoading(true)
     try {
       const params = new URLSearchParams()
-      params.set('page', pagination.page.toString())
-      params.set('limit', '10')
-      
-      if (courseId) {
-        params.set('courseId', courseId)
-      }
+      params.set('page', String(pagination.page))
+      params.set('limit', String(pagination.limit))
       
       if (searchQuery) {
         params.set('search', searchQuery)
@@ -127,17 +124,21 @@ export default function CommunityPage() {
       if (selectedTag) {
         params.set('tag', selectedTag)
       }
+      
+      if (courseId) {
+        params.set('courseId', courseId)
+      }
 
       const response = await fetch(`/api/discussions?${params.toString()}`)
       const data = await response.json()
 
       if (data.success) {
-        setDiscussions(data.discussions)
+        setDiscussions(data.discussions || [])
         setTags(data.tags || [])
         setPagination(prev => ({
           ...prev,
-          total: data.pagination.total,
-          totalPages: data.pagination.totalPages
+          total: data.pagination?.total || 0,
+          totalPages: data.pagination?.totalPages || 1
         }))
       }
     } catch (error) {
@@ -220,19 +221,50 @@ export default function CommunityPage() {
     }
   }
 
-  return (
-    <DashboardLayout userRole="student" userInfo={{ name: userName, email: userEmail }}>
-      <div>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Community Discussions
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Connect with other learners, ask questions, and share knowledge
-            </p>
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <NewNavigation />
+        <div className="pt-24 container mx-auto px-4">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center">
+              <Loader2 className="h-8 w-8 animate-spin mx-auto text-orange-500" />
+              <p className="mt-4 text-gray-600">Loading discussions...</p>
+            </div>
           </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <NewNavigation />
+      
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl font-bold mb-4">Community Discussions</h1>
+          <p className="text-xl max-w-2xl mx-auto">
+            Connect with other learners, ask questions, and share knowledge
+          </p>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Search and Actions */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Input
+              placeholder="Search discussions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger asChild>
               <Button className="bg-orange-500 hover:bg-orange-600">
@@ -247,50 +279,54 @@ export default function CommunityPage() {
                   Share your question or topic with the community
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4">
+              
+              <div className="space-y-4 mt-4">
                 <div>
                   <Label htmlFor="title">Title *</Label>
                   <Input
                     id="title"
                     placeholder="What's your question or topic?"
                     value={newDiscussion.title}
-                    onChange={(e) => setNewDiscussion({ ...newDiscussion, title: e.target.value })}
+                    onChange={(e) => setNewDiscussion(prev => ({ ...prev, title: e.target.value }))}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="course">Course *</Label>
-                  <Select
-                    value={newDiscussion.courseId}
-                    onValueChange={(value) => setNewDiscussion({ ...newDiscussion, courseId: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a course" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {courses.map((course) => (
-                        <SelectItem key={course.id} value={course.id}>
-                          {course.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                
                 <div>
                   <Label htmlFor="content">Content *</Label>
                   <Textarea
                     id="content"
-                    placeholder="Describe your question or topic in detail..."
+                    placeholder="Provide details about your question or topic..."
                     rows={5}
                     value={newDiscussion.content}
-                    onChange={(e) => setNewDiscussion({ ...newDiscussion, content: e.target.value })}
+                    onChange={(e) => setNewDiscussion(prev => ({ ...prev, content: e.target.value }))}
                   />
                 </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="difficulty">Difficulty Level</Label>
+                    <Label htmlFor="course">Course</Label>
+                    <Select
+                      value={newDiscussion.courseId}
+                      onValueChange={(value) => setNewDiscussion(prev => ({ ...prev, courseId: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a course" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {courses.map((course: any) => (
+                          <SelectItem key={course.id} value={course.id}>
+                            {course.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="difficulty">Difficulty</Label>
                     <Select
                       value={newDiscussion.difficultyLevel}
-                      onValueChange={(value) => setNewDiscussion({ ...newDiscussion, difficultyLevel: value })}
+                      onValueChange={(value) => setNewDiscussion(prev => ({ ...prev, difficultyLevel: value }))}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -302,46 +338,35 @@ export default function CommunityPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Select
-                      value={newDiscussion.subjectCategory}
-                      onValueChange={(value) => setNewDiscussion({ ...newDiscussion, subjectCategory: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="General">General</SelectItem>
-                        <SelectItem value="Web Development">Web Development</SelectItem>
-                        <SelectItem value="Programming">Programming</SelectItem>
-                        <SelectItem value="Data Science">Data Science</SelectItem>
-                        <SelectItem value="Design">Design</SelectItem>
-                        <SelectItem value="Finance">Finance</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
+                
                 <div>
-                  <Label htmlFor="tags">Tags (comma separated)</Label>
+                  <Label htmlFor="tags">Tags (comma-separated)</Label>
                   <Input
                     id="tags"
-                    placeholder="react, hooks, state"
+                    placeholder="e.g., javascript, react, beginner"
                     value={newDiscussion.tags}
-                    onChange={(e) => setNewDiscussion({ ...newDiscussion, tags: e.target.value })}
+                    onChange={(e) => setNewDiscussion(prev => ({ ...prev, tags: e.target.value }))}
                   />
                 </div>
-                <div className="flex justify-end gap-4 pt-4">
+                
+                <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
                     Cancel
                   </Button>
                   <Button 
-                    className="bg-orange-500 hover:bg-orange-600"
-                    onClick={handleCreateDiscussion}
+                    onClick={handleCreateDiscussion} 
                     disabled={creating}
+                    className="bg-orange-500 hover:bg-orange-600"
                   >
-                    {creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    Create Discussion
+                    {creating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      'Create Discussion'
+                    )}
                   </Button>
                 </div>
               </div>
@@ -349,256 +374,162 @@ export default function CommunityPage() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-3">
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-orange-100 rounded-lg">
-                      <MessageCircle className="h-5 w-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold">{pagination.total}</div>
-                      <div className="text-sm text-gray-600">Total Discussions</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-green-100 rounded-lg">
-                      <TrendingUp className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold">{tags.length}</div>
-                      <div className="text-sm text-gray-600">Unique Tags</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-100 rounded-lg">
-                      <Clock className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <div className="text-xl font-bold">{pagination.totalPages}</div>
-                      <div className="text-sm text-gray-600">Pages</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Search and Filters */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search discussions..."
-                  className="pl-10"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant={selectedTag === null ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setSelectedTag(null)
-                    fetchDiscussions()
-                  }}
-                >
-                  All
-                </Button>
-                {tags.slice(0, 5).map((tag) => (
-                  <Button
-                    key={tag}
-                    variant={selectedTag === tag ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      setSelectedTag(tag)
-                      fetchDiscussions()
-                    }}
-                  >
-                    {tag}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {/* Discussions List */}
-            {loading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-              </div>
-            ) : discussions.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <MessageCircle className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No discussions found</h3>
-                  <p className="text-gray-600 mb-4">
-                    {searchQuery ? 'Try adjusting your search terms' : 'Be the first to start a discussion!'}
-                  </p>
-                  <Button 
-                    className="bg-orange-500 hover:bg-orange-600"
-                    onClick={() => setShowCreateDialog(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Start a Discussion
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {discussions.map((discussion) => (
-                  <Card key={discussion.id} className="hover:shadow-md transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-orange-100 text-orange-700 font-semibold flex-shrink-0">
-                          {discussion.user.name?.charAt(0) || '?'}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                {discussion.isPinned && (
-                                  <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full font-medium">
-                                    📌 PINNED
-                                  </span>
-                                )}
-                                <h3 className="text-lg font-semibold text-gray-900 hover:text-orange-600">
-                                  <Link href={`/community/${discussion.id}`}>
-                                    {discussion.title}
-                                  </Link>
-                                </h3>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-2 mb-3">
-                                {discussion.difficultyLevel && (
-                                  <Badge className={getDifficultyColor(discussion.difficultyLevel)}>
-                                    {discussion.difficultyLevel}
-                                  </Badge>
-                                )}
-                                {discussion.tags?.slice(0, 3).map((tag, index) => (
-                                  <Badge key={index} variant="outline" className="text-xs">
-                                    #{tag}
-                                  </Badge>
-                                ))}
-                              </div>
-                              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                <span>{discussion.user.name}</span>
-                                <span>📚 {discussion.course.title}</span>
-                                <span>{formatDate(discussion.createdAt)}</span>
-                              </div>
-                            </div>
-                            <Link href={`/community/${discussion.id}`}>
-                              <Button variant="ghost" size="sm">
-                                View →
-                              </Button>
-                            </Link>
-                          </div>
-                          <p className="text-gray-600 line-clamp-2 mb-4">
-                            {discussion.content.length > 200 
-                              ? discussion.content.substring(0, 200) + '...' 
-                              : discussion.content}
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                              <span>💬 {discussion._count.replies} replies</span>
-                              {discussion.viewCount && (
-                                <span>👁️ {discussion.viewCount} views</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-
-                {/* Pagination */}
-                {pagination.totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-2 mt-8">
-                    <Button
-                      variant="outline"
-                      disabled={pagination.page === 1}
-                      onClick={() => {
-                        setPagination(prev => ({ ...prev, page: prev.page - 1 }))
-                        fetchDiscussions()
-                      }}
-                    >
-                      Previous
-                    </Button>
-                    <span className="text-gray-600">
-                      Page {pagination.page} of {pagination.totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      disabled={pagination.page === pagination.totalPages}
-                      onClick={() => {
-                        setPagination(prev => ({ ...prev, page: prev.page + 1 }))
-                        fetchDiscussions()
-                      }}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Popular Tags */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Popular Tags</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant={selectedTag === tag ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setSelectedTag(selectedTag === tag ? null : tag)
-                        fetchDiscussions()
-                      }}
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-orange-100 rounded-lg">
+                  <MessageCircle className="h-6 w-6 text-orange-600" />
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Community Stats</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Total Discussions</span>
-                  <span className="font-semibold">{pagination.total}</span>
+                <div>
+                  <p className="text-2xl font-bold">{pagination.total}</p>
+                  <p className="text-gray-600">Total Discussions</p>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Active Tags</span>
-                  <span className="font-semibold">{tags.length}</span>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-blue-600" />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                <div>
+                  <p className="text-2xl font-bold">{tags.length}</p>
+                  <p className="text-gray-600">Active Tags</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <User className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{discussions.filter(d => d._count.replies > 0).length}</p>
+                  <p className="text-gray-600">Active Discussions</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Discussions List */}
+        <div className="space-y-6">
+          {discussions.length === 0 ? (
+            <Card className="text-center py-12">
+              <CardContent>
+                <MessageCircle className="h-12 w-12 mx-auto text-gray-300 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No discussions found</h3>
+                <p className="text-gray-600 mb-4">Be the first to start a discussion!</p>
+                <Button 
+                  onClick={() => setShowCreateDialog(true)}
+                  className="bg-orange-500 hover:bg-orange-600"
+                >
+                  Start a Discussion
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            discussions.map((discussion) => (
+              <Card key={discussion.id} className="hover:shadow-md transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                        <span className="text-orange-600 font-medium">
+                          {discussion.user?.name?.charAt(0) || 'U'}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <Link 
+                            href={`/community/${discussion.id}`}
+                            className="text-lg font-semibold hover:text-orange-500 transition-colors"
+                          >
+                            {discussion.title}
+                          </Link>
+                          <p className="text-gray-600 mt-1 line-clamp-2">
+                            {discussion.content.substring(0, 150)}...
+                          </p>
+                        </div>
+                        
+                        {discussion.isPinned && (
+                          <Badge className="bg-orange-100 text-orange-700 flex-shrink-0">
+                            📌 Pinned
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                        <span>{discussion.user?.name || 'Unknown User'}</span>
+                        <span>•</span>
+                        <span>{formatDate(discussion.createdAt)}</span>
+                        {discussion.course && (
+                          <>
+                            <span>•</span>
+                            <span>{discussion.course.title}</span>
+                          </>
+                        )}
+                        <span>•</span>
+                        <span>{discussion._count?.replies || 0} replies</span>
+                      </div>
+                      
+                      {(discussion.tags && discussion.tags.length > 0) && (
+                        <div className="flex gap-2 mt-3">
+                          {discussion.tags.slice(0, 3).map((tag, index) => (
+                            <Badge 
+                              key={index} 
+                              variant="secondary"
+                              className="cursor-pointer hover:bg-orange-100"
+                              onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                            >
+                              #{tag}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+
+        {/* Popular Tags */}
+        {tags.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-6">Popular Tags</h2>
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag, index) => (
+                <Badge 
+                  key={index}
+                  variant="outline"
+                  className={`cursor-pointer px-3 py-1 ${
+                    selectedTag === tag 
+                      ? 'bg-orange-100 border-orange-300 text-orange-700' 
+                      : 'hover:bg-gray-100'
+                  }`}
+                  onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                >
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-    </DashboardLayout>
+
+      <Footer />
+    </div>
   )
 }

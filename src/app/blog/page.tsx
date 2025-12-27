@@ -1,4 +1,4 @@
-import { Navigation } from "@/components/navigation"
+import { NewNavigation } from "@/components/new-navigation"
 import { Footer } from "@/components/footer"
 
 export default function BlogPage() {
@@ -61,7 +61,7 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
+      <NewNavigation />
       
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-16">
