@@ -1,5 +1,4 @@
 import { NewNavigation } from "@/components/new-navigation"
-import { Footer } from "@/components/footer"
 
 export default function PrivacyPage() {
   return (
@@ -121,8 +120,6 @@ export default function PrivacyPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

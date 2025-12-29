@@ -1,5 +1,4 @@
 import { NewNavigation } from "@/components/new-navigation"
-import { Footer } from "@/components/footer"
 
 export default function FAQPage() {
   const faqs = [
@@ -88,8 +87,6 @@ export default function FAQPage() {
           </a>
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

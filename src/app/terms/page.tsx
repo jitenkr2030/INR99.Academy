@@ -1,5 +1,4 @@
 import { NewNavigation } from "@/components/new-navigation"
-import { Footer } from "@/components/footer"
 
 export default function TermsPage() {
   return (
@@ -104,8 +103,6 @@ export default function TermsPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

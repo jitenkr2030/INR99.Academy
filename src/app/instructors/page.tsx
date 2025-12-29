@@ -1,5 +1,4 @@
 import { NewNavigation } from "@/components/new-navigation"
-import { Footer } from "@/components/footer"
 
 export default function InstructorsPage() {
   return (
@@ -70,8 +69,6 @@ export default function InstructorsPage() {
           ))}
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

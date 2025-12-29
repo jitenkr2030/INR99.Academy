@@ -1,5 +1,4 @@
 import { NewNavigation } from "@/components/new-navigation"
-import { Footer } from "@/components/footer"
 
 export default function ContactPage() {
   return (
@@ -145,8 +144,6 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

@@ -1,5 +1,4 @@
 import { NewNavigation } from "@/components/new-navigation"
-import { Footer } from "@/components/footer"
 
 export default function CareersPage() {
   const positions = [
@@ -120,8 +119,6 @@ export default function CareersPage() {
           </a>
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }

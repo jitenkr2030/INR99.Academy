@@ -1,5 +1,4 @@
 import { NewNavigation } from "@/components/new-navigation"
-import { Footer } from "@/components/footer"
 
 export default function BlogPage() {
   const articles = [
@@ -119,8 +118,6 @@ export default function BlogPage() {
           ))}
         </div>
       </div>
-
-      <Footer />
     </div>
   )
 }
