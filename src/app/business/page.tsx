@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +9,6 @@ import {
   BookOpen, 
   Users, 
   Clock, 
-  Star, 
   ChevronRight,
   TrendingUp,
   Building,
@@ -33,93 +32,34 @@ import {
   Scale
 } from 'lucide-react'
 import Link from 'next/link'
+import { courses, type Course } from '@/lib/course-data'
 
-interface LearningCategory {
-  id: string
-  name: string
-  slug: string
-  description: string
-  icon: string
-  color: string
-  learningPaths: LearningPath[]
-}
-
-interface LearningPath {
-  id: string
-  title: string
-  description: string
-  courseCount: number
-}
-
-const getCategoryIcon = (iconName: string) => {
-  const iconMap: Record<string, React.ReactNode> = {
-    'TrendingUp': <TrendingUp className="h-6 w-6" />,
-    'Building': <Building className="h-6 w-6" />,
-    'Calculator': <Calculator className="h-6 w-6" />,
-    'PiggyBank': <PiggyBank className="h-6 w-6" />,
-    'DollarSign': <DollarSign className="h-6 w-6" />,
-    'BarChart3': <BarChart3 className="h-6 w-6" />,
-    'Briefcase': <Briefcase className="h-6 w-6" />,
-    'Target': <Target className="h-6 w-6" />,
-    'Award': <Award className="h-6 w-6" />,
-    'Lightbulb': <Lightbulb className="h-6 w-6" />,
-    'Rocket': <Rocket className="h-6 w-6" />,
-    'Shield': <Shield className="h-6 w-6" />,
-    'CreditCard': <CreditCard className="h-6 w-6" />,
-    'Banknote': <Banknote className="h-6 w-6" />,
-    'PieChart': <PieChart className="h-6 w-6" />,
-    'TrendingDown': <TrendingDown className="h-6 w-6" />,
-    'ArrowUpRight': <ArrowUpRight className="h-6 w-6" />,
-    'Percent': <Percent className="h-6 w-6" />,
-    'FileText': <FileText className="h-6 w-6" />,
-    'Scale': <Scale className="h-6 w-6" />
-  }
-  return iconMap[iconName] || <BookOpen className="h-6 w-6" />
-}
-
-const getCategoryColor = (color: string) => {
-  const colorMap: Record<string, string> = {
-    'bg-green-100': 'border-green-200 bg-green-50',
-    'bg-blue-100': 'border-blue-200 bg-blue-50',
-    'bg-orange-100': 'border-orange-200 bg-orange-50',
-    'bg-purple-100': 'border-purple-200 bg-purple-50',
-    'bg-red-100': 'border-red-200 bg-red-50',
-    'bg-yellow-100': 'border-yellow-200 bg-yellow-50',
-    'bg-pink-100': 'border-pink-200 bg-pink-50',
-    'bg-indigo-100': 'border-indigo-200 bg-indigo-50',
-    'bg-teal-100': 'border-teal-200 bg-teal-50'
-  }
-  return colorMap[color] || 'border-gray-200 bg-gray-50'
+// Get business-related courses from static data
+const getBusinessCourses = (): Course[] => {
+  return courses.filter(course => 
+    course.isActive && (
+      course.category === 'business' || 
+      course.category === 'finance' ||
+      course.category === 'ecommerce'
+    )
+  )
 }
 
 export default function MoneyBusinessPage() {
-  const [categories, setCategories] = useState<LearningCategory[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading] = useState(false)
+  
+  const businessCourses = useMemo(() => getBusinessCourses(), [])
 
-  useEffect(() => {
-    fetchLearningCategories()
-  }, [])
-
-  const fetchLearningCategories = async () => {
-    try {
-      const response = await fetch('/api/learning-categories')
-      const data = await response.json()
-
-      if (data.success) {
-        setCategories(data.categories)
-      }
-    } catch (error) {
-      console.error('Error fetching learning categories:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const getMoneyBusinessCategories = () => {
-    return categories.filter(cat => cat.slug === 'money-finance-economics' || 
-                              cat.slug === 'business-commerce-entrepreneurship' ||
-                              cat.slug === 'ecommerce-online-business')
-  }
+  // Calculate stats from courses
+  const totalStudents = useMemo(() => 
+    businessCourses.reduce((sum, c) => sum + c.enrollmentCount, 0),
+    [businessCourses]
+  )
+  
+  const totalLessons = useMemo(() =>
+    businessCourses.reduce((sum, c) => sum + c.lessonCount, 0),
+    [businessCourses]
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-orange-50">
@@ -155,6 +95,71 @@ export default function MoneyBusinessPage() {
         </div>
       </section>
 
+      {/* Available Courses Section */}
+      {businessCourses.length > 0 && (
+        <section className="container mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Available Courses
+            </h2>
+            <p className="text-gray-600">
+              Start learning with our business and finance courses
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {businessCourses.map((course) => (
+              <Card key={course.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline">
+                      {course.category === 'business' ? 'Business' : 
+                       course.category === 'finance' ? 'Finance' : 'E-commerce'}
+                    </Badge>
+                    <Badge className={
+                      course.difficulty === 'beginner' ? 'bg-green-100 text-green-800' :
+                      course.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }>
+                      {course.difficulty}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-lg">
+                    {course.title}
+                  </CardTitle>
+                  <CardDescription>
+                    {course.tagline}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                    {course.description}
+                  </p>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <span>📚 {course.lessonCount} lessons</span>
+                    <span>⏱️ {Math.floor(course.totalDuration / 60)}h {course.totalDuration % 60}m</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm text-gray-500">By {course.instructor.name}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-green-600">
+                      {course.price === 0 ? 'FREE' : `₹${course.price}`}
+                    </span>
+                    <Link href={`/courses/${course.id}`}>
+                      <Button size="sm">
+                        Start Learning
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Main Categories */}
       <section className="container mx-auto px-4 py-12">
         <div className="text-center space-y-4 mb-12">
@@ -166,74 +171,7 @@ export default function MoneyBusinessPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {loading ? (
-            [...Array(3)].map((_, index) => (
-              <Card key={index} className="animate-pulse">
-                <CardHeader>
-                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="h-4 bg-gray-200 rounded"></div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            getMoneyBusinessCategories().map((category) => (
-              <Card key={category.id} className={`hover:shadow-lg transition-shadow ${getCategoryColor(category.color)}`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${category.color}`}>
-                      {getCategoryIcon(category.icon)}
-                    </div>
-                    <span className="text-xl">{category.name}</span>
-                  </CardTitle>
-                  <CardDescription>
-                    {category.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="space-y-2">
-                    {category.learningPaths.slice(0, 3).map((path) => (
-                      <div key={path.id} className="flex items-center justify-between p-2 bg-white rounded-lg">
-                        <span className="text-sm font-medium truncate">{path.title}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {path.courseCount} courses
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                  {category.learningPaths.length > 3 && (
-                    <p className="text-sm text-gray-500">
-                      +{category.learningPaths.length - 3} more learning paths
-                    </p>
-                  )}
-                  <Link href={`/categories/${category.slug}`}>
-                    <Button className="w-full mt-4">
-                      Explore Category
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-
         {/* Key Learning Areas */}
-        <div className="text-center space-y-4 mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">
-            What You'll Learn
-          </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Essential skills for financial success and business growth
-          </p>
-        </div>
-
         <Tabs defaultValue="personal-finance" className="space-y-8">
           <TabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
             <TabsTrigger value="personal-finance">Personal Finance</TabsTrigger>
@@ -244,18 +182,18 @@ export default function MoneyBusinessPage() {
           <TabsContent value="personal-finance" className="space-y-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { icon: <PiggyBank className="h-5 w-5" />, title: "Budgeting", desc: "Create and manage personal budgets" },
-                { icon: <CreditCard className="h-5 w-5" />, title: "Debt Management", desc: "Understand and control debt" },
-                { icon: <Shield className="h-5 w-5" />, title: "Insurance", desc: "Protect your financial future" },
-                { icon: <Banknote className="h-5 w-5" />, title: "Savings", desc: "Build emergency funds" },
-                { icon: <Percent className="h-5 w-5" />, title: "Tax Planning", desc: "Optimize your tax strategy" },
-                { icon: <FileText className="h-5 w-5" />, title: "Financial Goals", desc: "Set and achieve goals" },
-                { icon: <TrendingDown className="h-5 w-5" />, title: "Expense Tracking", desc: "Monitor spending habits" },
-                { icon: <PieChart className="h-5 w-5" />, title: "Net Worth", desc: "Calculate and grow net worth" }
+                { icon: <PiggyBank className="h-5 w-5" />, title: "Budgeting", desc: "Create and manage personal budgets", color: "bg-green-100" },
+                { icon: <CreditCard className="h-5 w-5" />, title: "Debt Management", desc: "Understand and control debt", color: "bg-red-100" },
+                { icon: <Shield className="h-5 w-5" />, title: "Insurance", desc: "Protect your financial future", color: "bg-blue-100" },
+                { icon: <Banknote className="h-5 w-5" />, title: "Savings", desc: "Build emergency funds", color: "bg-yellow-100" },
+                { icon: <Percent className="h-5 w-5" />, title: "Tax Planning", desc: "Optimize your tax strategy", color: "bg-purple-100" },
+                { icon: <FileText className="h-5 w-5" />, title: "Financial Goals", desc: "Set and achieve goals", color: "bg-pink-100" },
+                { icon: <TrendingDown className="h-5 w-5" />, title: "Expense Tracking", desc: "Monitor spending habits", color: "bg-orange-100" },
+                { icon: <PieChart className="h-5 w-5" />, title: "Net Worth", desc: "Calculate and grow net worth", color: "bg-indigo-100" }
               ].map((item, index) => (
-                <Card key={index} className="text-center">
+                <Card key={index} className="text-center hover:shadow-md transition-shadow">
                   <CardContent className="pt-6">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${item.color}`}>
                       {item.icon}
                     </div>
                     <h3 className="font-semibold mb-1">{item.title}</h3>
@@ -263,24 +201,33 @@ export default function MoneyBusinessPage() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+            
+            <div className="text-center">
+              <Link href="/courses?category=finance">
+                <Button size="lg">
+                  Explore Personal Finance Courses
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </TabsContent>
 
           <TabsContent value="investing" className="space-y-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { icon: <BarChart3 className="h-5 w-5" />, title: "Stocks", desc: "Learn stock market basics" },
-                { icon: <ArrowUpRight className="h-5 w-5" />, title: "Mutual Funds", desc: "Understand fund investments" },
-                { icon: <Building className="h-5 w-5" />, title: "Real Estate", desc: "Property investment basics" },
-                { icon: <TrendingUp className="h-5 w-5" />, title: "SIPs", desc: "Systematic investment plans" },
-                { icon: <DollarSign className="h-5 w-5" />, title: "Bonds", desc: "Fixed income securities" },
-                { icon: <Calculator className="h-5 w-5" />, title: "Risk Management", desc: "Assess investment risks" },
-                { icon: <Award className="h-5 w-5" />, title: "Portfolio", desc: "Build diverse portfolios" },
-                { icon: <Target className="h-5 w-5" />, title: "Goals", desc: "Goal-based investing" }
+                { icon: <BarChart3 className="h-5 w-5" />, title: "Stocks", desc: "Learn stock market basics", color: "bg-blue-100" },
+                { icon: <ArrowUpRight className="h-5 w-5" />, title: "Mutual Funds", desc: "Understand fund investments", color: "bg-green-100" },
+                { icon: <Building className="h-5 w-5" />, title: "Real Estate", desc: "Property investment basics", color: "bg-orange-100" },
+                { icon: <TrendingUp className="h-5 w-5" />, title: "SIPs", desc: "Systematic investment plans", color: "bg-purple-100" },
+                { icon: <DollarSign className="h-5 w-5" />, title: "Bonds", desc: "Fixed income securities", color: "bg-yellow-100" },
+                { icon: <Calculator className="h-5 w-5" />, title: "Risk Management", desc: "Assess investment risks", color: "bg-red-100" },
+                { icon: <Award className="h-5 w-5" />, title: "Portfolio", desc: "Build diverse portfolios", color: "bg-indigo-100" },
+                { icon: <Target className="h-5 w-5" />, title: "Goals", desc: "Goal-based investing", color: "bg-pink-100" }
               ].map((item, index) => (
-                <Card key={index} className="text-center">
+                <Card key={index} className="text-center hover:shadow-md transition-shadow">
                   <CardContent className="pt-6">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${item.color}`}>
                       {item.icon}
                     </div>
                     <h3 className="font-semibold mb-1">{item.title}</h3>
@@ -288,24 +235,33 @@ export default function MoneyBusinessPage() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+            
+            <div className="text-center">
+              <Link href="/courses?category=finance">
+                <Button size="lg">
+                  Explore Investing Courses
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </TabsContent>
 
           <TabsContent value="business" className="space-y-6">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { icon: <Briefcase className="h-5 w-5" />, title: "Business Planning", desc: "Create business plans" },
-                { icon: <Scale className="h-5 w-5" />, title: "Legal Structure", desc: "Business entity types" },
-                { icon: <FileText className="h-5 w-5" />, title: "Accounting", desc: "Financial statements" },
-                { icon: <TrendingUp className="h-5 w-5" />, title: "Marketing", desc: "Business promotion" },
-                { icon: <Users className="h-5 w-5" />, title: "Sales", desc: "Revenue generation" },
-                { icon: <Lightbulb className="h-5 w-5" />, title: "Innovation", desc: "Business innovation" },
-                { icon: <Rocket className="h-5 w-5" />, title: "Growth", desc: "Scale your business" },
-                { icon: <Shield className="h-5 w-5" />, title: "Compliance", desc: "Legal requirements" }
+                { icon: <Briefcase className="h-5 w-5" />, title: "Business Planning", desc: "Create business plans", color: "bg-blue-100" },
+                { icon: <Scale className="h-5 w-5" />, title: "Legal Structure", desc: "Business entity types", color: "bg-purple-100" },
+                { icon: <FileText className="h-5 w-5" />, title: "Accounting", desc: "Financial statements", color: "bg-green-100" },
+                { icon: <TrendingUp className="h-5 w-5" />, title: "Marketing", desc: "Business promotion", color: "bg-orange-100" },
+                { icon: <Users className="h-5 w-5" />, title: "Sales", desc: "Revenue generation", color: "bg-red-100" },
+                { icon: <Lightbulb className="h-5 w-5" />, title: "Innovation", desc: "Business innovation", color: "bg-yellow-100" },
+                { icon: <Rocket className="h-5 w-5" />, title: "Growth", desc: "Scale your business", color: "bg-indigo-100" },
+                { icon: <Shield className="h-5 w-5" />, title: "Compliance", desc: "Legal requirements", color: "bg-pink-100" }
               ].map((item, index) => (
-                <Card key={index} className="text-center">
+                <Card key={index} className="text-center hover:shadow-md transition-shadow">
                   <CardContent className="pt-6">
-                    <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${item.color}`}>
                       {item.icon}
                     </div>
                     <h3 className="font-semibold mb-1">{item.title}</h3>
@@ -314,11 +270,20 @@ export default function MoneyBusinessPage() {
                 </Card>
               ))}
             </div>
+            
+            <div className="text-center">
+              <Link href="/courses?category=business">
+                <Button size="lg">
+                  Explore Business Courses
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </div>
           </TabsContent>
         </Tabs>
       </section>
 
-      {/* Success Metrics */}
+      {/* Stats Section */}
       <section className="bg-white py-16">
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-12">
@@ -333,30 +298,30 @@ export default function MoneyBusinessPage() {
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-green-600 mb-2">73%</div>
-                <h3 className="text-lg font-semibold mb-2">Better Financial Decisions</h3>
+                <div className="text-3xl font-bold text-green-600 mb-2">{businessCourses.length}+</div>
+                <h3 className="text-lg font-semibold mb-2">Financial Courses</h3>
                 <p className="text-gray-600 text-sm">
-                  Financially literate individuals make better money decisions
+                  Comprehensive courses covering all aspects of finance and business
                 </p>
               </CardContent>
             </Card>
             
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-blue-600 mb-2">2.5x</div>
-                <h3 className="text-lg font-semibold mb-2">Higher Savings Rate</h3>
+                <div className="text-3xl font-bold text-blue-600 mb-2">{totalLessons}+</div>
+                <h3 className="text-lg font-semibold mb-2">Video Lessons</h3>
                 <p className="text-gray-600 text-sm">
-                  Financial education leads to significantly higher savings
+                  Detailed lessons on finance, investing, and business topics
                 </p>
               </CardContent>
             </Card>
             
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-orange-600 mb-2">85%</div>
-                <h3 className="text-lg font-semibold mb-2">Reduced Financial Stress</h3>
+                <div className="text-3xl font-bold text-orange-600 mb-2">{(totalStudents / 1000).toFixed(0)}K+</div>
+                <h3 className="text-lg font-semibold mb-2">Students Learning</h3>
                 <p className="text-gray-600 text-sm">
-                  Less anxiety about money matters with proper knowledge
+                  Join thousands building their financial knowledge
                 </p>
               </CardContent>
             </Card>
@@ -399,9 +364,11 @@ export default function MoneyBusinessPage() {
                   Start Learning at ₹99/month
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-600 px-8 py-4">
-                Explore All Topics
-              </Button>
+              <Link href="/courses">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-600 px-8 py-4">
+                  Explore All Topics
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -1,109 +1,70 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { NewNavigation } from '@/components/new-navigation'
-
-interface Course {
-  id: string
-  title: string
-  description: string
-  thumbnail?: string
-  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
-  duration: number
-  instructor?: {
-    id: string
-    name: string
-    avatar?: string
-    expertise?: string
-  }
-  learningPath?: {
-    id: string
-    title: string
-    color: string
-    icon?: string
-  }
-  lessonCount: number
-  assessmentCount: number
-}
-
-interface LearningPath {
-  id: string
-  title: string
-  description: string
-  courseCount: number
-  color: string
-}
+import { 
+  courses, 
+  getCoursesByCategory, 
+  getAllCategories, 
+  getFeaturedCourses,
+  searchCourses,
+  type Course 
+} from '@/lib/course-data'
 
 export default function CoursesPage() {
-  const [mounted, setMounted] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [activeTab, setActiveTab] = useState<'courses' | 'paths'>('courses')
-  const [courses, setCourses] = useState<Course[]>([])
-  const [learningPaths, setLearningPaths] = useState<LearningPath[]>([])
-  const [loading, setLoading] = useState(true)
-  const [totalCourses, setTotalCourses] = useState(0)
+  const [selectedCategory, setSelectedCategory] = useState('')
 
-  useEffect(() => {
-    setMounted(true)
-    fetchData()
-  }, [])
+  const categories = getAllCategories()
+  
+  // Use static data - no loading state needed
+  const allCourses = useMemo(() => 
+    courses.filter(c => c.isActive), 
+    []
+  )
+  
+  const featuredCourses = useMemo(() => 
+    getFeaturedCourses(), 
+    []
+  )
 
-  const fetchData = async () => {
-    try {
-      // Fetch courses from API
-      const coursesRes = await fetch('/api/courses')
-      const coursesData = await coursesRes.json()
-      
-      if (coursesData.success) {
-        setCourses(coursesData.courses)
-        setTotalCourses(coursesData.pagination?.total || coursesData.courses.length)
-      }
+  const filteredCourses = useMemo(() => {
+    let result = allCourses
 
-      // Fetch learning paths
-      const pathsRes = await fetch('/api/learning-paths')
-      const pathsData = await pathsRes.json()
-      
-      if (pathsData.success) {
-        setLearningPaths(pathsData.learningPaths || [])
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error)
-      // Set empty arrays on error - page will show empty state
-      setCourses([])
-      setLearningPaths([])
-    } finally {
-      setLoading(false)
+    // Filter by search term
+    if (searchTerm) {
+      result = searchCourses(searchTerm)
     }
-  }
 
-  if (!mounted) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-        <div style={{ paddingTop: '64px' }}></div>
-      </div>
-    )
-  }
+    // Filter by difficulty
+    if (selectedDifficulty) {
+      const difficultyMap: Record<string, string[]> = {
+        'BEGINNER': ['beginner'],
+        'INTERMEDIATE': ['intermediate'],
+        'ADVANCED': ['advanced']
+      }
+      const targetDifficulties = difficultyMap[selectedDifficulty] || []
+      result = result.filter(course => 
+        targetDifficulties.includes(course.difficulty)
+      )
+    }
 
-  const filteredCourses = courses.filter(course =>
-    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (course.instructor?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || false)
-  ).filter(course =>
-    !selectedDifficulty || course.difficulty === selectedDifficulty
-  )
+    // Filter by category
+    if (selectedCategory) {
+      result = result.filter(course => course.category === selectedCategory)
+    }
 
-  const filteredPaths = learningPaths.filter(path =>
-    path.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    path.description.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+    return result
+  }, [allCourses, searchTerm, selectedDifficulty, selectedCategory])
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'BEGINNER': return { bg: '#dcfce7', text: '#16a34a' }
-      case 'INTERMEDIATE': return { bg: '#fef3c7', text: '#d97706' }
-      case 'ADVANCED': return { bg: '#fee2e2', text: '#dc2626' }
+      case 'beginner': return { bg: '#dcfce7', text: '#16a34a' }
+      case 'intermediate': return { bg: '#fef3c7', text: '#d97706' }
+      case 'advanced': return { bg: '#fee2e2', text: '#dc2626' }
       default: return { bg: '#f3f4f6', text: '#6b7280' }
     }
   }
@@ -115,21 +76,10 @@ export default function CoursesPage() {
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`
   }
 
-  if (loading) {
-    return (
-      <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-        <NewNavigation />
-        <div style={{ paddingTop: '64px', minHeight: '100vh', background: '#f9fafb' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-            <div style={{ textAlign: 'center' }}>
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
-              <p style={{ marginTop: '1rem', color: '#6b7280' }}>Loading courses...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // Calculate stats from actual data
+  const totalCourses = allCourses.length
+  const totalLessons = allCourses.reduce((sum, c) => sum + c.lessonCount, 0)
+  const uniqueInstructors = new Set(allCourses.map(c => c.instructor.id)).size
 
   return (
     <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -239,6 +189,27 @@ export default function CoursesPage() {
             </span>
             
             <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                border: '1px solid #d1d5db',
+                borderRadius: '0.375rem',
+                background: 'white',
+                cursor: 'pointer',
+                minWidth: '150px'
+              }}
+            >
+              <option value="">All Categories</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.icon} {cat.name}
+                </option>
+              ))}
+            </select>
+
+            <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
               style={{
@@ -256,11 +227,12 @@ export default function CoursesPage() {
               <option value="ADVANCED">Advanced</option>
             </select>
 
-            {(selectedDifficulty || searchTerm) && (
+            {(selectedDifficulty || searchTerm || selectedCategory) && (
               <button
                 onClick={() => {
                   setSelectedDifficulty('')
                   setSearchTerm('')
+                  setSelectedCategory('')
                 }}
                 style={{
                   padding: '0.5rem 1rem',
@@ -278,7 +250,7 @@ export default function CoursesPage() {
             <div style={{ marginLeft: 'auto', color: '#6b7280', fontSize: '0.875rem' }}>
               {activeTab === 'courses' 
                 ? `${filteredCourses.length} courses found`
-                : `${filteredPaths.length} learning paths found`
+                : `Featured courses available`
               }
             </div>
           </div>
@@ -298,6 +270,8 @@ export default function CoursesPage() {
               }}>
                 {filteredCourses.map((course) => {
                   const diffColors = getDifficultyColor(course.difficulty)
+                  const categoryInfo = categories.find(c => c.id === course.category)
+                  
                   return (
                     <div
                       key={course.id}
@@ -320,32 +294,47 @@ export default function CoursesPage() {
                       {/* Thumbnail */}
                       <div style={{
                         aspectRatio: '16/9',
-                        background: course.learningPath?.color || '#dbeafe',
+                        background: '#dbeafe',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '3rem'
+                        fontSize: '3rem',
+                        position: 'relative'
                       }}>
-                        {course.thumbnail ? (
+                        {course.thumbnail && course.thumbnail !== '/courses/python-masterclass/thumbnail.jpg' ? (
                           <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           <span style={{ fontSize: '4rem' }}>📚</span>
                         )}
+                        {/* Price Badge */}
+                        <div style={{
+                          position: 'absolute',
+                          top: '0.75rem',
+                          right: '0.75rem',
+                          background: course.price === 0 ? '#16a34a' : '#ea580c',
+                          color: 'white',
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.875rem',
+                          fontWeight: '600'
+                        }}>
+                          {course.price === 0 ? 'FREE' : `₹${course.price}`}
+                        </div>
                       </div>
                       
                       {/* Content */}
                       <div style={{ padding: '1.25rem' }}>
                         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                          {course.learningPath && (
+                          {categoryInfo && (
                             <span style={{
-                              background: course.learningPath.color || '#e0e7ff',
-                              color: 'white',
+                              background: '#e0e7ff',
+                              color: '#4f46e5',
                               padding: '0.25rem 0.5rem',
                               borderRadius: '9999px',
                               fontSize: '0.75rem',
                               fontWeight: '500'
                             }}>
-                              {course.learningPath.title}
+                              {categoryInfo.icon} {categoryInfo.name}
                             </span>
                           )}
                           <span style={{
@@ -356,7 +345,7 @@ export default function CoursesPage() {
                             fontSize: '0.75rem',
                             fontWeight: '500'
                           }}>
-                            {course.difficulty}
+                            {course.difficulty.charAt(0).toUpperCase() + course.difficulty.slice(1)}
                           </span>
                         </div>
                         
@@ -392,10 +381,10 @@ export default function CoursesPage() {
                         }}>
                           <div>
                             <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                              By {course.instructor?.name || 'Unknown Instructor'}
+                              By {course.instructor.name}
                             </p>
                             <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                              {formatDuration(course.duration)} • {course.lessonCount} lessons
+                              {formatDuration(course.totalDuration)} • {course.lessonCount} lessons
                             </p>
                           </div>
                           <Link href={`/courses/${course.id}`} style={{
@@ -418,88 +407,15 @@ export default function CoursesPage() {
               </div>
             )
           ) : (
-            filteredPaths.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
-                <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>No learning paths found.</p>
-              </div>
-            ) : (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '1.5rem'
-              }}>
-                {filteredPaths.map((path) => (
-                  <div
-                    key={path.id}
-                    style={{
-                      background: 'white',
-                      borderRadius: '0.75rem',
-                      padding: '2rem',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                      transition: 'transform 0.2s, box-shadow 0.2s',
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-4px)'
-                      e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)'
-                      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    <div style={{
-                      width: '64px',
-                      height: '64px',
-                      borderRadius: '0.75rem',
-                      background: path.color,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '2rem',
-                      marginBottom: '1rem'
-                    }}>
-                      {path.icon || '🎯'}
-                    </div>
-                    
-                    <h3 style={{
-                      fontSize: '1.25rem',
-                      fontWeight: '600',
-                      color: '#111827',
-                      marginBottom: '0.5rem'
-                    }}>
-                      {path.title}
-                    </h3>
-                    
-                    <p style={{
-                      color: '#6b7280',
-                      fontSize: '0.875rem',
-                      marginBottom: '1rem'
-                    }}>
-                      {path.description}
-                    </p>
-                    
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}>
-                      <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                        {path.courseCount} courses
-                      </span>
-                      <Link href={`/learning-paths/${path.id}`} style={{
-                        color: '#ea580c',
-                        textDecoration: 'none',
-                        fontWeight: '600',
-                        fontSize: '0.875rem'
-                      }}>
-                        Explore →
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )
+            <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎯</div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                Learning Paths Coming Soon
+              </h3>
+              <p style={{ color: '#6b7280' }}>
+                We're curating structured learning paths for you. In the meantime, explore our individual courses above!
+              </p>
+            </div>
           )}
         </div>
 
@@ -514,9 +430,9 @@ export default function CoursesPage() {
             }}>
               {[
                 { icon: '📚', number: totalCourses.toString(), label: 'Expert Courses', color: '#ea580c' },
-                { icon: '🎯', number: learningPaths.length.toString(), label: 'Learning Paths', color: '#16a34a' },
-                { icon: '⏱️', number: '500+', label: 'Video Lessons', color: '#2563eb' },
-                { icon: '👨‍🏫', number: '50+', label: 'Expert Instructors', color: '#9333ea' }
+                { icon: '🎯', number: '10+', label: 'Learning Categories', color: '#16a34a' },
+                { icon: '⏱️', number: `${totalLessons}+`, label: 'Video Lessons', color: '#2563eb' },
+                { icon: '👨‍🏫', number: uniqueInstructors.toString(), label: 'Expert Instructors', color: '#9333ea' }
               ].map((stat, index) => (
                 <div key={index}>
                   <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{stat.icon}</div>

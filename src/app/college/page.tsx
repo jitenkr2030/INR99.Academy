@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -9,19 +9,16 @@ import {
   BookOpen, 
   Users, 
   Clock, 
-  Star, 
   ChevronRight,
   GraduationCap,
   Briefcase,
   Calculator,
   Globe,
-  Palette,
-  Database,
-  Beaker,
   Building,
   TrendingUp
 } from 'lucide-react'
 import Link from 'next/link'
+import { courses, type Course } from '@/lib/course-data'
 
 interface CollegeDegree {
   id: string
@@ -29,15 +26,8 @@ interface CollegeDegree {
   shortCode: string
   level: string
   duration: number
-  subjects: CollegeSubject[]
-}
-
-interface CollegeSubject {
-  id: string
-  name: string
-  code?: string
-  semester?: number
-  courseCount: number
+  subjects: string[]
+  courses: Course[]
 }
 
 const getLevelIcon = (level: string) => {
@@ -45,7 +35,7 @@ const getLevelIcon = (level: string) => {
     case 'UNDERGRADUATE': return <GraduationCap className="h-5 w-5" />
     case 'POSTGRADUATE': return <BookOpen className="h-5 w-5" />
     case 'DIPLOMA': return <Briefcase className="h-5 w-5" />
-    case 'CERTIFICATE': return <Star className="h-5 w-5" />
+    case 'CERTIFICATE': return <GraduationCap className="h-5 w-5" />
     default: return <BookOpen className="h-5 w-5" />
   }
 }
@@ -53,13 +43,11 @@ const getLevelIcon = (level: string) => {
 const getSubjectIcon = (subjectName: string) => {
   const name = subjectName.toLowerCase()
   if (name.includes('account') || name.includes('finance') || name.includes('tax')) return <Calculator className="h-5 w-5" />
-  if (name.includes('programming') || name.includes('computer') || name.includes('data')) return <Database className="h-5 w-5" />
-  if (name.includes('physics') || name.includes('chemistry') || name.includes('biology')) return <Beaker className="h-5 w-5" />
+  if (name.includes('programming') || name.includes('computer') || name.includes('data')) return <Building className="h-5 w-5" />
+  if (name.includes('physics') || name.includes('chemistry') || name.includes('biology')) return <BookOpen className="h-5 w-5" />
   if (name.includes('business') || name.includes('management') || name.includes('marketing')) return <TrendingUp className="h-5 w-5" />
-  if (name.includes('engineering') || name.includes('mechanical') || name.includes('electrical')) return <Building className="h-5 w-5" />
   if (name.includes('english') || name.includes('communication')) return <Globe className="h-5 w-5" />
   if (name.includes('math') || name.includes('statistics')) return <Calculator className="h-5 w-5" />
-  if (name.includes('design') || name.includes('art')) return <Palette className="h-5 w-5" />
   return <BookOpen className="h-5 w-5" />
 }
 
@@ -83,47 +71,60 @@ const getLevelDescription = (level: string) => {
   }
 }
 
-export default function CollegeLearningPage() {
-  const [degrees, setDegrees] = useState<CollegeDegree[]>([])
-  const [loading, setLoading] = useState(true)
+// Get college courses from static data
+const getCollegeCourses = (): Course[] => {
+  return courses.filter(course => 
+    course.isActive && course.vertical === 'college'
+  )
+}
 
-  useEffect(() => {
-    fetchCollegeDegrees()
-  }, [])
-
-  const fetchCollegeDegrees = async () => {
-    try {
-      const response = await fetch('/api/college/degrees')
-      const data = await response.json()
-
-      if (data.success) {
-        setDegrees(data.degrees)
-      }
-    } catch (error) {
-      console.error('Error fetching college degrees:', error)
-    } finally {
-      setLoading(false)
-    }
+// Organize courses by degree level
+const organizeDegreesByLevel = (): Record<string, CollegeDegree[]> => {
+  const collegeCourses = getCollegeCourses()
+  
+  const organized: Record<string, CollegeDegree[]> = {
+    UNDERGRADUATE: [],
+    POSTGRADUATE: [],
+    DIPLOMA: [],
+    CERTIFICATE: []
   }
 
-  const groupDegreesByLevel = () => {
-    const grouped = {
-      UNDERGRADUATE: [],
-      POSTGRADUATE: [],
-      DIPLOMA: [],
-      CERTIFICATE: []
-    }
+  // Create degree structures based on available data
+  const degreeMapping: Record<string, { level: string; subjects: string[] }> = {
+    'bcom': { level: 'UNDERGRADUATE', subjects: ['Financial Accounting', 'Cost Accounting', 'Business Law', 'Economics', 'Income Tax'] },
+    'bba': { level: 'UNDERGRADUATE', subjects: ['Management Principles', 'Marketing', 'Finance', 'Operations', 'Human Resources'] },
+    'bca': { level: 'UNDERGRADUATE', subjects: ['Programming', 'Data Structures', 'Database', 'Web Development', 'Software Engineering'] },
+    'bsc-cs': { level: 'UNDERGRADUATE', subjects: ['Mathematics', 'Physics', 'Programming', 'Data Science', 'Algorithms'] },
+    'ba': { level: 'UNDERGRADUATE', subjects: ['English', 'History', 'Political Science', 'Economics', 'Sociology'] },
+    'mcom': { level: 'POSTGRADUATE', subjects: ['Advanced Accounting', 'Corporate Finance', 'Business Research', 'Economics', 'Taxation'] },
+    'mba': { level: 'POSTGRADUATE', subjects: ['Strategic Management', 'Finance', 'Marketing', 'Operations', 'Business Analytics'] },
+    'mca': { level: 'POSTGRADUATE', subjects: ['Advanced Programming', 'Cloud Computing', 'AI/ML', 'Software Architecture', 'DevOps'] },
+    'diploma-cs': { level: 'DIPLOMA', subjects: ['Programming Basics', 'Web Development', 'Database', 'Office Tools', 'Internet Basics'] },
+    'diploma-business': { level: 'DIPLOMA', subjects: ['Business Communication', 'Accounting', 'Marketing Basics', 'Entrepreneurship', 'MS Office'] },
+    'cert-accounting': { level: 'CERTIFICATE', subjects: ['Tally', 'GST Filing', 'Basic Accounting', 'Excel for Finance', 'Tax Basics'] },
+    'cert-digital-marketing': { level: 'CERTIFICATE', subjects: ['SEO', 'Social Media', 'Google Ads', 'Content Marketing', 'Analytics'] }
+  }
 
-    degrees.forEach(degree => {
-      if (grouped[degree.level]) {
-        grouped[degree.level].push(degree)
-      }
+  Object.entries(degreeMapping).forEach(([degreeId, info]) => {
+    organized[info.level].push({
+      id: degreeId,
+      name: degreeId.toUpperCase(),
+      shortCode: degreeId.toUpperCase(),
+      level: info.level,
+      duration: info.level === 'UNDERGRADUATE' ? 3 : info.level === 'POSTGRADUATE' ? 2 : 1,
+      subjects: info.subjects,
+      courses: []
     })
+  })
 
-    return grouped
-  }
+  return organized
+}
 
-  const groupedDegrees = groupDegreesByLevel()
+export default function CollegeLearningPage() {
+  const [loading] = useState(false)
+  
+  const groupedDegrees = useMemo(() => organizeDegreesByLevel(), [])
+  const collegeCourses = useMemo(() => getCollegeCourses(), [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
@@ -159,6 +160,70 @@ export default function CollegeLearningPage() {
         </div>
       </section>
 
+      {/* Available Courses Section */}
+      {collegeCourses.length > 0 && (
+        <section className="container mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Available College Courses
+            </h2>
+            <p className="text-gray-600">
+              Start learning with our college-level courses
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {collegeCourses.map((course) => (
+              <Card key={course.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline">
+                      {course.subcategory}
+                    </Badge>
+                    <Badge className={
+                      course.difficulty === 'beginner' ? 'bg-green-100 text-green-800' :
+                      course.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }>
+                      {course.difficulty}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-lg">
+                    {course.title}
+                  </CardTitle>
+                  <CardDescription>
+                    {course.tagline}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                    {course.description}
+                  </p>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <span>📚 {course.lessonCount} lessons</span>
+                    <span>⏱️ {Math.floor(course.totalDuration / 60)}h {course.totalDuration % 60}m</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm text-gray-500">By {course.instructor.name}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-purple-600">
+                      {course.price === 0 ? 'FREE' : `₹${course.price}`}
+                    </span>
+                    <Link href={`/courses/${course.id}`}>
+                      <Button size="sm">
+                        Start Learning
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Main Content */}
       <section className="container mx-auto px-4 py-12">
         <Tabs defaultValue="undergraduate" className="space-y-8">
@@ -185,7 +250,7 @@ export default function CollegeLearningPage() {
               Diploma
             </TabsTrigger>
             <TabsTrigger value="certificate" className="flex items-center gap-2">
-              <Star className="h-4 w-4" />
+              <GraduationCap className="h-4 w-4" />
               Certificate
             </TabsTrigger>
           </TabsList>
@@ -216,7 +281,7 @@ export default function CollegeLearningPage() {
                     </CardContent>
                   </Card>
                 ))
-              ) : (
+              ) : groupedDegrees.UNDERGRADUATE.length > 0 ? (
                 groupedDegrees.UNDERGRADUATE.map((degree) => (
                   <Card key={degree.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('UNDERGRADUATE')}`}>
                     <CardHeader>
@@ -237,15 +302,10 @@ export default function CollegeLearningPage() {
                     <CardContent className="space-y-3">
                       <div className="grid grid-cols-1 gap-2">
                         {degree.subjects.slice(0, 4).map((subject) => (
-                          <div key={subject.id} className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            {getSubjectIcon(subject.name)}
+                          <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                            {getSubjectIcon(subject)}
                             <div className="flex-1">
-                              <span className="text-sm font-medium">{subject.name}</span>
-                              {subject.semester && (
-                                <Badge variant="outline" className="ml-2 text-xs">
-                                  Sem {subject.semester}
-                                </Badge>
-                              )}
+                              <span className="text-sm font-medium">{subject}</span>
                             </div>
                           </div>
                         ))}
@@ -255,15 +315,27 @@ export default function CollegeLearningPage() {
                           +{degree.subjects.length - 4} more subjects
                         </p>
                       )}
-                      <Link href={`/college/degree/${degree.id}`}>
+                      <Link href={`/courses?vertical=college`}>
                         <Button className="w-full mt-4">
-                          Start Learning
+                          Browse Courses
                           <ChevronRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                     </CardContent>
                   </Card>
                 ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardContent className="pt-6">
+                      <div className="text-4xl mb-4">🎓</div>
+                      <h3 className="text-lg font-semibold mb-2">Undergraduate Content</h3>
+                      <p className="text-gray-600">
+                        Explore our available courses for college students above, or check back soon for more degree programs.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </div>
           </TabsContent>
@@ -294,7 +366,7 @@ export default function CollegeLearningPage() {
                     </CardContent>
                   </Card>
                 ))
-              ) : (
+              ) : groupedDegrees.POSTGRADUATE.length > 0 ? (
                 groupedDegrees.POSTGRADUATE.map((degree) => (
                   <Card key={degree.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('POSTGRADUATE')}`}>
                     <CardHeader>
@@ -315,15 +387,10 @@ export default function CollegeLearningPage() {
                     <CardContent className="space-y-3">
                       <div className="grid grid-cols-1 gap-2">
                         {degree.subjects.slice(0, 4).map((subject) => (
-                          <div key={subject.id} className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            {getSubjectIcon(subject.name)}
+                          <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                            {getSubjectIcon(subject)}
                             <div className="flex-1">
-                              <span className="text-sm font-medium">{subject.name}</span>
-                              {subject.semester && (
-                                <Badge variant="outline" className="ml-2 text-xs">
-                                  Sem {subject.semester}
-                                </Badge>
-                              )}
+                              <span className="text-sm font-medium">{subject}</span>
                             </div>
                           </div>
                         ))}
@@ -333,15 +400,28 @@ export default function CollegeLearningPage() {
                           +{degree.subjects.length - 4} more subjects
                         </p>
                       )}
-                      <Link href={`/college/degree/${degree.id}`}>
+                      <Link href={`/courses?vertical=professional`}>
                         <Button className="w-full mt-4">
-                          Start Learning
+                          Browse Courses
                           <ChevronRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                     </CardContent>
                   </Card>
                 ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <Card className="bg-green-50 border-green-200">
+                    <CardContent className="pt-6">
+                      <div className="text-4xl mb-4">📚</div>
+                      <h3 className="text-lg font-semibold mb-2">Postgraduate Content Coming Soon</h3>
+                      <p className="text-gray-600">
+                        Our postgraduate courses are being developed. 
+                        Check back soon for advanced specializations.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </div>
           </TabsContent>
@@ -356,71 +436,44 @@ export default function CollegeLearningPage() {
               <p className="text-gray-600">{getLevelDescription('DIPLOMA')}</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {loading ? (
-                [...Array(3)].map((_, index) => (
-                  <Card key={index} className="animate-pulse">
-                    <CardHeader>
-                      <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {[...Array(4)].map((_, i) => (
-                          <div key={i} className="h-4 bg-gray-200 rounded"></div>
-                        ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {groupedDegrees.DIPLOMA.map((degree) => (
+                <Card key={degree.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('DIPLOMA')}`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div>
+                        <span className="text-xl">{degree.name}</span>
+                        <Badge variant="outline" className="ml-2">{degree.shortCode}</Badge>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                groupedDegrees.DIPLOMA.map((degree) => (
-                  <Card key={degree.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('DIPLOMA')}`}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <div>
-                          <span className="text-xl">{degree.name}</span>
-                          <Badge variant="outline" className="ml-2">{degree.shortCode}</Badge>
+                      <Badge variant="secondary">{degree.subjects.length} subjects</Badge>
+                    </CardTitle>
+                    <CardDescription>
+                      Practical skill development and hands-on learning
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      {degree.subjects.slice(0, 4).map((subject) => (
+                        <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                          {getSubjectIcon(subject)}
+                          <span className="text-sm font-medium truncate">{subject}</span>
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-500">{degree.duration} years</div>
-                          <Badge variant="secondary">{degree.subjects.length} subjects</Badge>
-                        </div>
-                      </CardTitle>
-                      <CardDescription>
-                        Practical skill development and hands-on learning
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="grid grid-cols-1 gap-2">
-                        {degree.subjects.slice(0, 4).map((subject) => (
-                          <div key={subject.id} className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            {getSubjectIcon(subject.name)}
-                            <div className="flex-1">
-                              <span className="text-sm font-medium">{subject.name}</span>
-                              {subject.semester && (
-                                <Badge variant="outline" className="ml-2 text-xs">
-                                  Sem {subject.semester}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      {degree.subjects.length > 4 && (
-                        <p className="text-sm text-gray-500">
-                          +{degree.subjects.length - 4} more subjects
-                        </p>
-                      )}
-                      <Link href={`/college/degree/${degree.id}`}>
-                        <Button className="w-full mt-4">
-                          Start Learning
-                          <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+                      ))}
+                    </div>
+                    {degree.subjects.length > 4 && (
+                      <p className="text-sm text-gray-500">
+                        +{degree.subjects.length - 4} more subjects
+                      </p>
+                    )}
+                    <Link href={`/courses?category=tools`}>
+                      <Button className="w-full mt-4">
+                        Explore
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </TabsContent>
 
@@ -434,71 +487,41 @@ export default function CollegeLearningPage() {
               <p className="text-gray-600">{getLevelDescription('CERTIFICATE')}</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {loading ? (
-                [...Array(3)].map((_, index) => (
-                  <Card key={index} className="animate-pulse">
-                    <CardHeader>
-                      <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {[...Array(4)].map((_, i) => (
-                          <div key={i} className="h-4 bg-gray-200 rounded"></div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                groupedDegrees.CERTIFICATE.map((degree) => (
-                  <Card key={degree.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('CERTIFICATE')}`}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <div>
-                          <span className="text-xl">{degree.name}</span>
-                          <Badge variant="outline" className="ml-2">{degree.shortCode}</Badge>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {groupedDegrees.CERTIFICATE.map((degree) => (
+                <Card key={degree.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('CERTIFICATE')}`}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span className="text-xl">{degree.name}</span>
+                      <Badge variant="outline" className="ml-2">{degree.shortCode}</Badge>
+                    </CardTitle>
+                    <CardDescription>
+                      Short-term focused skill development
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      {degree.subjects.slice(0, 4).map((subject) => (
+                        <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                          {getSubjectIcon(subject)}
+                          <span className="text-sm font-medium truncate">{subject}</span>
                         </div>
-                        <div className="text-right">
-                          <div className="text-sm text-gray-500">{degree.duration} years</div>
-                          <Badge variant="secondary">{degree.subjects.length} subjects</Badge>
-                        </div>
-                      </CardTitle>
-                      <CardDescription>
-                        Short-term focused skill development
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="grid grid-cols-1 gap-2">
-                        {degree.subjects.slice(0, 4).map((subject) => (
-                          <div key={subject.id} className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            {getSubjectIcon(subject.name)}
-                            <div className="flex-1">
-                              <span className="text-sm font-medium">{subject.name}</span>
-                              {subject.semester && (
-                                <Badge variant="outline" className="ml-2 text-xs">
-                                  Sem {subject.semester}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      {degree.subjects.length > 4 && (
-                        <p className="text-sm text-gray-500">
-                          +{degree.subjects.length - 4} more subjects
-                        </p>
-                      )}
-                      <Link href={`/college/degree/${degree.id}`}>
-                        <Button className="w-full mt-4">
-                          Start Learning
-                          <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+                      ))}
+                    </div>
+                    {degree.subjects.length > 4 && (
+                      <p className="text-sm text-gray-500">
+                        +{degree.subjects.length - 4} more subjects
+                      </p>
+                    )}
+                    <Link href={`/courses?category=business`}>
+                      <Button className="w-full mt-4">
+                        Explore
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </TabsContent>
         </Tabs>
@@ -591,9 +614,11 @@ export default function CollegeLearningPage() {
                   Start Learning at ₹99/month
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4">
-                Explore All Degrees
-              </Button>
+              <Link href="/courses">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600 px-8 py-4">
+                  Explore All Courses
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +9,6 @@ import {
   BookOpen, 
   Users, 
   Clock, 
-  Star, 
   ChevronRight,
   GraduationCap,
   School,
@@ -21,18 +20,14 @@ import {
   Database
 } from 'lucide-react'
 import Link from 'next/link'
+import { courses, type Course } from '@/lib/course-data'
 
 interface SchoolClass {
   id: string
   name: string
   level: string
-  subjects: SchoolSubject[]
-}
-
-interface SchoolSubject {
-  id: string
-  name: string
-  courseCount: number
+  subjects: string[]
+  courses: Course[]
 }
 
 const getLevelIcon = (level: string) => {
@@ -76,47 +71,63 @@ const getLevelDescription = (level: string) => {
   }
 }
 
-export default function SchoolLearningPage() {
-  const [classes, setClasses] = useState<SchoolClass[]>([])
-  const [loading, setLoading] = useState(true)
+// Get school courses from static data
+const getSchoolCourses = (): Course[] => {
+  return courses.filter(course => 
+    course.isActive && course.vertical === 'school'
+  )
+}
 
-  useEffect(() => {
-    fetchSchoolClasses()
-  }, [])
-
-  const fetchSchoolClasses = async () => {
-    try {
-      const response = await fetch('/api/school/classes')
-      const data = await response.json()
-
-      if (data.success) {
-        setClasses(data.classes)
-      }
-    } catch (error) {
-      console.error('Error fetching school classes:', error)
-    } finally {
-      setLoading(false)
-    }
+// Organize courses by class level based on subcategory
+const organizeClassesByLevel = (): Record<string, SchoolClass[]> => {
+  const schoolCourses = getSchoolCourses()
+  
+  const organized: Record<string, SchoolClass[]> = {
+    PRIMARY: [],
+    MIDDLE: [],
+    SECONDARY: [],
+    SENIOR_SECONDARY: []
   }
 
-  const groupClassesByLevel = () => {
-    const grouped = {
-      PRIMARY: [],
-      MIDDLE: [],
-      SECONDARY: [],
-      SENIOR_SECONDARY: []
-    }
+  // For now, we'll create class structures based on available courses
+  // In a real app, courses would have class level metadata
+  
+  // Create sample class entries based on available data
+  const classMapping: Record<string, { level: string; subjects: string[] }> = {
+    'class6': { level: 'MIDDLE', subjects: ['Mathematics', 'Science', 'English', 'Hindi', 'Social Science'] },
+    'class7': { level: 'MIDDLE', subjects: ['Mathematics', 'Science', 'English', 'Hindi', 'Social Science'] },
+    'class8': { level: 'MIDDLE', subjects: ['Mathematics', 'Science', 'English', 'Hindi', 'Social Science'] },
+    'class9': { level: 'SECONDARY', subjects: ['Mathematics', 'Science', 'English', 'Hindi', 'Social Science', 'Computer Science'] },
+    'class10': { level: 'SECONDARY', subjects: ['Mathematics', 'Science', 'English', 'Hindi', 'Social Science', 'Computer Science'] },
+    'class11-science': { level: 'SENIOR_SECONDARY', subjects: ['Physics', 'Chemistry', 'Mathematics', 'Biology'] },
+    'class11-commerce': { level: 'SENIOR_SECONDARY', subjects: ['Accounts', 'Business Studies', 'Economics', 'Mathematics'] },
+    'class11-arts': { level: 'SENIOR_SECONDARY', subjects: ['History', 'Political Science', 'Economics', 'English'] },
+    'class12-science': { level: 'SENIOR_SECONDARY', subjects: ['Physics', 'Chemistry', 'Mathematics', 'Biology'] },
+    'class12-commerce': { level: 'SENIOR_SECONDARY', subjects: ['Accounts', 'Business Studies', 'Economics', 'Mathematics'] },
+    'class12-arts': { level: 'SENIOR_SECONDARY', subjects: ['History', 'Political Science', 'Economics', 'English'] }
+  }
 
-    classes.forEach(cls => {
-      if (grouped[cls.level]) {
-        grouped[cls.level].push(cls)
-      }
+  // Create class entries
+  Object.entries(classMapping).forEach(([classId, info]) => {
+    const classNum = parseInt(classId.replace('class', '').split('-')[0])
+    
+    organized[info.level].push({
+      id: classId,
+      name: classId.includes('-') ? classId.split('-')[1].charAt(0).toUpperCase() + classId.split('-')[1].slice(0) + ' - ' + classNum : `Class ${classNum}`,
+      level: info.level,
+      subjects: info.subjects,
+      courses: [] // Will be populated from static data
     })
+  })
 
-    return grouped
-  }
+  return organized
+}
 
-  const groupedClasses = groupClassesByLevel()
+export default function SchoolLearningPage() {
+  const [loading] = useState(false)
+  
+  const groupedClasses = useMemo(() => organizeClassesByLevel(), [])
+  const schoolCourses = useMemo(() => getSchoolCourses(), [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -151,6 +162,70 @@ export default function SchoolLearningPage() {
           </div>
         </div>
       </section>
+
+      {/* Available Courses Section */}
+      {schoolCourses.length > 0 && (
+        <section className="container mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Available Courses
+            </h2>
+            <p className="text-gray-600">
+              Start learning with our school courses
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {schoolCourses.map((course) => (
+              <Card key={course.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline">
+                      {course.subcategory}
+                    </Badge>
+                    <Badge className={
+                      course.difficulty === 'beginner' ? 'bg-green-100 text-green-800' :
+                      course.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }>
+                      {course.difficulty}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-lg">
+                    {course.title}
+                  </CardTitle>
+                  <CardDescription>
+                    {course.tagline}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                    {course.description}
+                  </p>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <span>📚 {course.lessonCount} lessons</span>
+                    <span>⏱️ {Math.floor(course.totalDuration / 60)}h {course.totalDuration % 60}m</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm text-gray-500">By {course.instructor.name}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-orange-600">
+                      {course.price === 0 ? 'FREE' : `₹${course.price}`}
+                    </span>
+                    <Link href={`/courses/${course.id}`}>
+                      <Button size="sm">
+                        Start Learning
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Main Content */}
       <section className="container mx-auto px-4 py-12">
@@ -209,12 +284,12 @@ export default function SchoolLearningPage() {
                     </CardContent>
                   </Card>
                 ))
-              ) : (
+              ) : groupedClasses.PRIMARY.length > 0 ? (
                 groupedClasses.PRIMARY.map((cls) => (
                   <Card key={cls.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('PRIMARY')}`}>
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
-                        <span className="text-xl">Class {cls.name}</span>
+                        <span className="text-xl">{cls.name}</span>
                         <Badge variant="outline">{cls.subjects.length} subjects</Badge>
                       </CardTitle>
                       <CardDescription>
@@ -224,9 +299,9 @@ export default function SchoolLearningPage() {
                     <CardContent className="space-y-3">
                       <div className="grid grid-cols-2 gap-2">
                         {cls.subjects.slice(0, 4).map((subject) => (
-                          <div key={subject.id} className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            {getSubjectIcon(subject.name)}
-                            <span className="text-sm font-medium truncate">{subject.name}</span>
+                          <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                            {getSubjectIcon(subject)}
+                            <span className="text-sm font-medium truncate">{subject}</span>
                           </div>
                         ))}
                       </div>
@@ -235,15 +310,28 @@ export default function SchoolLearningPage() {
                           +{cls.subjects.length - 4} more subjects
                         </p>
                       )}
-                      <Link href={`/school/class/${cls.id}`}>
+                      <Link href={`/courses?category=school`}>
                         <Button className="w-full mt-4">
-                          Start Learning
+                          Browse Classes
                           <ChevronRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                     </CardContent>
                   </Card>
                 ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardContent className="pt-6">
+                      <div className="text-4xl mb-4">📚</div>
+                      <h3 className="text-lg font-semibold mb-2">Primary Level Coming Soon</h3>
+                      <p className="text-gray-600">
+                        We're preparing comprehensive courses for primary school students. 
+                        Check back soon or explore other levels.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </div>
           </TabsContent>
@@ -274,12 +362,12 @@ export default function SchoolLearningPage() {
                     </CardContent>
                   </Card>
                 ))
-              ) : (
+              ) : groupedClasses.MIDDLE.length > 0 ? (
                 groupedClasses.MIDDLE.map((cls) => (
                   <Card key={cls.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('MIDDLE')}`}>
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
-                        <span className="text-xl">Class {cls.name}</span>
+                        <span className="text-xl">{cls.name}</span>
                         <Badge variant="outline">{cls.subjects.length} subjects</Badge>
                       </CardTitle>
                       <CardDescription>
@@ -289,9 +377,9 @@ export default function SchoolLearningPage() {
                     <CardContent className="space-y-3">
                       <div className="grid grid-cols-2 gap-2">
                         {cls.subjects.slice(0, 4).map((subject) => (
-                          <div key={subject.id} className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            {getSubjectIcon(subject.name)}
-                            <span className="text-sm font-medium truncate">{subject.name}</span>
+                          <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                            {getSubjectIcon(subject)}
+                            <span className="text-sm font-medium truncate">{subject}</span>
                           </div>
                         ))}
                       </div>
@@ -300,15 +388,28 @@ export default function SchoolLearningPage() {
                           +{cls.subjects.length - 4} more subjects
                         </p>
                       )}
-                      <Link href={`/school/class/${cls.id}`}>
+                      <Link href={`/courses?category=school`}>
                         <Button className="w-full mt-4">
-                          Start Learning
+                          Browse Classes
                           <ChevronRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                     </CardContent>
                   </Card>
                 ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <Card className="bg-green-50 border-green-200">
+                    <CardContent className="pt-6">
+                      <div className="text-4xl mb-4">📖</div>
+                      <h3 className="text-lg font-semibold mb-2">Middle School Content Coming Soon</h3>
+                      <p className="text-gray-600">
+                        Our middle school courses are being developed. 
+                        Subscribe to get notified when they're available.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </div>
           </TabsContent>
@@ -339,12 +440,12 @@ export default function SchoolLearningPage() {
                     </CardContent>
                   </Card>
                 ))
-              ) : (
+              ) : groupedClasses.SECONDARY.length > 0 ? (
                 groupedClasses.SECONDARY.map((cls) => (
                   <Card key={cls.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('SECONDARY')}`}>
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
-                        <span className="text-xl">Class {cls.name}</span>
+                        <span className="text-xl">{cls.name}</span>
                         <Badge variant="outline">{cls.subjects.length} subjects</Badge>
                       </CardTitle>
                       <CardDescription>
@@ -354,9 +455,9 @@ export default function SchoolLearningPage() {
                     <CardContent className="space-y-3">
                       <div className="grid grid-cols-2 gap-2">
                         {cls.subjects.slice(0, 6).map((subject) => (
-                          <div key={subject.id} className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            {getSubjectIcon(subject.name)}
-                            <span className="text-sm font-medium truncate">{subject.name}</span>
+                          <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                            {getSubjectIcon(subject)}
+                            <span className="text-sm font-medium truncate">{subject}</span>
                           </div>
                         ))}
                       </div>
@@ -365,15 +466,27 @@ export default function SchoolLearningPage() {
                           +{cls.subjects.length - 6} more subjects
                         </p>
                       )}
-                      <Link href={`/school/class/${cls.id}`}>
+                      <Link href={`/courses?category=school`}>
                         <Button className="w-full mt-4">
-                          Start Learning
+                          Browse Classes
                           <ChevronRight className="ml-2 h-4 w-4" />
                         </Button>
                       </Link>
                     </CardContent>
                   </Card>
                 ))
+              ) : (
+                <div className="col-span-full text-center py-8">
+                  <Card className="bg-orange-50 border-orange-200">
+                    <CardContent className="pt-6">
+                      <div className="text-4xl mb-4">🎯</div>
+                      <h3 className="text-lg font-semibold mb-2">Secondary School Content</h3>
+                      <p className="text-gray-600">
+                        Explore our available courses for Class 9-10 above, or check back soon for more subjects.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </div>
           </TabsContent>
@@ -388,58 +501,93 @@ export default function SchoolLearningPage() {
               <p className="text-gray-600">{getLevelDescription('SENIOR_SECONDARY')}</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {loading ? (
-                [...Array(2)].map((_, index) => (
-                  <Card key={index} className="animate-pulse">
-                    <CardHeader>
-                      <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {[...Array(4)].map((_, i) => (
-                          <div key={i} className="h-4 bg-gray-200 rounded"></div>
-                        ))}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Science Stream */}
+              <Card className="border-blue-200 bg-blue-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Beaker className="h-5 w-5 text-blue-600" />
+                    Science Stream
+                  </CardTitle>
+                  <CardDescription>
+                    Physics, Chemistry, Mathematics, Biology
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    {['Physics', 'Chemistry', 'Mathematics', 'Biology'].map((subject) => (
+                      <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                        {getSubjectIcon(subject)}
+                        <span className="text-sm font-medium">{subject}</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                groupedClasses.SENIOR_SECONDARY.map((cls) => (
-                  <Card key={cls.id} className={`hover:shadow-lg transition-shadow ${getLevelColor('SENIOR_SECONDARY')}`}>
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <span className="text-xl">Class {cls.name}</span>
-                        <Badge variant="outline">{cls.subjects.length} subjects</Badge>
-                      </CardTitle>
-                      <CardDescription>
-                        Specialized learning streams for future careers
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        {cls.subjects.slice(0, 6).map((subject) => (
-                          <div key={subject.id} className="flex items-center gap-2 p-2 bg-white rounded-lg">
-                            {getSubjectIcon(subject.name)}
-                            <span className="text-sm font-medium truncate">{subject.name}</span>
-                          </div>
-                        ))}
+                    ))}
+                  </div>
+                  <Link href={`/courses?category=school`}>
+                    <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
+                      Science Courses
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Commerce Stream */}
+              <Card className="border-green-200 bg-green-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calculator className="h-5 w-5 text-green-600" />
+                    Commerce Stream
+                  </CardTitle>
+                  <CardDescription>
+                    Accounts, Business Studies, Economics
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    {['Accounts', 'Business Studies', 'Economics', 'Mathematics'].map((subject) => (
+                      <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                        {getSubjectIcon(subject)}
+                        <span className="text-sm font-medium">{subject}</span>
                       </div>
-                      {cls.subjects.length > 6 && (
-                        <p className="text-sm text-gray-500">
-                          +{cls.subjects.length - 6} more subjects
-                        </p>
-                      )}
-                      <Link href={`/school/class/${cls.id}`}>
-                        <Button className="w-full mt-4">
-                          Start Learning
-                          <ChevronRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+                    ))}
+                  </div>
+                  <Link href={`/courses?category=business`}>
+                    <Button className="w-full mt-4 bg-green-600 hover:bg-green-700">
+                      Commerce Courses
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Arts Stream */}
+              <Card className="border-purple-200 bg-purple-50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-purple-600" />
+                    Arts Stream
+                  </CardTitle>
+                  <CardDescription>
+                    History, Political Science, Geography
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="space-y-2">
+                    {['History', 'Political Science', 'Geography', 'English'].map((subject) => (
+                      <div key={subject} className="flex items-center gap-2 p-2 bg-white rounded-lg">
+                        {getSubjectIcon(subject)}
+                        <span className="text-sm font-medium">{subject}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Link href={`/courses?category=general`}>
+                    <Button className="w-full mt-4 bg-purple-600 hover:bg-purple-700">
+                      Arts Courses
+                      <ChevronRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
@@ -513,9 +661,11 @@ export default function SchoolLearningPage() {
                   Start Learning at ₹99/month
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4">
-                View All Subjects
-              </Button>
+              <Link href="/courses">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4">
+                  View All Courses
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

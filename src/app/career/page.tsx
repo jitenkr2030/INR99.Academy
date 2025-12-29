@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +9,6 @@ import {
   BookOpen, 
   Users, 
   Clock, 
-  Star, 
   ChevronRight,
   Briefcase,
   Target,
@@ -36,98 +35,35 @@ import {
   Compass
 } from 'lucide-react'
 import Link from 'next/link'
+import { courses, type Course } from '@/lib/course-data'
 
-interface LearningCategory {
-  id: string
-  name: string
-  slug: string
-  description: string
-  icon: string
-  color: string
-  learningPaths: LearningPath[]
-}
-
-interface LearningPath {
-  id: string
-  title: string
-  description: string
-  courseCount: number
-}
-
-const getCategoryIcon = (iconName: string) => {
-  const iconMap: Record<string, React.ReactNode> = {
-    'Brain': <Brain className="h-6 w-6" />,
-    'TrendingUp': <TrendingUp className="h-6 w-6" />,
-    'Building': <Building className="h-6 w-6" />,
-    'Globe': <Globe className="h-6 w-6" />,
-    'Palette': <Palette className="h-6 w-6" />,
-    'Megaphone': <Megaphone className="h-6 w-6" />,
-    'Briefcase': <Briefcase className="h-6 w-6" />,
-    'Beaker': <Beaker className="h-6 w-6" />,
-    'Heart': <Heart className="h-6 w-6" />,
-    'MessageCircle': <MessageCircle className="h-6 w-6" />,
-    'Shield': <Shield className="h-6 w-6" />,
-    'ShoppingCart': <ShoppingCart className="h-6 w-6" />,
-    'Gamepad2': <Gamepad2 className="h-6 w-6" />,
-    'Home': <Home className="h-6 w-6" />,
-    'Wrench': <Wrench className="h-6 w-6" />,
-    'Compass': <Compass className="h-6 w-6" />,
-    'Scale': <Scale className="h-6 w-6" />,
-    'Users2': <Users2 className="h-6 w-6" />,
-    'Rocket': <Rocket className="h-6 w-6" />
-  }
-  return iconMap[iconName] || <BookOpen className="h-6 w-6" />
-}
-
-const getCategoryColor = (color: string) => {
-  const colorMap: Record<string, string> = {
-    'bg-blue-100': 'border-blue-200 bg-blue-50',
-    'bg-green-100': 'border-green-200 bg-green-50',
-    'bg-orange-100': 'border-orange-200 bg-orange-50',
-    'bg-purple-100': 'border-purple-200 bg-purple-50',
-    'bg-red-100': 'border-red-200 bg-red-50',
-    'bg-yellow-100': 'border-yellow-200 bg-yellow-50',
-    'bg-pink-100': 'border-pink-200 bg-pink-50',
-    'bg-indigo-100': 'border-indigo-200 bg-indigo-50',
-    'bg-teal-100': 'border-teal-200 bg-teal-50'
-  }
-  return colorMap[color] || 'border-gray-200 bg-gray-50'
+// Get career-related courses from static data
+const getCareerCourses = (): Course[] => {
+  return courses.filter(course => 
+    course.isActive && (
+      course.category === 'career' || 
+      course.category === 'technology' ||
+      course.category === 'marketing' ||
+      course.category === 'design'
+    )
+  )
 }
 
 export default function CareerSkillsPage() {
-  const [categories, setCategories] = useState<LearningCategory[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading] = useState(false)
+  
+  const careerCourses = useMemo(() => getCareerCourses(), [])
 
-  useEffect(() => {
-    fetchLearningCategories()
-  }, [])
-
-  const fetchLearningCategories = async () => {
-    try {
-      const response = await fetch('/api/learning-categories')
-      const data = await response.json()
-
-      if (data.success) {
-        setCategories(data.categories)
-      }
-    } catch (error) {
-      console.error('Error fetching learning categories:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const getFeaturedCategories = () => {
-    return categories.filter(cat => cat.slug === 'career-professional-development' || 
-                              cat.slug === 'technology-computer-science' ||
-                              cat.slug === 'business-commerce-entrepreneurship')
-  }
-
-  const getAllOtherCategories = () => {
-    return categories.filter(cat => !['career-professional-development', 
-                                    'technology-computer-science', 
-                                    'business-commerce-entrepreneurship'].includes(cat.slug))
-  }
+  // Calculate stats from courses
+  const totalStudents = useMemo(() => 
+    careerCourses.reduce((sum, c) => sum + c.enrollmentCount, 0),
+    [careerCourses]
+  )
+  
+  const totalLessons = useMemo(() =>
+    careerCourses.reduce((sum, c) => sum + c.lessonCount, 0),
+    [careerCourses]
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
@@ -163,6 +99,72 @@ export default function CareerSkillsPage() {
         </div>
       </section>
 
+      {/* Available Courses Section */}
+      {careerCourses.length > 0 && (
+        <section className="container mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Available Career Courses
+            </h2>
+            <p className="text-gray-600">
+              Start building your professional skills today
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {careerCourses.map((course) => (
+              <Card key={course.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <Badge variant="outline">
+                      {course.category === 'career' ? 'Career' : 
+                       course.category === 'technology' ? 'Technology' :
+                       course.category === 'marketing' ? 'Marketing' : 'Design'}
+                    </Badge>
+                    <Badge className={
+                      course.difficulty === 'beginner' ? 'bg-green-100 text-green-800' :
+                      course.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }>
+                      {course.difficulty}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-lg">
+                    {course.title}
+                  </CardTitle>
+                  <CardDescription>
+                    {course.tagline}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                    {course.description}
+                  </p>
+                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
+                    <span>📚 {course.lessonCount} lessons</span>
+                    <span>⏱️ {Math.floor(course.totalDuration / 60)}h {course.totalDuration % 60}m</span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-sm text-gray-500">By {course.instructor.name}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-bold text-green-600">
+                      {course.price === 0 ? 'FREE' : `₹${course.price}`}
+                    </span>
+                    <Link href={`/courses/${course.id}`}>
+                      <Button size="sm">
+                        Start Learning
+                        <ChevronRight className="ml-1 h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Featured Categories */}
       <section className="container mx-auto px-4 py-12">
         <div className="text-center space-y-4 mb-12">
@@ -175,61 +177,116 @@ export default function CareerSkillsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {loading ? (
-            [...Array(3)].map((_, index) => (
-              <Card key={index} className="animate-pulse">
-                <CardHeader>
-                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {[...Array(4)].map((_, i) => (
-                      <div key={i} className="h-4 bg-gray-200 rounded"></div>
-                    ))}
+          {/* Career Development */}
+          <Card className="border-blue-200 bg-blue-50 hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-blue-100">
+                  <Briefcase className="h-6 w-6 text-blue-600" />
+                </div>
+                <span className="text-xl">Career Development</span>
+              </CardTitle>
+              <CardDescription>
+                Build essential professional skills for career growth
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                {[
+                  { title: "Resume Writing", courses: 2 },
+                  { title: "Interview Skills", courses: 3 },
+                  { title: "LinkedIn Optimization", courses: 2 }
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-white rounded-lg">
+                    <span className="text-sm font-medium truncate">{item.title}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {item.courses} courses
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            getFeaturedCategories().map((category) => (
-              <Card key={category.id} className={`hover:shadow-lg transition-shadow ${getCategoryColor(category.color)}`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${category.color}`}>
-                      {getCategoryIcon(category.icon)}
-                    </div>
-                    <span className="text-xl">{category.name}</span>
-                  </CardTitle>
-                  <CardDescription>
-                    {category.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="space-y-2">
-                    {category.learningPaths.slice(0, 3).map((path) => (
-                      <div key={path.id} className="flex items-center justify-between p-2 bg-white rounded-lg">
-                        <span className="text-sm font-medium truncate">{path.title}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {path.courseCount} courses
-                        </Badge>
-                      </div>
-                    ))}
+                ))}
+              </div>
+              <Link href="/courses?category=career">
+                <Button className="w-full mt-4">
+                  Explore Career
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Technology Skills */}
+          <Card className="border-green-200 bg-green-50 hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-green-100">
+                  <Brain className="h-6 w-6 text-green-600" />
+                </div>
+                <span className="text-xl">Technology Skills</span>
+              </CardTitle>
+              <CardDescription>
+                Learn programming, data science, and tech skills
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                {[
+                  { title: "Python Programming", courses: 3 },
+                  { title: "Web Development", courses: 2 },
+                  { title: "Data Science", courses: 2 }
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-white rounded-lg">
+                    <span className="text-sm font-medium truncate">{item.title}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {item.courses} courses
+                    </Badge>
                   </div>
-                  {category.learningPaths.length > 3 && (
-                    <p className="text-sm text-gray-500">
-                      +{category.learningPaths.length - 3} more learning paths
-                    </p>
-                  )}
-                  <Link href={`/categories/${category.slug}`}>
-                    <Button className="w-full mt-4">
-                      Explore Category
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))
-          )}
+                ))}
+              </div>
+              <Link href="/courses?category=technology">
+                <Button className="w-full mt-4 bg-green-600 hover:bg-green-700">
+                  Explore Technology
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Marketing & Sales */}
+          <Card className="border-orange-200 bg-orange-50 hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-orange-100">
+                  <TrendingUp className="h-6 w-6 text-orange-600" />
+                </div>
+                <span className="text-xl">Marketing & Sales</span>
+              </CardTitle>
+              <CardDescription>
+                Master digital marketing and sales techniques
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
+                {[
+                  { title: "Digital Marketing", courses: 2 },
+                  { title: "Social Media", courses: 2 },
+                  { title: "SEO", courses: 1 }
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-2 bg-white rounded-lg">
+                    <span className="text-sm font-medium truncate">{item.title}</span>
+                    <Badge variant="outline" className="text-xs">
+                      {item.courses} courses
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+              <Link href="/courses?category=marketing">
+                <Button className="w-full mt-4 bg-orange-600 hover:bg-orange-700">
+                  Explore Marketing
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
         </div>
 
         {/* All Learning Categories */}
@@ -238,59 +295,31 @@ export default function CareerSkillsPage() {
             All Learning Categories
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Explore our comprehensive collection of 18 learning categories
+            Explore our comprehensive collection of learning categories for your career growth
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {loading ? (
-            [...Array(9)].map((_, index) => (
-              <Card key={index} className="animate-pulse">
-                <CardHeader>
-                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-4 bg-gray-200 rounded"></div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          ) : (
-            getAllOtherCategories().map((category) => (
-              <Card key={category.id} className={`hover:shadow-lg transition-shadow ${getCategoryColor(category.color)}`}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${category.color}`}>
-                      {getCategoryIcon(category.icon)}
-                    </div>
-                    <span className="text-lg">{category.name}</span>
-                  </CardTitle>
-                  <CardDescription className="text-sm">
-                    {category.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between mb-4">
-                    <Badge variant="outline">
-                      {category.learningPaths.length} paths
-                    </Badge>
-                    <span className="text-sm text-gray-500">
-                      {category.learningPaths.reduce((total, path) => total + path.courseCount, 0)} courses
-                    </span>
-                  </div>
-                  <Link href={`/categories/${category.slug}`}>
-                    <Button variant="outline" className="w-full">
-                      Explore
-                      <ChevronRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { icon: <Briefcase className="h-5 w-5" />, title: "Resume Building", desc: "Create professional resumes", color: "bg-blue-100 text-blue-600" },
+            { icon: <Users className="h-5 w-5" />, title: "Interview Skills", desc: "Master interviews", color: "bg-green-100 text-green-600" },
+            { icon: <Home className="h-5 w-5" />, title: "Remote Work", desc: "Work from anywhere", color: "bg-purple-100 text-purple-600" },
+            { icon: <TrendingUp className="h-5 w-5" />, title: "Leadership", desc: "Lead effectively", color: "bg-orange-100 text-orange-600" },
+            { icon: <Globe className="h-5 w-5" />, title: "Communication", desc: "Better workplace communication", color: "bg-red-100 text-red-600" },
+            { icon: <Wrench className="h-5 w-5" />, title: "Productivity", desc: "Get more done", color: "bg-yellow-100 text-yellow-600" },
+            { icon: <Lightbulb className="h-5 w-5" />, title: "Entrepreneurship", desc: "Start your business", color: "bg-indigo-100 text-indigo-600" },
+            { icon: <Target className="h-5 w-5" />, title: "Personal Branding", desc: "Build your brand", color: "bg-pink-100 text-pink-600" }
+          ].map((item, index) => (
+            <Card key={index} className="text-center hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 ${item.color.split(' ')[0]}`}>
+                  {item.icon}
+                </div>
+                <h3 className="font-semibold mb-1">{item.title}</h3>
+                <p className="text-xs text-gray-600">{item.desc}</p>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </section>
 
@@ -358,12 +387,12 @@ export default function CareerSkillsPage() {
         </div>
       </section>
 
-      {/* Success Stories */}
+      {/* Stats Section */}
       <section className="bg-gradient-to-r from-green-50 to-blue-50 py-16">
         <div className="container mx-auto px-4">
           <div className="text-center space-y-4 mb-12">
             <h2 className="text-3xl font-bold text-gray-900">
-              Success Stories
+              Our Impact
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Real people achieving real career growth
@@ -422,6 +451,38 @@ export default function CareerSkillsPage() {
               </CardContent>
             </Card>
           </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 mt-12">
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <div className="text-3xl font-bold text-green-600 mb-2">{careerCourses.length}+</div>
+                <h3 className="text-lg font-semibold mb-2">Career Courses</h3>
+                <p className="text-gray-600 text-sm">
+                  Comprehensive courses for professional development
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <div className="text-3xl font-bold text-blue-600 mb-2">{totalLessons}+</div>
+                <h3 className="text-lg font-semibold mb-2">Video Lessons</h3>
+                <p className="text-gray-600 text-sm">
+                  Detailed lessons on career and skills topics
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <div className="text-3xl font-bold text-purple-600 mb-2">{(totalStudents / 1000).toFixed(0)}K+</div>
+                <h3 className="text-lg font-semibold mb-2">Students Enrolled</h3>
+                <p className="text-gray-600 text-sm">
+                  Join thousands advancing their careers
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
@@ -441,9 +502,11 @@ export default function CareerSkillsPage() {
                   Start Learning at ₹99/month
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-600 px-8 py-4">
-                Explore All Skills
-              </Button>
+              <Link href="/courses">
+                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-600 px-8 py-4">
+                  Explore All Skills
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

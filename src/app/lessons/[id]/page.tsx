@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -21,43 +21,57 @@ import {
   FileText
 } from "lucide-react"
 import Link from "next/link"
+import { courses, type Course, type Lesson, type Module } from '@/lib/course-data'
 
-interface Lesson {
-  id: string
-  title: string
-  content: string
-  videoUrl?: string
-  audioUrl?: string
-  pdfUrl?: string
-  duration: number
-  order: number
-  course: {
-    id: string
-    title: string
-    instructor: {
-      id: string
-      name: string
-      avatar?: string
+// Helper function to find a lesson across all courses
+function findLessonById(lessonId: string): { 
+  lesson: Lesson; 
+  course: Course; 
+  module: Module;
+  lessonIndex: number;
+  moduleIndex: number;
+} | null {
+  for (const course of courses) {
+    if (!course.isActive) continue
+    
+    for (const module of course.modules) {
+      const lessonIndex = module.lessons.findIndex(l => l.id === lessonId)
+      if (lessonIndex !== -1) {
+        return {
+          lesson: module.lessons[lessonIndex],
+          course,
+          module,
+          lessonIndex,
+          moduleIndex: course.modules.indexOf(module)
+        }
+      }
     }
   }
-  assessments: Array<{
-    id: string
-    title: string
-    type: string
-  }>
-  navigation: {
-    previous?: {
-      id: string
-      title: string
-      order: number
-    }
-    next?: {
-      id: string
-      title: string
-      order: number
-    }
-    currentIndex: number
-    totalLessons: number
+  return null
+}
+
+// Helper function to get all lessons for navigation
+function getLessonNavigation(lessonId: string, course: Course): {
+  previous: { id: string; title: string } | null;
+  next: { id: string; title: string } | null;
+  currentIndex: number;
+  totalLessons: number;
+} {
+  const allLessons: Array<{ id: string; title: string }> = []
+  
+  course.modules.forEach(module => {
+    module.lessons.forEach(lesson => {
+      allLessons.push({ id: lesson.id, title: lesson.title })
+    })
+  })
+  
+  const currentIndex = allLessons.findIndex(l => l.id === lessonId)
+  
+  return {
+    previous: currentIndex > 0 ? allLessons[currentIndex - 1] : null,
+    next: currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null,
+    currentIndex: currentIndex + 1,
+    totalLessons: allLessons.length
   }
 }
 
@@ -69,55 +83,37 @@ export default function LessonDetailPage() {
   
   const lessonId = params.id as string
   
-  const [lesson, setLesson] = useState<Lesson | null>(null)
+  const [lessonData, setLessonData] = useState<{ 
+    lesson: Lesson; 
+    course: Course; 
+    module: Module;
+    moduleIndex: number;
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const [isCompleted, setIsCompleted] = useState(false)
-  const [mediaProgress, setMediaProgress] = useState(0)
-  const [timeSpent, setTimeSpent] = useState(0)
   const [showCompletionToast, setShowCompletionToast] = useState(false)
   
-  const startTimeRef = useRef<number>(Date.now())
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-
   useEffect(() => {
-    fetchLesson()
+    // Load lesson from static data
+    const data = findLessonById(lessonId)
     
-    // Start tracking time spent
-    intervalRef.current = setInterval(() => {
-      setTimeSpent(prev => prev + 1)
-    }, 60000) // Track every minute
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
+    if (data) {
+      setLessonData(data)
+      
+      // Check if this lesson was already completed
+      const progress = getCourseProgress(data.course.id)
+      if (progress?.completed) {
+        setIsCompleted(true)
       }
     }
-  }, [lessonId])
+    
+    setLoading(false)
+  }, [lessonId, getCourseProgress])
 
-  const fetchLesson = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch(`/api/lessons/${lessonId}`)
-      const data = await response.json()
-
-      if (data.success) {
-        setLesson(data.lesson)
-        
-        // Check if this lesson was already completed
-        const progress = getCourseProgress(data.lesson.course.id)
-        if (progress?.completed) {
-          setIsCompleted(true)
-        }
-      } else {
-        router.push('/courses')
-      }
-    } catch (error) {
-      console.error('Fetch lesson error:', error)
-      router.push('/courses')
-    } finally {
-      setLoading(false)
-    }
-  }
+  const navigation = useMemo(() => {
+    if (!lessonData) return null
+    return getLessonNavigation(lessonId, lessonData.course)
+  }, [lessonData, lessonId])
 
   const formatDuration = (minutes: number) => {
     if (minutes < 60) {
@@ -132,12 +128,10 @@ export default function LessonDetailPage() {
     router.push(`/lessons/${id}`)
   }
 
-  const handleMediaProgress = (progress: number) => {
-    setMediaProgress(progress)
-  }
-
   const handleComplete = async () => {
-    if (!lesson || !session?.user) {
+    if (!lessonData) return
+    
+    if (!session?.user) {
       // If not logged in, just show completion locally
       setIsCompleted(true)
       setShowCompletionToast(true)
@@ -146,17 +140,17 @@ export default function LessonDetailPage() {
     }
 
     try {
-      await markLessonComplete(lesson.course.id, lesson.id)
+      await markLessonComplete(lessonData.course.id, lessonId)
       setIsCompleted(true)
       setShowCompletionToast(true)
       setTimeout(() => setShowCompletionToast(false), 3000)
       
-      // Update time spent when completing
+      // Update progress
       await updateProgress({
-        courseId: lesson.course.id,
-        lessonId: lesson.id,
-        progress: 100, // Will be incremented by markLessonComplete
-        timeSpent: Math.floor((Date.now() - startTimeRef.current) / 60000), // Convert to minutes
+        courseId: lessonData.course.id,
+        lessonId: lessonId,
+        progress: 100,
+        timeSpent: 0,
         completed: true
       })
     } catch (error) {
@@ -166,9 +160,9 @@ export default function LessonDetailPage() {
 
   // Calculate overall course progress for the progress bar
   const getCourseProgressValue = () => {
-    if (!lesson) return 0
-    const progress = getCourseProgress(lesson.course.id)
-    return progress?.progress || ((lesson.navigation.currentIndex / lesson.navigation.totalLessons) * 100)
+    if (!lessonData || !navigation) return 0
+    const progress = getCourseProgress(lessonData.course.id)
+    return progress?.progress || ((navigation.currentIndex / navigation.totalLessons) * 100)
   }
 
   if (loading) {
@@ -179,18 +173,21 @@ export default function LessonDetailPage() {
     )
   }
 
-  if (!lesson) {
+  if (!lessonData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Lesson not found</h2>
+          <p className="text-gray-600 mb-4">The lesson you're looking for doesn't exist or has been removed.</p>
           <Link href="/courses">
-            <Button>Back to Courses</Button>
+            <Button>Browse Courses</Button>
           </Link>
         </div>
       </div>
     )
   }
+
+  const { lesson, course, module } = lessonData
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -207,7 +204,7 @@ export default function LessonDetailPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href={`/courses/${lesson.course.id}`}>
+              <Link href={`/courses/${course.id}`}>
                 <Button variant="outline" size="sm">
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   Back to Course
@@ -216,7 +213,7 @@ export default function LessonDetailPage() {
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">{lesson.title}</h1>
                 <p className="text-sm text-gray-600">
-                  {lesson.course.title} • Lesson {lesson.navigation.currentIndex} of {lesson.navigation.totalLessons}
+                  {course.title} • Module {lessonData.moduleIndex + 1}: {module.title}
                 </p>
               </div>
             </div>
@@ -236,7 +233,7 @@ export default function LessonDetailPage() {
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
-            <span>Course Progress</span>
+            <span>Course Progress - Lesson {navigation?.currentIndex} of {navigation?.totalLessons}</span>
             <span>{Math.round(getCourseProgressValue())}%</span>
           </div>
           <Progress 
@@ -251,70 +248,114 @@ export default function LessonDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Low Bandwidth Media Player */}
-            <LowBandwidthMediaPlayer
-              title={lesson.title}
-              videoUrl={lesson.videoUrl}
-              audioUrl={lesson.audioUrl}
-              textContent={lesson.content}
-              pdfUrl={lesson.pdfUrl}
-              duration={lesson.duration}
-              onProgress={handleMediaProgress}
-              onComplete={handleComplete}
-            />
+            {/* Media Player */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  {lesson.type === 'video' && <Play className="h-5 w-5" />}
+                  {lesson.type === 'audio' && <Headphones className="h-5 w-5" />}
+                  {lesson.type === 'text' && <FileText className="h-5 w-5" />}
+                  {lesson.type === 'quiz' && <BookOpen className="h-5 w-5" />}
+                  {lesson.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
+                  {lesson.type === 'video' && lesson.content ? (
+                    <iframe
+                      src={lesson.content}
+                      title={lesson.title}
+                      className="w-full h-full rounded-lg"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : lesson.type === 'text' ? (
+                    <div className="w-full h-full p-8">
+                      <div className="prose max-w-none">
+                        <p className="text-gray-700 leading-relaxed">
+                          {lesson.content || 'This is a text-based lesson. The content will be displayed here. In a real application, this would contain the full lesson text, explanations, and learning materials.'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500">
+                      <Play className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                      <p>Video content for: {lesson.title}</p>
+                      <p className="text-sm mt-2">Content URL: {lesson.content || 'Not available'}</p>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Lesson Info */}
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {formatDuration(lesson.duration)}
+                    </span>
+                    <span className="capitalize flex items-center gap-1">
+                      {lesson.type === 'video' && <Play className="h-4 w-4" />}
+                      {lesson.type === 'text' && <FileText className="h-4 w-4" />}
+                      {lesson.type}
+                    </span>
+                    {lesson.isFree && (
+                      <Badge variant="secondary" className="text-xs">
+                        FREE PREVIEW
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Lesson Content Text */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="h-5 w-5" />
-                  Lesson Content
+                  Lesson Notes & Summary
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="prose max-w-none">
-                  {lesson.content.split('\n').map((paragraph, index) => {
-                    if (paragraph.startsWith('## ')) {
-                      return <h2 key={index} className="text-xl font-semibold mt-6 mb-3">{paragraph.replace('## ', '')}</h2>
-                    } else if (paragraph.startsWith('### ')) {
-                      return <h3 key={index} className="text-lg font-medium mt-4 mb-2">{paragraph.replace('### ', '')}</h3>
-                    } else if (paragraph.startsWith('- ')) {
-                      return <li key={index} className="ml-4">{paragraph.replace('- ', '')}</li>
-                    } else if (paragraph.trim() === '') {
-                      return <br key={index} />
-                    } else {
-                      return <p key={index} className="text-gray-700 leading-relaxed my-2">{paragraph}</p>
-                    }
-                  })}
+                  <p className="text-gray-700 leading-relaxed">
+                    {lesson.content ? lesson.content.split('\n').map((paragraph, index) => {
+                      if (paragraph.startsWith('## ')) {
+                        return <h2 key={index} className="text-xl font-semibold mt-6 mb-3">{paragraph.replace('## ', '')}</h2>
+                      } else if (paragraph.startsWith('### ')) {
+                        return <h3 key={index} className="text-lg font-medium mt-4 mb-2">{paragraph.replace('### ', '')}</h3>
+                      } else if (paragraph.startsWith('- ')) {
+                        return <li key={index} className="ml-4">{paragraph.replace('- ', '')}</li>
+                      } else if (paragraph.trim() === '') {
+                        return <br key={index} />
+                      } else {
+                        return <p key={index} className="text-gray-700 leading-relaxed my-2">{paragraph}</p>
+                      }
+                    }) : (
+                      <>
+                        <p className="text-gray-700 leading-relaxed my-4">
+                          Welcome to this lesson on <strong>{lesson.title}</strong>. This is part of the <strong>{course.title}</strong> course.
+                        </p>
+                        <p className="text-gray-700 leading-relaxed my-4">
+                          In this lesson, you will learn key concepts that will help you build a strong foundation in this subject.
+                          Take your time to go through the content, and don't forget to complete the practice exercises at the end.
+                        </p>
+                        <h3 className="text-lg font-medium mt-6 mb-3">Key Points</h3>
+                        <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                          <li>Understanding the fundamental concepts</li>
+                          <li>Practical applications and examples</li>
+                          <li>Best practices and common pitfalls to avoid</li>
+                          <li>How to apply what you've learned in real scenarios</li>
+                        </ul>
+                        <p className="text-gray-700 leading-relaxed my-4 mt-6">
+                          If you have any questions about this lesson, feel free to use the Confusion/Q&A section to ask for clarification.
+                        </p>
+                      </>
+                    )}
+                  </p>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Assessments */}
-            {lesson.assessments.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Lesson Assessments</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {lesson.assessments.map((assessment) => (
-                      <div key={assessment.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div>
-                          <h4 className="font-medium text-gray-900">{assessment.title}</h4>
-                          <Badge variant="secondary" className="mt-1">
-                            {assessment.type}
-                          </Badge>
-                        </div>
-                        <Button size="sm" onClick={() => router.push(`/assessments/${assessment.id}`)}>
-                          Start Assessment
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
 
           {/* Sidebar */}
@@ -325,46 +366,48 @@ export default function LessonDetailPage() {
                 <CardTitle className="text-lg">Navigation</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {lesson.navigation.previous && (
+                {navigation?.previous && (
                   <Button 
                     variant="outline" 
                     className="w-full justify-start"
-                    onClick={() => navigateToLesson(lesson.navigation.previous.id)}
+                    onClick={() => navigateToLesson(navigation.previous!.id)}
                   >
                     <ChevronLeft className="h-4 w-4 mr-2" />
-                    Previous: {lesson.navigation.previous.title}
+                    Previous: {navigation.previous.title}
                   </Button>
                 )}
                 
-                {lesson.navigation.next && (
+                {navigation?.next && (
                   <Button 
                     className="w-full justify-start bg-orange-500 hover:bg-orange-600"
-                    onClick={() => navigateToLesson(lesson.navigation.next.id)}
+                    onClick={() => navigateToLesson(navigation.next!.id)}
                   >
-                    Next: {lesson.navigation.next.title}
+                    Next: {navigation.next.title}
                     <ChevronRight className="h-4 w-4 ml-2" />
                   </Button>
                 )}
                 
-                {!isCompleted ? (
-                  <Button 
-                    variant="default"
-                    className="w-full justify-start bg-green-600 hover:bg-green-700"
-                    onClick={handleComplete}
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Mark as Complete
-                  </Button>
-                ) : (
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => setIsCompleted(false)}
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Completed (Click to undo)
-                  </Button>
-                )}
+                <div className="border-t pt-4">
+                  {!isCompleted ? (
+                    <Button 
+                      variant="default"
+                      className="w-full justify-start bg-green-600 hover:bg-green-700"
+                      onClick={handleComplete}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Mark as Complete
+                    </Button>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="w-full justify-start"
+                      onClick={() => setIsCompleted(false)}
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Completed (Click to undo)
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
@@ -381,36 +424,60 @@ export default function LessonDetailPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Format</span>
                   <div className="flex gap-1">
-                    {lesson.videoUrl && (
+                    {lesson.type === 'video' && (
                       <Badge variant="outline" className="text-xs flex items-center gap-1">
                         <Play className="h-3 w-3" /> Video
                       </Badge>
                     )}
-                    {lesson.audioUrl && (
+                    {lesson.type === 'audio' && (
                       <Badge variant="outline" className="text-xs flex items-center gap-1">
                         <Headphones className="h-3 w-3" /> Audio
                       </Badge>
                     )}
-                    {lesson.pdfUrl && (
+                    {lesson.type === 'text' && (
                       <Badge variant="outline" className="text-xs flex items-center gap-1">
-                        <FileText className="h-3 w-3" /> PDF
+                        <FileText className="h-3 w-3" /> Text
                       </Badge>
                     )}
-                    {!lesson.videoUrl && !lesson.audioUrl && !lesson.pdfUrl && (
-                      <Badge variant="outline" className="text-xs">Text Only</Badge>
+                    {lesson.type === 'quiz' && (
+                      <Badge variant="outline" className="text-xs flex items-center gap-1">
+                        <BookOpen className="h-3 w-3" /> Quiz
+                      </Badge>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Assessments</span>
-                  <span className="text-sm font-medium">{lesson.assessments.length}</span>
+                  <span className="text-sm text-gray-600">Lesson Type</span>
+                  <span className="text-sm font-medium capitalize">{lesson.type}</span>
                 </div>
-                {session?.user && (
+                {lesson.isFree && (
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Time Spent</span>
-                    <span className="text-sm font-medium">{Math.floor(timeSpent)} min</span>
+                    <span className="text-sm text-gray-600">Access</span>
+                    <Badge variant="secondary" className="text-xs">Free Preview</Badge>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            {/* Course Progress */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Your Progress</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Lessons Completed</span>
+                  <span className="font-medium">
+                    {isCompleted ? navigation?.currentIndex : (navigation?.currentIndex || 1) - 1} of {navigation?.totalLessons}
+                  </span>
+                </div>
+                <Progress 
+                  value={getCourseProgressValue()} 
+                  className="h-2" 
+                />
+                <p className="text-xs text-gray-500">
+                  {Math.round(getCourseProgressValue())}% complete
+                </p>
               </CardContent>
             </Card>
 
@@ -422,16 +489,21 @@ export default function LessonDetailPage() {
               <CardContent>
                 <div className="flex items-center gap-3">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={lesson.course.instructor.avatar} alt={lesson.course.instructor.name} />
+                    <AvatarImage src={course.instructor.avatar} alt={course.instructor.name} />
                     <AvatarFallback>
-                      {lesson.course.instructor.name.charAt(0)}
+                      {course.instructor.name.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-medium text-gray-900">{lesson.course.instructor.name}</p>
-                    <p className="text-sm text-gray-600">Course Instructor</p>
+                    <p className="font-medium text-gray-900">{course.instructor.name}</p>
+                    <p className="text-sm text-gray-600">{course.instructor.title}</p>
                   </div>
                 </div>
+                <Link href={`/courses/${course.id}`}>
+                  <Button variant="outline" className="w-full mt-4">
+                    View Course Details
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 
