@@ -110,7 +110,7 @@ export function NewNavigation() {
             </button>
             
             {moreMenuOpen && (
-              <div style={{
+              <Link href="#" role="button" style={{
                 position: 'absolute',
                 top: '100%',
                 left: '0',
@@ -120,7 +120,9 @@ export function NewNavigation() {
                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                 minWidth: '200px',
                 padding: '0.5rem 0',
-                zIndex: 50
+                zIndex: 50,
+                display: 'block',
+                textDecoration: 'none'
               }}>
                 <Link href="/about" style={{ display: 'block', padding: '0.5rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}>
                   About Us
@@ -140,7 +142,7 @@ export function NewNavigation() {
                 <Link href="/privacy" style={{ display: 'block', padding: '0.5rem 1rem', color: '#374151', textDecoration: 'none', fontSize: '0.875rem' }}>
                   Privacy Policy
                 </Link>
-              </div>
+              </Link>
             )}
           </div>
         </div>
