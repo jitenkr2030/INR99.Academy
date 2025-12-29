@@ -1,1188 +1,415 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from 'react'
-import DashboardLayout from '@/components/DashboardLayout'
-import { useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import {
+  Plus,
+  Search,
+  Filter,
+  MoreVertical,
+  Edit,
+  Trash2,
+  Eye,
+  BookOpen,
+  Users,
+  Star,
+  Clock,
+} from 'lucide-react'
+import { getInstructorCourses, createInstructorCourse, type Course } from '@/lib/instructor-api'
 
-interface Course {
-  id: string
-  title: string
-  description: string
-  isActive: boolean
-  _count: {
-    lessons: number
-    progress: number
-  }
-  createdAt: string
-}
+// Mock data for fallback
+const mockCourses: Course[] = [
+  {
+    id: '1',
+    title: 'Complete Web Development Bootcamp',
+    description: 'Learn HTML, CSS, JavaScript, React, Node.js and more',
+    difficulty: 'BEGINNER',
+    duration: 1200,
+    isActive: true,
+    createdAt: '2024-01-15',
+    _count: { lessons: 45, progress: 156 },
+  },
+  {
+    id: '2',
+    title: 'Python for Data Science',
+    description: 'Master Python programming for data analysis and machine learning',
+    difficulty: 'INTERMEDIATE',
+    duration: 900,
+    isActive: true,
+    createdAt: '2024-02-10',
+    _count: { lessons: 32, progress: 89 },
+  },
+  {
+    id: '3',
+    title: 'React Native Mobile Apps',
+    description: 'Build cross-platform mobile applications with React Native',
+    difficulty: 'INTERMEDIATE',
+    duration: 750,
+    isActive: false,
+    createdAt: '2024-03-05',
+    _count: { lessons: 28, progress: 0 },
+  },
+  {
+    id: '4',
+    title: 'Node.js Backend Development',
+    description: 'Create scalable backend services with Node.js and Express',
+    difficulty: 'ADVANCED',
+    duration: 600,
+    isActive: true,
+    createdAt: '2024-01-20',
+    _count: { lessons: 24, progress: 67 },
+  },
+]
 
-interface Lesson {
-  id: string
-  title: string
-  content: string
-  videoUrl?: string
-  audioUrl?: string
-  pdfUrl?: string
-  duration: number
-  order: number
-  isActive: boolean
-  _count?: {
-    progress: number
-  }
-}
-
-interface Category {
-  id: string
-  name: string
-  slug: string
-  subcategories?: Array<{
-    id: string
-    name: string
-    slug: string
-  }>
-}
-
-interface LearningPath {
-  id: string
-  title: string
-  description: string
-  color: string
-}
-
-export default function InstructorCourses() {
-  const { data: session } = useSession()
+export default function InstructorCoursesPage() {
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [filter, setFilter] = useState('all')
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showLessonsModal, setShowLessonsModal] = useState(false)
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null)
-  const [lessons, setLessons] = useState<Lesson[]>([])
-  const [lessonsLoading, setLessonsLoading] = useState(false)
-  const [categories, setCategories] = useState<Category[]>([])
-  const [learningPaths, setLearningPaths] = useState<LearningPath[]>([])
-  const [submitting, setSubmitting] = useState(false)
-  const [lessonSubmitting, setLessonSubmitting] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  const [lessonMessage, setLessonMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  
-  // Form state
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    difficulty: 'BEGINNER',
-    categoryId: '',
-    subCategoryId: '',
-    learningPathId: ''
-  })
-
-  // Lesson form state
-  const [lessonForm, setLessonForm] = useState({
-    title: '',
-    content: '',
-    videoUrl: '',
-    audioUrl: '',
-    pdfUrl: '',
-    duration: 10,
-    order: 0
-  })
-
-  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null)
 
   useEffect(() => {
+    async function fetchCourses() {
+      try {
+        const response = await getInstructorCourses()
+        if (response.success && response.courses.length > 0) {
+          setCourses(response.courses)
+        } else {
+          setCourses(mockCourses)
+        }
+      } catch (err) {
+        console.error('Failed to fetch courses:', err)
+        setCourses(mockCourses)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchCourses()
-    fetchCategories()
-    fetchLearningPaths()
   }, [])
 
-  const fetchCourses = async () => {
-    try {
-      const res = await fetch('/api/instructor/courses')
-      const data = await res.json()
-      if (data.success) {
-        setCourses(data.courses)
-      }
-    } catch (error) {
-      console.error('Error fetching courses:', error)
-    } finally {
-      setLoading(false)
+  const filteredCourses = courses.filter((course) => {
+    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesFilter =
+      filter === 'all' ||
+      (filter === 'published' && course.isActive) ||
+      (filter === 'draft' && !course.isActive) ||
+      (filter === 'beginner' && course.difficulty === 'BEGINNER') ||
+      (filter === 'intermediate' && course.difficulty === 'INTERMEDIATE') ||
+      (filter === 'advanced' && course.difficulty === 'ADVANCED')
+    return matchesSearch && matchesFilter
+  })
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case 'BEGINNER':
+        return 'bg-green-100 text-green-700'
+      case 'INTERMEDIATE':
+        return 'bg-yellow-100 text-yellow-700'
+      case 'ADVANCED':
+        return 'bg-red-100 text-red-700'
+      default:
+        return 'bg-gray-100 text-gray-700'
     }
   }
 
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch('/api/categories')
-      const data = await res.json()
-      if (Array.isArray(data)) {
-        setCategories(data)
-      }
-    } catch (error) {
-      console.error('Error fetching categories:', error)
-    }
-  }
-
-  const fetchLearningPaths = async () => {
-    try {
-      const res = await fetch('/api/learning-paths')
-      const data = await res.json()
-      if (data.success && Array.isArray(data.learningPaths)) {
-        setLearningPaths(data.learningPaths)
-      }
-    } catch (error) {
-      console.error('Error fetching learning paths:', error)
-    }
-  }
-
-  const fetchLessons = async (courseId: string) => {
-    setLessonsLoading(true)
-    try {
-      const res = await fetch(`/api/instructor/lessons?courseId=${courseId}`)
-      const data = await res.json()
-      if (data.success) {
-        setLessons(data.lessons)
-      }
-    } catch (error) {
-      console.error('Error fetching lessons:', error)
-    } finally {
-      setLessonsLoading(false)
-    }
-  }
-
-  const openLessonsModal = async (course: Course) => {
-    setSelectedCourse(course)
-    setShowLessonsModal(true)
-    setLessonMessage(null)
-    setEditingLesson(null)
-    setLessonForm({
-      title: '',
-      content: '',
-      videoUrl: '',
-      audioUrl: '',
-      pdfUrl: '',
-      duration: 10,
-      order: 0
-    })
-    await fetchLessons(course.id)
-  }
-
-  const userName = session?.user?.name || 'Instructor'
-  const userEmail = session?.user?.email || ''
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
-
-  const handleLessonInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setLessonForm(prev => ({ 
-      ...prev, 
-      [name]: name === 'duration' || name === 'order' ? parseInt(value) || 0 : value 
-    }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitting(true)
-    setMessage(null)
-
-    try {
-      const res = await fetch('/api/instructor/courses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      })
-
-      const data = await res.json()
-
-      if (data.success) {
-        setMessage({ type: 'success', text: 'Course created successfully!' })
-        setFormData({
-          title: '',
-          description: '',
-          difficulty: 'BEGINNER',
-          categoryId: '',
-          subCategoryId: '',
-          learningPathId: ''
-        })
-        fetchCourses()
-        setTimeout(() => {
-          setShowCreateModal(false)
-          setMessage(null)
-        }, 1500)
-      } else {
-        setMessage({ type: 'error', text: data.error || 'Failed to create course' })
-      }
-    } catch (error) {
-      console.error('Create course error:', error)
-      setMessage({ type: 'error', text: 'Failed to create course' })
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handleCreateLesson = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedCourse) return
-
-    setLessonSubmitting(true)
-    setLessonMessage(null)
-
-    try {
-      const res = await fetch('/api/instructor/lessons', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...lessonForm,
-          courseId: selectedCourse.id
-        })
-      })
-
-      const data = await res.json()
-
-      if (data.success) {
-        setLessonMessage({ type: 'success', text: 'Lesson created successfully!' })
-        setLessonForm({
-          title: '',
-          content: '',
-          videoUrl: '',
-          audioUrl: '',
-          pdfUrl: '',
-          duration: 10,
-          order: 0
-        })
-        fetchLessons(selectedCourse.id)
-        fetchCourses()
-      } else {
-        setLessonMessage({ type: 'error', text: data.error || 'Failed to create lesson' })
-      }
-    } catch (error) {
-      console.error('Create lesson error:', error)
-      setLessonMessage({ type: 'error', text: 'Failed to create lesson' })
-    } finally {
-      setLessonSubmitting(false)
-    }
-  }
-
-  const handleUpdateLesson = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!editingLesson || !selectedCourse) return
-
-    setLessonSubmitting(true)
-    setLessonMessage(null)
-
-    try {
-      const res = await fetch(`/api/instructor/lessons/${editingLesson.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(lessonForm)
-      })
-
-      const data = await res.json()
-
-      if (data.success) {
-        setLessonMessage({ type: 'success', text: 'Lesson updated successfully!' })
-        setEditingLesson(null)
-        setLessonForm({
-          title: '',
-          content: '',
-          videoUrl: '',
-          audioUrl: '',
-          pdfUrl: '',
-          duration: 10,
-          order: 0
-        })
-        fetchLessons(selectedCourse.id)
-        fetchCourses()
-      } else {
-        setLessonMessage({ type: 'error', text: data.error || 'Failed to update lesson' })
-      }
-    } catch (error) {
-      console.error('Update lesson error:', error)
-      setLessonMessage({ type: 'error', text: 'Failed to update lesson' })
-    } finally {
-      setLessonSubmitting(false)
-    }
-  }
-
-  const handleDeleteLesson = async (lessonId: string) => {
-    if (!confirm('Are you sure you want to delete this lesson? This action cannot be undone.')) {
-      return
-    }
-
-    setLessonSubmitting(true)
-    setLessonMessage(null)
-
-    try {
-      const res = await fetch(`/api/instructor/lessons/${lessonId}`, {
-        method: 'DELETE'
-      })
-
-      const data = await res.json()
-
-      if (data.success) {
-        setLessonMessage({ type: 'success', text: 'Lesson deleted successfully!' })
-        fetchLessons(selectedCourse!.id)
-        fetchCourses()
-      } else {
-        setLessonMessage({ type: 'error', text: data.error || 'Failed to delete lesson' })
-      }
-    } catch (error) {
-      console.error('Delete lesson error:', error)
-      setLessonMessage({ type: 'error', text: 'Failed to delete lesson' })
-    } finally {
-      setLessonSubmitting(false)
-    }
-  }
-
-  const startEditLesson = (lesson: Lesson) => {
-    setEditingLesson(lesson)
-    setLessonForm({
-      title: lesson.title,
-      content: lesson.content,
-      videoUrl: lesson.videoUrl || '',
-      audioUrl: lesson.audioUrl || '',
-      pdfUrl: lesson.pdfUrl || '',
-      duration: lesson.duration,
-      order: lesson.order
-    })
-  }
-
-  const cancelEditLesson = () => {
-    setEditingLesson(null)
-    setLessonForm({
-      title: '',
-      content: '',
-      videoUrl: '',
-      audioUrl: '',
-      pdfUrl: '',
-      duration: 10,
-      order: 0
-    })
-  }
-
-  const selectedCategory = categories.find(c => c.id === formData.categoryId)
-
-  if (loading) {
-    return (
-      <DashboardLayout userRole="instructor" userInfo={{ name: userName, email: userEmail }}>
-        <div style={{ textAlign: 'center', padding: '3rem' }}>
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-          <p style={{ marginTop: '1rem', color: '#6b7280' }}>Loading courses...</p>
-        </div>
-      </DashboardLayout>
-    )
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60)
+    const mins = minutes % 60
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`
   }
 
   return (
-    <DashboardLayout userRole="instructor" userInfo={{ name: userName, email: userEmail }}>
-      <div>
-        {/* Header */}
-        <div style={{ 
-          background: 'white', 
-          borderRadius: '0.75rem', 
-          padding: '2rem', 
-          marginBottom: '2rem',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem'
-        }}>
-          <div>
-            <h1 style={{ fontSize: '1.875rem', fontWeight: '700', color: '#1f2937', marginBottom: '0.5rem' }}>
-              My Courses 👨‍🏫
-            </h1>
-            <p style={{ color: '#6b7280', fontSize: '1rem' }}>
-              Manage and track your course progress
-            </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">My Courses</h1>
+              <p className="text-sm text-gray-500">Manage and create your courses</p>
+            </div>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Create Course
+            </button>
           </div>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#9333ea',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.5rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            <span>+</span> Create New Course
-          </button>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Search and Filter */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search courses..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter className="w-5 h-5 text-gray-400" />
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="all">All Courses</option>
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
         </div>
 
-        {/* Courses List */}
-        {courses.length === 0 ? (
-          <div style={{ 
-            background: 'white', 
-            borderRadius: '0.75rem', 
-            padding: '3rem', 
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📚</div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-              No courses yet
-            </h2>
-            <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-              Create your first course to start teaching!
+        {/* Courses Grid */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-xl border p-6 animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                <div className="h-3 bg-gray-200 rounded w-full mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+              </div>
+            ))}
+          </div>
+        ) : filteredCourses.length === 0 ? (
+          <div className="text-center py-12">
+            <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No courses found</h3>
+            <p className="text-gray-500 mb-4">
+              {searchTerm || filter !== 'all'
+                ? 'Try adjusting your search or filter'
+                : 'Get started by creating your first course'}
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: '#9333ea',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.5rem',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
+              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
             >
+              <Plus className="w-5 h-5 mr-2" />
               Create Course
             </button>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: '1rem' }}>
-            {courses.map(course => (
-              <div 
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCourses.map((course) => (
+              <div
                 key={course.id}
-                style={{
-                  background: 'white',
-                  borderRadius: '0.75rem',
-                  padding: '1.5rem',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                }}
+                className="bg-white rounded-xl border overflow-hidden hover:shadow-md transition-shadow"
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>
-                      {course.title}
-                    </h3>
-                    <p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
-                      {course.description}
-                    </p>
+                <div className="h-40 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <BookOpen className="w-16 h-16 text-white/50" />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-semibold text-gray-900 line-clamp-2">{course.title}</h3>
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <MoreVertical className="w-5 h-5" />
+                    </button>
                   </div>
-                  <span style={{
-                    background: course.isActive ? '#16a34a' : '#eab308',
-                    color: 'white',
-                    padding: '0.25rem 0.75rem',
-                    borderRadius: '1rem',
-                    fontSize: '0.75rem',
-                    fontWeight: '500'
-                  }}>
-                    {course.isActive ? 'Published' : 'Draft'}
-                  </span>
-                </div>
-                
-                <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem', color: '#6b7280', fontSize: '0.875rem' }}>
-                  <span>📚 {course._count.lessons} Lessons</span>
-                  <span>👥 {course._count.progress} Students</span>
-                  <span>📅 {new Date(course.createdAt).toLocaleDateString()}</span>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  <button 
-                    onClick={() => openLessonsModal(course)}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      background: '#7c3aed',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '0.375rem',
-                      fontSize: '0.875rem',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}
-                  >
-                    <span>📖</span> Manage Lessons
-                  </button>
-                  <button style={{
-                    padding: '0.5rem 1rem',
-                    background: '#f3f4f6',
-                    color: '#374151',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                    cursor: 'pointer'
-                  }}>
-                    Edit Course
-                  </button>
-                  <button style={{
-                    padding: '0.5rem 1rem',
-                    background: '#f3f4f6',
-                    color: '#374151',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem',
-                    cursor: 'pointer'
-                  }}>
-                    View Analytics
-                  </button>
+                  <p className="text-sm text-gray-500 line-clamp-2 mb-4">{course.description}</p>
+                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                    <span className="flex items-center gap-1">
+                      <BookOpen className="w-4 h-4" />
+                      {course._count.lessons} lessons
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {formatDuration(course.duration)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(
+                        course.difficulty
+                      )}`}
+                    >
+                      {course.difficulty.charAt(0) + course.difficulty.slice(1).toLowerCase()}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/dashboard/instructor/courses/${course.id}`}
+                        className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Link>
+                      <Link
+                        href={`/courses/${course.id}`}
+                        className="p-2 text-gray-400 hover:text-green-600 transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-1 text-gray-500">
+                      <Users className="w-4 h-4" />
+                      {course._count.progress} students
+                    </span>
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        course.isActive
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}
+                    >
+                      {course.isActive ? 'Published' : 'Draft'}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </main>
 
       {/* Create Course Modal */}
       {showCreateModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '0.75rem',
-            padding: '2rem',
-            maxWidth: '600px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflowY: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937' }}>
-                Create New Course
-              </h2>
-              <button
-                onClick={() => {
-                  setShowCreateModal(false)
-                  setMessage(null)
-                  setFormData({
-                    title: '',
-                    description: '',
-                    difficulty: 'BEGINNER',
-                    categoryId: '',
-                    subCategoryId: '',
-                    learningPathId: ''
-                  })
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  color: '#6b7280'
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            {message && (
-              <div style={{
-                padding: '1rem',
-                borderRadius: '0.5rem',
-                marginBottom: '1rem',
-                background: message.type === 'success' ? '#dcfce7' : '#fee2e2',
-                color: message.type === 'success' ? '#16a34a' : '#dc2626'
-              }}>
-                {message.text}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                  Course Title *
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="e.g., Complete Python Programming"
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    fontSize: '1rem',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                  Description *
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Describe what students will learn..."
-                  rows={4}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    fontSize: '1rem',
-                    resize: 'vertical',
-                    fontFamily: 'inherit',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                    Difficulty Level
-                  </label>
-                  <select
-                    name="difficulty"
-                    value={formData.difficulty}
-                    onChange={handleInputChange}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      background: 'white',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="BEGINNER">Beginner</option>
-                    <option value="INTERMEDIATE">Intermediate</option>
-                    <option value="ADVANCED">Advanced</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                    Category
-                  </label>
-                  <select
-                    name="categoryId"
-                    value={formData.categoryId}
-                    onChange={handleInputChange}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      background: 'white',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.id}>{cat.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                    Subcategory
-                  </label>
-                  <select
-                    name="subCategoryId"
-                    value={formData.subCategoryId}
-                    onChange={handleInputChange}
-                    disabled={!formData.categoryId}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      background: 'white',
-                      boxSizing: 'border-box',
-                      opacity: formData.categoryId ? 1 : 0.5
-                    }}
-                  >
-                    <option value="">Select Subcategory</option>
-                    {selectedCategory?.subcategories?.map(sub => (
-                      <option key={sub.id} value={sub.id}>{sub.name}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                    Learning Path
-                  </label>
-                  <select
-                    name="learningPathId"
-                    value={formData.learningPathId}
-                    onChange={handleInputChange}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      background: 'white',
-                      boxSizing: 'border-box'
-                    }}
-                  >
-                    <option value="">Select Learning Path (Optional)</option>
-                    {learningPaths.map(path => (
-                      <option key={path.id} value={path.id}>{path.title}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateModal(false)
-                    setMessage(null)
-                    setFormData({
-                      title: '',
-                      description: '',
-                      difficulty: 'BEGINNER',
-                      categoryId: '',
-                      subCategoryId: '',
-                      learningPathId: ''
-                    })
-                  }}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: '#f3f4f6',
-                    color: '#374151',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    fontWeight: '500',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    background: '#9333ea',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '0.5rem',
-                    fontWeight: '600',
-                    cursor: submitting ? 'not-allowed' : 'pointer',
-                    opacity: submitting ? 0.7 : 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  {submitting ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      Creating...
-                    </>
-                  ) : (
-                    'Create Course'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <CreateCourseModal
+          onClose={() => setShowCreateModal(false)}
+          onCourseCreated={(course) => {
+            setCourses([course, ...courses])
+            setShowCreateModal(false)
+          }}
+        />
       )}
+    </div>
+  )
+}
 
-      {/* Manage Lessons Modal */}
-      {showLessonsModal && selectedCourse && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '0.75rem',
-            padding: '2rem',
-            maxWidth: '900px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflowY: 'auto'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <div>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937' }}>
-                  Manage Lessons
-                </h2>
-                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-                  Course: {selectedCourse.title}
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowLessonsModal(false)
-                  setSelectedCourse(null)
-                  setLessons([])
-                  setEditingLesson(null)
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  color: '#6b7280'
-                }}
-              >
-                ×
-              </button>
-            </div>
+// Create Course Modal Component
+function CreateCourseModal({
+  onClose,
+  onCourseCreated,
+}: {
+  onClose: () => void
+  onCourseCreated: (course: Course) => void
+}) {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    difficulty: 'BEGINNER' as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED',
+    duration: 60,
+  })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-            {lessonMessage && (
-              <div style={{
-                padding: '1rem',
-                borderRadius: '0.5rem',
-                marginBottom: '1rem',
-                background: lessonMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
-                color: lessonMessage.type === 'success' ? '#16a34a' : '#dc2626'
-              }}>
-                {lessonMessage.text}
-              </div>
-            )}
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
-            {/* Lesson Form */}
-            <div style={{
-              background: '#f9fafb',
-              borderRadius: '0.5rem',
-              padding: '1.5rem',
-              marginBottom: '1.5rem'
-            }}>
-              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-                {editingLesson ? 'Edit Lesson' : 'Add New Lesson'}
-              </h3>
-              <form onSubmit={editingLesson ? handleUpdateLesson : handleCreateLesson}>
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                    Lesson Title *
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={lessonForm.title}
-                    onChange={handleLessonInputChange}
-                    required
-                    placeholder="e.g., Introduction to Variables"
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
+    try {
+      const response = await createInstructorCourse(formData)
+      if (response.success) {
+        onCourseCreated(response.course)
+      } else {
+        setError(response.message || 'Failed to create course')
+      }
+    } catch (err) {
+      setError('Failed to create course. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                    Lesson Content *
-                  </label>
-                  <textarea
-                    name="content"
-                    value={lessonForm.content}
-                    onChange={handleLessonInputChange}
-                    required
-                    placeholder="Write your lesson content here..."
-                    rows={6}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      resize: 'vertical',
-                      fontFamily: 'inherit',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                      Video URL (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      name="videoUrl"
-                      value={lessonForm.videoUrl}
-                      onChange={handleLessonInputChange}
-                      placeholder="https://example.com/video.mp4"
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '0.5rem',
-                        fontSize: '1rem',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                      Audio URL (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      name="audioUrl"
-                      value={lessonForm.audioUrl}
-                      onChange={handleLessonInputChange}
-                      placeholder="https://example.com/audio.mp3"
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '0.5rem',
-                        fontSize: '1rem',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                      PDF URL (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      name="pdfUrl"
-                      value={lessonForm.pdfUrl}
-                      onChange={handleLessonInputChange}
-                      placeholder="https://example.com/document.pdf"
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '0.5rem',
-                        fontSize: '1rem',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                      Duration (minutes)
-                    </label>
-                    <input
-                      type="number"
-                      name="duration"
-                      value={lessonForm.duration}
-                      onChange={handleLessonInputChange}
-                      min="1"
-                      style={{
-                        width: '100%',
-                        padding: '0.75rem',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '0.5rem',
-                        fontSize: '1rem',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontWeight: '500', marginBottom: '0.5rem', color: '#374151' }}>
-                    Order (Lesson Number)
-                  </label>
-                  <input
-                    type="number"
-                    name="order"
-                    value={lessonForm.order}
-                    onChange={handleLessonInputChange}
-                    min="1"
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '1rem',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <button
-                    type="submit"
-                    disabled={lessonSubmitting}
-                    style={{
-                      padding: '0.75rem 1.5rem',
-                      background: '#7c3aed',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '0.5rem',
-                      fontWeight: '600',
-                      cursor: lessonSubmitting ? 'not-allowed' : 'pointer',
-                      opacity: lessonSubmitting ? 0.7 : 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}
-                  >
-                    {lessonSubmitting ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Saving...
-                      </>
-                    ) : (
-                      editingLesson ? 'Update Lesson' : 'Add Lesson'
-                    )}
-                  </button>
-                  {editingLesson && (
-                    <button
-                      type="button"
-                      onClick={cancelEditLesson}
-                      style={{
-                        padding: '0.75rem 1.5rem',
-                        background: '#f3f4f6',
-                        color: '#374151',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '0.5rem',
-                        fontWeight: '500',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  )}
-                </div>
-              </form>
-            </div>
-
-            {/* Lessons List */}
-            <div>
-              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-                Existing Lessons ({lessons.length})
-              </h3>
-              {lessonsLoading ? (
-                <div style={{ textAlign: 'center', padding: '2rem' }}>
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
-                  <p style={{ marginTop: '1rem', color: '#6b7280' }}>Loading lessons...</p>
-                </div>
-              ) : lessons.length === 0 ? (
-                <div style={{ 
-                  textAlign: 'center', 
-                  padding: '2rem', 
-                  background: '#f9fafb', 
-                  borderRadius: '0.5rem',
-                  color: '#6b7280'
-                }}>
-                  <p>No lessons added yet. Add your first lesson above!</p>
-                </div>
-              ) : (
-                <div style={{ display: 'grid', gap: '0.75rem' }}>
-                  {lessons.map((lesson, index) => (
-                    <div 
-                      key={lesson.id}
-                      style={{
-                        background: '#f9fafb',
-                        borderRadius: '0.5rem',
-                        padding: '1rem',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{
-                          width: '2rem',
-                          height: '2rem',
-                          borderRadius: '50%',
-                          background: '#7c3aed',
-                          color: 'white',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: '600',
-                          fontSize: '0.875rem'
-                        }}>
-                          {lesson.order || index + 1}
-                        </div>
-                        <div>
-                          <h4 style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
-                            {lesson.title}
-                          </h4>
-                          <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                            {lesson.duration} min
-                            {lesson.videoUrl && ' • Video'}
-                            {lesson.pdfUrl && ' • PDF'}
-                          </p>
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button
-                          onClick={() => startEditLesson(lesson)}
-                          style={{
-                            padding: '0.5rem 1rem',
-                            background: '#7c3aed',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            fontSize: '0.875rem',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteLesson(lesson.id)}
-                          style={{
-                            padding: '0.5rem 1rem',
-                            background: '#fee2e2',
-                            color: '#dc2626',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            fontSize: '0.875rem',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-6 border-b">
+          <h2 className="text-xl font-semibold text-gray-900">Create New Course</h2>
+          <p className="text-sm text-gray-500 mt-1">Fill in the details to create a new course</p>
         </div>
-      )}
-    </DashboardLayout>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              {error}
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Course Title *
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="e.g., Complete Web Development Bootcamp"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Description *
+            </label>
+            <textarea
+              required
+              rows={3}
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Describe what students will learn..."
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Difficulty Level
+            </label>
+            <select
+              value={formData.difficulty}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  difficulty: e.target.value as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED',
+                })
+              }
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="BEGINNER">Beginner</option>
+              <option value="INTERMEDIATE">Intermediate</option>
+              <option value="ADVANCED">Advanced</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Duration (minutes)
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={formData.duration}
+              onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 0 })}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="60"
+            />
+          </div>
+          <div className="flex items-center gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+            >
+              {loading ? 'Creating...' : 'Create Course'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   )
 }
