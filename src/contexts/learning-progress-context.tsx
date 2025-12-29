@@ -177,8 +177,17 @@ export function LearningProgressProvider({ children }: { children: ReactNode }) 
 
 export function useLearningProgress() {
   const context = useContext(LearningProgressContext)
+  // Return safe defaults instead of throwing an error
+  // This allows components to work even without being wrapped in a provider
   if (context === undefined) {
-    throw new Error('useLearningProgress must be used within a LearningProgressProvider')
+    return {
+      progressData: [],
+      updateProgress: async () => {},
+      markLessonComplete: async () => {},
+      getCourseProgress: () => null,
+      getLessonProgress: () => null,
+      isLoading: false
+    }
   }
   return context
 }
