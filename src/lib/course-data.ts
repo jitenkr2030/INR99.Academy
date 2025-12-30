@@ -1247,7 +1247,129 @@ What you'll improve:
           { id: "les-eng-2", title: "Basic Grammar Refresh", type: "video", duration: 25, content: "", isFree: true, order: 2 },
           { id: "les-eng-3", title: "Common Mistakes to Avoid", type: "video", duration: 20, content: "", isFree: false, order: 3 },
           { id: "les-eng-4", title: "Building Confidence", type: "video", duration: 18, content: "", isFree: false, order: 4 },
-          { id: "les-eng-5", title: "Daily Practice Routine", type: "video", duration: 15, content: "", isFree: false, order: 5 }
+          { id: "les-eng-5", title: "Daily Practice Routine", type: "video", duration: 15, content: "", isFree: false, order: 5 },
+          { id: "les-eng-6", title: "Self-Assessment Quiz", type: "quiz", duration: 10, content: "", isFree: false, order: 6 }
+        ]
+      },
+      {
+        id: "mod-eng-2",
+        title: "Grammar Mastery",
+        order: 2,
+        lessons: [
+          { id: "les-eng-7", title: "Tenses Made Easy", type: "video", duration: 30, content: "", isFree: false, order: 1 },
+          { id: "les-eng-8", title: "Subject-Verb Agreement", type: "video", duration: 25, content: "", isFree: false, order: 2 },
+          { id: "les-eng-9", title: "Articles: A, An, The", type: "video", duration: 20, content: "", isFree: false, order: 3 },
+          { id: "les-eng-10", title: "Prepositions Practice", type: "video", duration: 22, content: "", isFree: false, order: 4 },
+          { id: "les-eng-11", title: "Active vs Passive Voice", type: "video", duration: 25, content: "", isFree: false, order: 5 },
+          { id: "les-eng-12", title: "Module Quiz: Grammar", type: "quiz", duration: 15, content: "", isFree: false, order: 6 }
+        ]
+      },
+      {
+        id: "mod-eng-3",
+        title: "Speaking Confidence",
+        order: 3,
+        lessons: [
+          { id: "les-eng-13", title: "Pronunciation Basics", type: "video", duration: 20, content: "", isFree: false, order: 1 },
+          { id: "les-eng-14", title: "Intonation & Stress", type: "video", duration: 18, content: "", isFree: false, order: 2 },
+          { id: "les-eng-15", title: "Speaking Fluently", type: "video", duration: 25, content: "", isFree: false, order: 3 },
+          { id: "les-eng-16", title: "Overcoming Hesitation", type: "video", duration: 15, content: "", isFree: false, order: 4 },
+          { id: "les-eng-17", title: "Daily Speaking Exercises", type: "video", duration: 20, content: "", isFree: false, order: 5 },
+          { id: "les-eng-18", title: "Tongue Twisters Practice", type: "video", duration: 12, content: "", isFree: false, order: 6 },
+          { id: "les-eng-19", title: "Module Assessment", type: "quiz", duration: 10, content: "", isFree: false, order: 7 }
+        ]
+      },
+      {
+        id: "mod-eng-4",
+        title: "Vocabulary Building",
+        order: 4,
+        lessons: [
+          { id: "les-eng-20", title: "500 Essential Words", type: "video", duration: 30, content: "", isFree: false, order: 1 },
+          { id: "les-eng-21", title: "Synonyms & Antonyms", type: "video", duration: 20, content: "", isFree: false, order: 2 },
+          { id: "les-eng-22", title: "Idioms & Phrases", type: "video", duration: 25, content: "", isFree: false, order: 3 },
+          { id: "les-eng-23", title: "Business Vocabulary", type: "video", duration: 28, content: "", isFree: false, order: 4 },
+          { id: "les-eng-24", title: "Word Formation", type: "video", duration: 22, content: "", isFree: false, order: 5 },
+          { id: "les-eng-25", title: "Vocabulary Flashcards", type: "assignment", duration: 15, content: "", isFree: false, order: 6 },
+          { id: "les-eng-26", title: "Daily Word Practice", type: "video", duration: 18, content: "", isFree: false, order: 7 }
+        ]
+      },
+      {
+        id: "mod-eng-5",
+        title: "Professional Writing",
+        order: 5,
+        lessons: [
+          { id: "les-eng-27", title: "Email Writing Basics", type: "video", duration: 25, content: "", isFree: false, order: 1 },
+          { id: "les-eng-28", title: "Formal vs Informal Emails", type: "video", duration: 20, content: "", isFree: false, order: 2 },
+          { id: "les-eng-29", title: "Professional Report Writing", type: "video", duration: 30, content: "", isFree: false, order: 3 },
+          { id: "les-eng-30", title: "Business Letter Format", type: "video", duration: 25, content: "", isFree: false, order: 4 },
+          { id: "les-eng-31", title: "Writing Memos & Notes", type: "video", duration: 18, content: "", isFree: false, order: 5 },
+          { id: "les-eng-32", title: "Email Templates Practice", type: "assignment", duration: 20, content: "", isFree: false, order: 6 }
+        ]
+      },
+      {
+        id: "mod-eng-6",
+        title: "Interview Skills",
+        order: 6,
+        lessons: [
+          { id: "les-eng-33", title: "Common Interview Questions", type: "video", duration: 30, content: "", isFree: false, order: 1 },
+          { id: "les-eng-34", title: "Tell Me About Yourself", type: "video", duration: 25, content: "", isFree: false, order: 2 },
+          { id: "les-eng-35", title: "STAR Method for Answers", type: "video", duration: 28, content: "", isFree: false, order: 3 },
+          { id: "les-eng-36", title: "Body Language Tips", type: "video", duration: 20, content: "", isFree: false, order: 4 },
+          { id: "les-eng-37", title: "Mock Interview Practice", type: "video", duration: 35, content: "", isFree: false, order: 5 },
+          { id: "les-eng-38", title: "Interview Role Play", type: "assignment", duration: 30, content: "", isFree: false, order: 6 }
+        ]
+      },
+      {
+        id: "mod-eng-7",
+        title: "Presentation Skills",
+        order: 7,
+        lessons: [
+          { id: "les-eng-39", title: "Presentation Structure", type: "video", duration: 25, content: "", isFree: false, order: 1 },
+          { id: "les-eng-40", title: "Opening & Closing Hooks", type: "video", duration: 20, content: "", isFree: false, order: 2 },
+          { id: "les-eng-41", title: "Visual Aid Usage", type: "video", duration: 22, content: "", isFree: false, order: 3 },
+          { id: "les-eng-42", title: "Handling Q&A Session", type: "video", duration: 18, content: "", isFree: false, order: 4 },
+          { id: "les-eng-43", title: "Virtual Presentation Tips", type: "video", duration: 20, content: "", isFree: false, order: 5 },
+          { id: "les-eng-44", title: "Practice Presentation", type: "assignment", duration: 40, content: "", isFree: false, order: 6 }
+        ]
+      },
+      {
+        id: "mod-eng-8",
+        title: "Conversation Skills",
+        order: 8,
+        lessons: [
+          { id: "les-eng-45", title: "Starting Conversations", type: "video", duration: 18, content: "", isFree: false, order: 1 },
+          { id: "les-eng-46", title: "Active Listening", type: "video", duration: 20, content: "", isFree: false, order: 2 },
+          { id: "les-eng-47", title: "Small Talk Mastery", type: "video", duration: 22, content: "", isFree: false, order: 3 },
+          { id: "les-eng-48", title: "Asking Questions Properly", type: "video", duration: 18, content: "", isFree: false, order: 4 },
+          { id: "les-eng-49", title: "Giving Opinions", type: "video", duration: 20, content: "", isFree: false, order: 5 },
+          { id: "les-eng-50", title: "Role Play Scenarios", type: "assignment", duration: 25, content: "", isFree: false, order: 6 }
+        ]
+      },
+      {
+        id: "mod-eng-9",
+        title: "Business Communication",
+        order: 9,
+        lessons: [
+          { id: "les-eng-51", title: "Professional Phone Calls", type: "video", duration: 20, content: "", isFree: false, order: 1 },
+          { id: "les-eng-52", title: "Video Conference Etiquette", type: "video", duration: 18, content: "", isFree: false, order: 2 },
+          { id: "les-eng-53", title: "Meeting Participation", type: "video", duration: 22, content: "", isFree: false, order: 3 },
+          { id: "les-eng-54", title: "Negotiation Language", type: "video", duration: 25, content: "", isFree: false, order: 4 },
+          { id: "les-eng-55", title: "Conflict Resolution", type: "video", duration: 20, content: "", isFree: false, order: 5 },
+          { id: "les-eng-56", title: "Writing Proposals", type: "video", duration: 28, content: "", isFree: false, order: 6 },
+          { id: "les-eng-57", title: "Client Communication", type: "video", duration: 22, content: "", isFree: false, order: 7 }
+        ]
+      },
+      {
+        id: "mod-eng-10",
+        title: "Advanced Communication",
+        order: 10,
+        lessons: [
+          { id: "les-eng-58", title: "Public Speaking Basics", type: "video", duration: 30, content: "", isFree: false, order: 1 },
+          { id: "les-eng-59", title: "Storytelling in Business", type: "video", duration: 25, content: "", isFree: false, order: 2 },
+          { id: "les-eng-60", title: "Persuasion Techniques", type: "video", duration: 28, content: "", isFree: false, order: 3 },
+          { id: "les-eng-61", title: "Cross-Cultural Communication", type: "video", duration: 22, content: "", isFree: false, order: 4 },
+          { id: "les-eng-62", title: "Writing for Social Media", type: "video", duration: 20, content: "", isFree: false, order: 5 },
+          { id: "les-eng-63", title: "Leadership Communication", type: "video", duration: 25, content: "", isFree: false, order: 6 },
+          { id: "les-eng-64", title: "Final Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 7 }
         ]
       }
     ],
