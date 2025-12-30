@@ -1,7 +1,7 @@
  ⚠ Found lockfile missing swc dependencies, run next locally to automatically patch
    ▲ Next.js 15.3.8
    - Local:        http://localhost:3000
-   - Network:      http://172.17.141.167:3000
+   - Network:      http://172.17.143.110:3000
    - Environments: .env
 
  ✓ Starting...
@@ -9,250 +9,122 @@
  ⚠ Invalid next.config.ts options detected: 
  ⚠     Unrecognized key(s) in object: 'swcMinify'
  ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
-Attention: Next.js now collects completely anonymous telemetry regarding usage.
-This information is used to shape Next.js' roadmap and prioritize features.
-You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-https://nextjs.org/telemetry
-
- ✓ Ready in 1805ms
- ○ Compiling /api/auth/register ...
- ✓ Compiled /api/auth/register in 2.3s (443 modules)
-Registration error: Error [ZodError]: [
-  {
-    "origin": "string",
-    "code": "invalid_format",
-    "format": "email",
-    "pattern": "/^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
-    "path": [
-      "email"
-    ],
-    "message": "Invalid email address"
-  },
-  {
-    "origin": "string",
-    "code": "too_small",
-    "minimum": 8,
-    "inclusive": true,
-    "path": [
-      "password"
-    ],
-    "message": "Password must be at least 8 characters"
-  }
-]
-    at POST (src/app/api/auth/register/route.ts:15:49)
-  13 |   try {
-  14 |     const body = await req.json()
-> 15 |     const { name, email, password } = userSchema.parse(body)
-     |                                                 ^
-  16 |
-  17 |     // Check if user with email already exists
-  18 |     const existingUser = await db.user.findUnique({
- ⨯ TypeError: Cannot read properties of undefined (reading '0')
-    at POST (src/app/api/auth/register/route.ts:53:38)
-  51 |     
-  52 |     if (error instanceof z.ZodError) {
-> 53 |       const firstError = error.errors[0]
-     |                                      ^
-  54 |       const errorMessage = firstError?.message || 'Validation error'
-  55 |       return NextResponse.json(
-  56 |         { user: null, message: errorMessage },
- ⨯ TypeError: Cannot read properties of undefined (reading '0')
-    at POST (src/app/api/auth/register/route.ts:53:38)
-  51 |     
-  52 |     if (error instanceof z.ZodError) {
-> 53 |       const firstError = error.errors[0]
-     |                                      ^
-  54 |       const errorMessage = firstError?.message || 'Validation error'
-  55 |       return NextResponse.json(
-  56 |         { user: null, message: errorMessage },
- POST /api/auth/register 500 in 2801ms
+ ✓ Ready in 3.7s
  ○ Compiling / ...
- ✓ Compiled / in 3.9s (1001 modules)
+ ✓ Compiled / in 4.4s (902 modules)
 [33m[auth][warn][debug-enabled][0m Read more: https://warnings.authjs.dev
- GET / 200 in 4653ms
-Registration error: Error [ZodError]: [
-  {
-    "origin": "string",
-    "code": "invalid_format",
-    "format": "email",
-    "pattern": "/^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
-    "path": [
-      "email"
-    ],
-    "message": "Invalid email address"
-  },
-  {
-    "origin": "string",
-    "code": "too_small",
-    "minimum": 8,
-    "inclusive": true,
-    "path": [
-      "password"
-    ],
-    "message": "Password must be at least 8 characters"
-  }
-]
-    at POST (src/app/api/auth/register/route.ts:15:49)
-  13 |   try {
-  14 |     const body = await req.json()
-> 15 |     const { name, email, password } = userSchema.parse(body)
-     |                                                 ^
-  16 |
-  17 |     // Check if user with email already exists
-  18 |     const existingUser = await db.user.findUnique({
- ⨯ TypeError: Cannot read properties of undefined (reading '0')
-    at POST (src/app/api/auth/register/route.ts:53:38)
-  51 |     
-  52 |     if (error instanceof z.ZodError) {
-> 53 |       const firstError = error.errors[0]
-     |                                      ^
-  54 |       const errorMessage = firstError?.message || 'Validation error'
-  55 |       return NextResponse.json(
-  56 |         { user: null, message: errorMessage },
- ⨯ TypeError: Cannot read properties of undefined (reading '0')
-    at POST (src/app/api/auth/register/route.ts:53:38)
-  51 |     
-  52 |     if (error instanceof z.ZodError) {
-> 53 |       const firstError = error.errors[0]
-     |                                      ^
-  54 |       const errorMessage = firstError?.message || 'Validation error'
-  55 |       return NextResponse.json(
-  56 |         { user: null, message: errorMessage },
- POST /api/auth/register 500 in 220ms
+ GET / 200 in 5037ms
+ ○ Compiling /api/auth/register ...
+ ✓ Compiled /api/auth/register in 1457ms (983 modules)
 prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."password", "public"."users"."name", "public"."users"."avatar", "public"."users"."bio", "public"."users"."location", "public"."users"."website", "public"."users"."mobileNumber", "public"."users"."role"::text, "public"."users"."isActive", "public"."users"."isVerified", "public"."users"."emailVerified", "public"."users"."lastLogin", "public"."users"."preferences", "public"."users"."createdAt", "public"."users"."updatedAt" FROM "public"."users" WHERE ("public"."users"."email" = $1 AND 1=1) LIMIT $2 OFFSET $3
 prisma:query INSERT INTO "public"."users" ("id","email","password","name","role","isActive","isVerified","createdAt","updatedAt") VALUES ($1,$2,$3,$4,CAST($5::text AS "public"."UserRole"),$6,$7,$8,$9) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."password", "public"."users"."name", "public"."users"."avatar", "public"."users"."bio", "public"."users"."location", "public"."users"."website", "public"."users"."mobileNumber", "public"."users"."role"::text, "public"."users"."isActive", "public"."users"."isVerified", "public"."users"."emailVerified", "public"."users"."lastLogin", "public"."users"."preferences", "public"."users"."createdAt", "public"."users"."updatedAt"
- POST /api/auth/register 201 in 3080ms
-Registration error: Error [ZodError]: [
-  {
-    "origin": "string",
-    "code": "invalid_format",
-    "format": "email",
-    "pattern": "/^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
-    "path": [
-      "email"
-    ],
-    "message": "Invalid email address"
-  },
-  {
-    "origin": "string",
-    "code": "too_small",
-    "minimum": 8,
-    "inclusive": true,
-    "path": [
-      "password"
-    ],
-    "message": "Password must be at least 8 characters"
-  }
-]
-    at POST (src/app/api/auth/register/route.ts:15:49)
-  13 |   try {
-  14 |     const body = await req.json()
-> 15 |     const { name, email, password } = userSchema.parse(body)
-     |                                                 ^
-  16 |
-  17 |     // Check if user with email already exists
-  18 |     const existingUser = await db.user.findUnique({
- ⨯ TypeError: Cannot read properties of undefined (reading '0')
-    at POST (src/app/api/auth/register/route.ts:53:38)
-  51 |     
-  52 |     if (error instanceof z.ZodError) {
-> 53 |       const firstError = error.errors[0]
-     |                                      ^
-  54 |       const errorMessage = firstError?.message || 'Validation error'
-  55 |       return NextResponse.json(
-  56 |         { user: null, message: errorMessage },
- ⨯ TypeError: Cannot read properties of undefined (reading '0')
-    at POST (src/app/api/auth/register/route.ts:53:38)
-  51 |     
-  52 |     if (error instanceof z.ZodError) {
-> 53 |       const firstError = error.errors[0]
-     |                                      ^
-  54 |       const errorMessage = firstError?.message || 'Validation error'
-  55 |       return NextResponse.json(
-  56 |         { user: null, message: errorMessage },
- POST /api/auth/register 500 in 159ms
- ✓ Compiled in 806ms (983 modules)
-Registration error: Error [ZodError]: [
-  {
-    "origin": "string",
-    "code": "invalid_format",
-    "format": "email",
-    "pattern": "/^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
-    "path": [
-      "email"
-    ],
-    "message": "Invalid email address"
-  },
-  {
-    "origin": "string",
-    "code": "too_small",
-    "minimum": 8,
-    "inclusive": true,
-    "path": [
-      "password"
-    ],
-    "message": "Password must be at least 8 characters"
-  }
-]
-    at POST (src/app/api/auth/register/route.ts:15:49)
-  13 |   try {
-  14 |     const body = await req.json()
-> 15 |     const { name, email, password } = userSchema.parse(body)
-     |                                                 ^
-  16 |
-  17 |     // Check if user with email already exists
-  18 |     const existingUser = await db.user.findUnique({
- POST /api/auth/register 400 in 183ms
-prisma:query SELECT 1
-prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."password", "public"."users"."name", "public"."users"."avatar", "public"."users"."bio", "public"."users"."location", "public"."users"."website", "public"."users"."mobileNumber", "public"."users"."role"::text, "public"."users"."isActive", "public"."users"."isVerified", "public"."users"."emailVerified", "public"."users"."lastLogin", "public"."users"."preferences", "public"."users"."createdAt", "public"."users"."updatedAt" FROM "public"."users" WHERE ("public"."users"."email" = $1 AND 1=1) LIMIT $2 OFFSET $3
-prisma:query INSERT INTO "public"."users" ("id","email","password","name","role","isActive","isVerified","createdAt","updatedAt") VALUES ($1,$2,$3,$4,CAST($5::text AS "public"."UserRole"),$6,$7,$8,$9) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."password", "public"."users"."name", "public"."users"."avatar", "public"."users"."bio", "public"."users"."location", "public"."users"."website", "public"."users"."mobileNumber", "public"."users"."role"::text, "public"."users"."isActive", "public"."users"."isVerified", "public"."users"."emailVerified", "public"."users"."lastLogin", "public"."users"."preferences", "public"."users"."createdAt", "public"."users"."updatedAt"
- POST /api/auth/register 201 in 1191ms
-Registration error: Error [ZodError]: [
-  {
-    "origin": "string",
-    "code": "invalid_format",
-    "format": "email",
-    "pattern": "/^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$/",
-    "path": [
-      "email"
-    ],
-    "message": "Invalid email address"
-  }
-]
-    at POST (src/app/api/auth/register/route.ts:15:49)
-  13 |   try {
-  14 |     const body = await req.json()
-> 15 |     const { name, email, password } = userSchema.parse(body)
-     |                                                 ^
-  16 |
-  17 |     // Check if user with email already exists
-  18 |     const existingUser = await db.user.findUnique({
- POST /api/auth/register 400 in 77ms
-Registration error: Error [ZodError]: [
-  {
-    "origin": "string",
-    "code": "too_small",
-    "minimum": 8,
-    "inclusive": true,
-    "path": [
-      "password"
-    ],
-    "message": "Password must be at least 8 characters"
-  }
-]
-    at POST (src/app/api/auth/register/route.ts:15:49)
-  13 |   try {
-  14 |     const body = await req.json()
-> 15 |     const { name, email, password } = userSchema.parse(body)
-     |                                                 ^
-  16 |
-  17 |     // Check if user with email already exists
-  18 |     const existingUser = await db.user.findUnique({
- POST /api/auth/register 400 in 74ms
-prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."password", "public"."users"."name", "public"."users"."avatar", "public"."users"."bio", "public"."users"."location", "public"."users"."website", "public"."users"."mobileNumber", "public"."users"."role"::text, "public"."users"."isActive", "public"."users"."isVerified", "public"."users"."emailVerified", "public"."users"."lastLogin", "public"."users"."preferences", "public"."users"."createdAt", "public"."users"."updatedAt" FROM "public"."users" WHERE ("public"."users"."email" = $1 AND 1=1) LIMIT $2 OFFSET $3
- POST /api/auth/register 409 in 284ms
-prisma:query SELECT "public"."users"."id", "public"."users"."email", "public"."users"."password", "public"."users"."name", "public"."users"."avatar", "public"."users"."bio", "public"."users"."location", "public"."users"."website", "public"."users"."mobileNumber", "public"."users"."role"::text, "public"."users"."isActive", "public"."users"."isVerified", "public"."users"."emailVerified", "public"."users"."lastLogin", "public"."users"."preferences", "public"."users"."createdAt", "public"."users"."updatedAt" FROM "public"."users" WHERE ("public"."users"."email" = $1 AND 1=1) LIMIT $2 OFFSET $3
-prisma:query INSERT INTO "public"."users" ("id","email","password","name","role","isActive","isVerified","createdAt","updatedAt") VALUES ($1,$2,$3,$4,CAST($5::text AS "public"."UserRole"),$6,$7,$8,$9) RETURNING "public"."users"."id", "public"."users"."email", "public"."users"."password", "public"."users"."name", "public"."users"."avatar", "public"."users"."bio", "public"."users"."location", "public"."users"."website", "public"."users"."mobileNumber", "public"."users"."role"::text, "public"."users"."isActive", "public"."users"."isVerified", "public"."users"."emailVerified", "public"."users"."lastLogin", "public"."users"."preferences", "public"."users"."createdAt", "public"."users"."updatedAt"
- POST /api/auth/register 201 in 852ms
- ✓ Compiled in 400ms (337 modules)
- ✓ Compiled in 445ms (337 modules)
+ POST /api/auth/register 201 in 4865ms
+ ✓ Compiled /api/auth/[...nextauth] in 281ms (971 modules)
+[33m[auth][warn][debug-enabled][0m Read more: https://warnings.authjs.dev
+[31m[auth][error][0m MissingCSRF: CSRF token was missing during an action callback. Read more at https://errors.authjs.dev#missingcsrf
+    at validateCSRF (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/actions/callback/oauth/csrf-token.js:45:11)
+    at AuthInternal (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/index.js:69:104)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/@auth/core/index.js:130:34)
+    at async AppRouteRouteModule.do (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/workspace/node_modules/next/dist/server/base-server.js:1518:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/workspace/node_modules/next/dist/server/base-server.js:1920:28)
+    at async DevServer.renderPageComponent (/workspace/node_modules/next/dist/server/base-server.js:2408:24)
+    at async DevServer.renderToResponseImpl (/workspace/node_modules/next/dist/server/base-server.js:2445:32)
+    at async DevServer.pipeImpl (/workspace/node_modules/next/dist/server/base-server.js:1008:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/workspace/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/workspace/node_modules/next/dist/server/base-server.js:900:17)
+    at async /workspace/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/workspace/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/workspace/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/workspace/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/workspace/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/workspace/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/workspace/node_modules/next/dist/server/lib/start-server.js:158:13)
+ POST /api/auth/callback/credentials 302 in 1005ms
+[31m[auth][error][0m MissingCSRF: CSRF token was missing during an action callback. Read more at https://errors.authjs.dev#missingcsrf
+    at validateCSRF (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/actions/callback/oauth/csrf-token.js:45:11)
+    at AuthInternal (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/index.js:69:104)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/@auth/core/index.js:130:34)
+    at async AppRouteRouteModule.do (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/workspace/node_modules/next/dist/server/base-server.js:1518:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/workspace/node_modules/next/dist/server/base-server.js:1920:28)
+    at async DevServer.renderPageComponent (/workspace/node_modules/next/dist/server/base-server.js:2408:24)
+    at async DevServer.renderToResponseImpl (/workspace/node_modules/next/dist/server/base-server.js:2445:32)
+    at async DevServer.pipeImpl (/workspace/node_modules/next/dist/server/base-server.js:1008:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/workspace/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/workspace/node_modules/next/dist/server/base-server.js:900:17)
+    at async /workspace/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/workspace/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/workspace/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/workspace/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/workspace/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/workspace/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/workspace/node_modules/next/dist/server/lib/start-server.js:158:13)
+ POST /api/auth/callback/credentials 302 in 45ms
+[31m[auth][error][0m MissingCSRF: CSRF token was missing during an action callback. Read more at https://errors.authjs.dev#missingcsrf
+    at validateCSRF (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/actions/callback/oauth/csrf-token.js:45:11)
+    at AuthInternal (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/index.js:69:104)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/@auth/core/index.js:130:34)
+    at async AppRouteRouteModule.do (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/workspace/node_modules/next/dist/server/base-server.js:1518:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/workspace/node_modules/next/dist/server/base-server.js:1920:28)
+    at async DevServer.renderPageComponent (/workspace/node_modules/next/dist/server/base-server.js:2408:24)
+    at async DevServer.renderToResponseImpl (/workspace/node_modules/next/dist/server/base-server.js:2445:32)
+    at async DevServer.pipeImpl (/workspace/node_modules/next/dist/server/base-server.js:1008:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/workspace/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/workspace/node_modules/next/dist/server/base-server.js:900:17)
+    at async /workspace/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/workspace/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/workspace/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/workspace/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/workspace/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/workspace/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/workspace/node_modules/next/dist/server/lib/start-server.js:158:13)
+ POST /api/auth/callback/credentials 302 in 52ms
+[31m[auth][error][0m InvalidProvider: Callback for provider type (credentials) is not supported. Read more at https://errors.authjs.dev#invalidprovider
+    at Module.callback (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/actions/callback/index.js:393:15)
+    at AuthInternal (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/index.js:43:77)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/@auth/core/index.js:130:34)
+    at async AppRouteRouteModule.do (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/workspace/node_modules/next/dist/server/base-server.js:1518:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/workspace/node_modules/next/dist/server/base-server.js:1920:28)
+    at async DevServer.renderPageComponent (/workspace/node_modules/next/dist/server/base-server.js:2408:24)
+    at async DevServer.renderToResponseImpl (/workspace/node_modules/next/dist/server/base-server.js:2445:32)
+    at async DevServer.pipeImpl (/workspace/node_modules/next/dist/server/base-server.js:1008:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/workspace/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/workspace/node_modules/next/dist/server/base-server.js:900:17)
+    at async /workspace/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/workspace/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/workspace/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/workspace/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/workspace/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/workspace/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/workspace/node_modules/next/dist/server/lib/start-server.js:158:13)
+ GET /api/auth/callback/credentials 302 in 46ms
+[31m[auth][error][0m MissingCSRF: CSRF token was missing during an action callback. Read more at https://errors.authjs.dev#missingcsrf
+    at validateCSRF (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/actions/callback/oauth/csrf-token.js:45:11)
+    at AuthInternal (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/index.js:69:104)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/@auth/core/index.js:130:34)
+    at async AppRouteRouteModule.do (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (/workspace/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:26:41338)
+    at async doRender (/workspace/node_modules/next/dist/server/base-server.js:1518:42)
+    at async DevServer.renderToResponseWithComponentsImpl (/workspace/node_modules/next/dist/server/base-server.js:1920:28)
+    at async DevServer.renderPageComponent (/workspace/node_modules/next/dist/server/base-server.js:2408:24)
+    at async DevServer.renderToResponseImpl (/workspace/node_modules/next/dist/server/base-server.js:2445:32)
+    at async DevServer.pipeImpl (/workspace/node_modules/next/dist/server/base-server.js:1008:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/workspace/node_modules/next/dist/server/next-server.js:305:17)
+    at async DevServer.handleRequestImpl (/workspace/node_modules/next/dist/server/base-server.js:900:17)
+    at async /workspace/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+    at async Span.traceAsyncFn (/workspace/node_modules/next/dist/trace/trace.js:157:20)
+    at async DevServer.handleRequest (/workspace/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+    at async invokeRender (/workspace/node_modules/next/dist/server/lib/router-server.js:237:21)
+    at async handleRequest (/workspace/node_modules/next/dist/server/lib/router-server.js:428:24)
+    at async requestHandlerImpl (/workspace/node_modules/next/dist/server/lib/router-server.js:452:13)
+    at async Server.requestListener (/workspace/node_modules/next/dist/server/lib/start-server.js:158:13)
+ POST /api/auth/callback/credentials 302 in 47ms
+ ✓ Compiled in 570ms (337 modules)
+ ✓ Compiled in 597ms (337 modules)

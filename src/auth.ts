@@ -1,5 +1,7 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
+import { db } from "@/lib/db"
+import { compare } from "bcryptjs"
 
 // User roles for RBAC
 export type UserRole = 'STUDENT' | 'INSTRUCTOR' | 'ADMIN' | 'SUPER_ADMIN'
@@ -70,23 +72,54 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             rateLimitMap.set(ip, { count: 1, resetAt: now + 15 * 60 * 1000 })
           }
 
+          // First check if it's a demo user
           const demoUser = demoUsers[email]
-          if (!demoUser) {
-            // Generic error to prevent user enumeration
+          if (demoUser) {
+            if (password !== demoUser.password) {
+              throw new Error("Invalid email or password")
+            }
+            // Return demo user object
+            return {
+              id: demoUser.id,
+              name: demoUser.name,
+              email: email,
+              role: demoUser.role,
+            }
+          }
+
+          // If not a demo user, check database for real registered users
+          const dbUser = await db.user.findUnique({
+            where: { email },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              password: true,
+              role: true,
+              isActive: true,
+            }
+          })
+
+          if (!dbUser) {
             throw new Error("Invalid email or password")
           }
 
-          // Simple password check for demo
-          if (password !== demoUser.password) {
+          if (!dbUser.isActive) {
+            throw new Error("Account is disabled. Please contact support.")
+          }
+
+          // Verify password
+          const isValidPassword = await compare(password, dbUser.password)
+          if (!isValidPassword) {
             throw new Error("Invalid email or password")
           }
 
-          // Return user object
+          // Return user object (excluding password)
           return {
-            id: demoUser.id,
-            name: demoUser.name,
-            email: email,
-            role: demoUser.role,
+            id: dbUser.id,
+            name: dbUser.name || email.split('@')[0],
+            email: dbUser.email,
+            role: dbUser.role as UserRole,
           }
 
         } catch (error: any) {

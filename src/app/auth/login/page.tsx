@@ -2,12 +2,21 @@
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Check for error in URL (from NextAuth redirect)
+  const authError = searchParams.get('error')
+  if (authError && !error) {
+    setError(getAuthErrorMessage(authError))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -15,16 +24,39 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Use redirect: true to let NextAuth handle the redirect server-side
-      await signIn('credentials', {
+      const result = await signIn('credentials', {
         email,
         password,
-        redirect: true,
+        redirect: false,
         callbackUrl: '/dashboard',
       })
+
+      if (result?.error) {
+        setError(result.error || 'Invalid email or password')
+      } else if (result?.url) {
+        // Redirect to dashboard or the returned URL
+        router.push(result.url)
+        router.refresh()
+      } else {
+        // Default redirect
+        router.push('/dashboard')
+        router.refresh()
+      }
     } catch (err) {
-      setError('An error occurred')
+      setError('An error occurred. Please try again.')
+    } finally {
       setLoading(false)
+    }
+  }
+
+  function getAuthErrorMessage(error: string): string {
+    switch (error) {
+      case 'CredentialsSignin':
+        return 'Invalid email or password'
+      case 'OAuthSigninError':
+        return 'Error starting OAuth sign in'
+      default:
+        return 'An error occurred during sign in'
     }
   }
 

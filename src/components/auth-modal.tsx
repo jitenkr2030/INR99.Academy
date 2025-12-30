@@ -50,10 +50,8 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
       } else {
         onAuthSuccess(result)
         onClose()
-        // Reset form
-        setFormData({ name: '', email: '', password: '', confirmPassword: '' })
-        setStep('login')
-        setError('')
+        // Redirect to dashboard on successful login
+        window.location.href = '/dashboard'
       }
     } catch (error) {
       setError('Network error. Please try again.')
