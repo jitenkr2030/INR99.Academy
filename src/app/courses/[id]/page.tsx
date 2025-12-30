@@ -764,17 +764,45 @@ export default function CourseDetailPage() {
                   </button>
                 </div>
 
-                <div className="text-center mb-6">
-                  <p className="text-gray-600 mb-2">Scan QR Code to Pay</p>
-                  <div className="border-2 border-orange-200 rounded-lg p-4 inline-block">
+                <div className="text-center mb-4">
+                  <p className="text-gray-600 mb-3">Scan QR Code to Pay</p>
+                  <div className="border-2 border-orange-200 rounded-lg p-4 inline-block bg-white">
                     <img 
                       src="/images/qrcode.jpeg" 
                       alt="UPI QR Code" 
                       className="w-48 h-48 object-contain"
+                      onError={(e) => {
+                        // If image fails to load, show placeholder
+                        e.currentTarget.style.display = 'none'
+                        e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                      }}
                     />
+                    <div className="hidden text-center py-4">
+                      <p className="text-gray-500 text-sm mb-2">QR Code</p>
+                      <div className="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center mx-auto">
+                        <span className="text-4xl">📱</span>
+                      </div>
+                    </div>
                   </div>
                   <p className="text-sm text-gray-500 mt-2">
                     Scan with any UPI app (PhonePe, GPay, Paytm, etc.)
+                  </p>
+                </div>
+
+                {/* Direct UPI Link */}
+                <div className="mb-6">
+                  <a 
+                    href={`upi://pay?pa=9871087168@kotak&pn=INR99%20Academy&am=${course.price}&cu=INR&tn=Course%20Enrollment%20${course.id}`}
+                    className="block w-full py-3 bg-green-500 hover:bg-green-600 text-white text-center rounded-lg font-medium transition-colors"
+                    style={{
+                      display: 'inline-block',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    📲 Click to Open UPI App
+                  </a>
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    Tap above to open your UPI app directly (mobile devices)
                   </p>
                 </div>
 
