@@ -130,3 +130,5 @@ prisma:query INSERT INTO "public"."users" ("id","email","password","name","role"
  ✓ Compiled in 597ms (337 modules)
  ✓ Compiled in 371ms (337 modules)
  ✓ Compiled in 324ms (337 modules)
+ ✓ Compiled in 429ms (337 modules)
+ ✓ Compiled in 295ms (337 modules)
