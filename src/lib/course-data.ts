@@ -171,7 +171,9 @@ export const CATEGORIES = [
   { id: "spirituality", name: "Spirituality, Philosophy & Thinking", icon: "🧭" },
   { id: "safety", name: "Safety, Law & Awareness", icon: "🔒" },
   { id: "community", name: "Community-led Learning", icon: "🧑‍🤝‍🧑" },
-  { id: "exam-prep", name: "Exam Support", icon: "📚" }
+  { id: "exam-prep", name: "Exam Support", icon: "📚" },
+  { id: "confusion-remover", name: "Confusion Removers", icon: "💡" },
+  { id: "community-understanding", name: "Community Understanding", icon: "👥" }
 ];
 
 export const VERTICALS = [
@@ -1734,6 +1736,613 @@ Topics covered:
     
     createdAt: "2024-02-15",
     updatedAt: "2024-11-10"
+  },
+
+  // ==================== CONFUSION REMOVERS - LIFE ESSENTIALS ====================
+  {
+    id: "cr_digital",
+    slug: "digital-smartphone-basics",
+    title: "Digital & Smartphone Basics",
+    tagline: "Understand your phone without fear",
+    description: "Learn smartphones, apps, and everyday digital tools without confusion. Perfect for beginners who want to use technology confidently.",
+    longDescription: `This course removes the fear from technology by explaining how smartphones and apps actually work. You'll learn to use your phone confidently, install useful apps, and avoid common mistakes.
+
+What you'll learn:
+- Understanding smartphone basics
+- Installing and managing apps safely
+- Using everyday digital tools
+- Avoiding common mistakes and scams`,
+    thumbnail: "/courses/confusion-removers/digital-basics.jpg",
+    previewVideo: "",
+    price: 0,
+    originalPrice: 0,
+    currency: "INR",
+    
+    category: "confusion-remover",
+    subcategory: "Digital Basics",
+    vertical: "general",
+    targetAudience: ["beginners", "senior-citizens", "anyone-scared-of-technology"],
+    tags: ["smartphone", "digital", "basics", "apps", "technology-for-all"],
+    
+    difficulty: "beginner",
+    language: "Hindi",
+    totalDuration: 60,
+    lessonCount: 4,
+    moduleCount: 1,
+    rating: 4.8,
+    reviewCount: 150,
+    enrollmentCount: 500,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-cr-digital-1",
+        title: "Digital Basics",
+        order: 1,
+        lessons: [
+          { id: "les-cr-digital-1", title: "What is a Smartphone?", type: "video", duration: 10, content: "", isFree: true, order: 1 },
+          { id: "les-cr-digital-2", title: "Understanding Apps", type: "video", duration: 15, content: "", isFree: true, order: 2 },
+          { id: "les-cr-digital-3", title: "Apps & Installation Safety", type: "video", duration: 15, content: "", isFree: false, order: 3 },
+          { id: "les-cr-digital-4", title: "Common Settings", type: "video", duration: 20, content: "", isFree: false, order: 4 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[2],
+    
+    outcomes: [
+      "Use smartphone confidently",
+      "Install and manage apps safely",
+      "Understand basic phone settings",
+      "Avoid common digital mistakes"
+    ],
+    requirements: [
+      "A smartphone (any type)",
+      "Willingness to learn",
+      "No prior experience needed"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  {
+    id: "cr_upi",
+    slug: "upi-banking-digital-money",
+    title: "UPI, Banking & Digital Money",
+    tagline: "Stop fearing failed transactions",
+    description: "Understand how digital payments actually work. Learn UPI, banking, and digital money without confusion or fear.",
+    longDescription: `Fear of failed transactions and lost money prevents many from using digital payments. This course explains exactly how UPI and digital banking work, what happens during failed transactions, and how to stay safe.
+
+What you'll learn:
+- How UPI transactions work
+- Understanding failed transactions
+- Banking basics everyone should know
+- Staying safe from payment fraud`,
+    thumbnail: "/courses/confusion-removers/digital-money.jpg",
+    previewVideo: "",
+    price: 0,
+    originalPrice: 0,
+    currency: "INR",
+    
+    category: "confusion-remover",
+    subcategory: "Digital Money",
+    vertical: "general",
+    targetAudience: ["everyone", "people-scared-of-digital-payments"],
+    tags: ["upi", "banking", "digital-payments", "money", "financial-literacy"],
+    
+    difficulty: "beginner",
+    language: "Hindi",
+    totalDuration: 75,
+    lessonCount: 4,
+    moduleCount: 1,
+    rating: 4.9,
+    reviewCount: 200,
+    enrollmentCount: 750,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-cr-upi-1",
+        title: "Digital Money Basics",
+        order: 1,
+        lessons: [
+          { id: "les-cr-upi-1", title: "What is UPI?", type: "video", duration: 15, content: "", isFree: true, order: 1 },
+          { id: "les-cr-upi-2", title: "Bank Account Types", type: "video", duration: 20, content: "", isFree: false, order: 2 },
+          { id: "les-cr-upi-3", title: "Online Banking Safety", type: "video", duration: 20, content: "", isFree: false, order: 3 },
+          { id: "les-cr-upi-4", title: "What to Do If Transaction Fails", type: "video", duration: 20, content: "", isFree: false, order: 4 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[1],
+    
+    outcomes: [
+      "Use UPI confidently",
+      "Understand banking terminology",
+      "Handle failed transactions properly",
+      "Protect yourself from payment fraud"
+    ],
+    requirements: [
+      "A bank account",
+      "A smartphone",
+      "Willingness to learn digital payments"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  {
+    id: "cr_gov",
+    slug: "government-portals-certificates",
+    title: "Government Portals & Certificates",
+    tagline: "Aadhaar, PAN, DigiLocker made simple",
+    description: "Understand government documents and portals - why they exist and how to use them correctly without confusion.",
+    longDescription: `Government documents and portals can be confusing. This course explains Aadhaar, PAN, DigiLocker, and other important government services in simple terms.
+
+What you'll learn:
+- Purpose of Aadhaar, PAN, and other documents
+- How to use DigiLocker correctly
+- Common mistakes to avoid
+- Official processes explained simply`,
+    thumbnail: "/courses/confusion-removers/gov-docs.jpg",
+    previewVideo: "",
+    price: 0,
+    originalPrice: 0,
+    currency: "INR",
+    
+    category: "confusion-remover",
+    subcategory: "Government Documents",
+    vertical: "general",
+    targetAudience: ["everyone", "people-struggling-with-govt-docs"],
+    tags: ["aadhaar", "pan", "digilocker", "government", "documents"],
+    
+    difficulty: "beginner",
+    language: "Hindi",
+    totalDuration: 60,
+    lessonCount: 4,
+    moduleCount: 1,
+    rating: 4.7,
+    reviewCount: 180,
+    enrollmentCount: 600,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-cr-gov-1",
+        title: "Government Documents",
+        order: 1,
+        lessons: [
+          { id: "les-cr-gov-1", title: "What is Aadhaar?", type: "video", duration: 12, content: "", isFree: true, order: 1 },
+          { id: "les-cr-gov-2", title: "PAN Card Importance", type: "video", duration: 15, content: "", isFree: false, order: 2 },
+          { id: "les-cr-gov-3", title: "DigiLocker Basics", type: "video", duration: 18, content: "", isFree: false, order: 3 },
+          { id: "les-cr-gov-4", title: "Passport Services", type: "video", duration: 15, content: "", isFree: false, order: 4 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[6],
+    
+    outcomes: [
+      "Understand government documents",
+      "Use DigiLocker effectively",
+      "Complete government tasks confidently",
+      "Avoid document-related mistakes"
+    ],
+    requirements: [
+      "Basic understanding of documents",
+      "Aadhaar number (if available)",
+      "Willingness to learn"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  {
+    id: "cr_fraud",
+    slug: "online-safety-fraud-awareness",
+    title: "Online Safety & Fraud Awareness",
+    tagline: "Protect yourself from online scams",
+    description: "Learn how fraud happens, common scams to watch for, and how to protect yourself and your money online.",
+    longDescription: `Online fraud is a real threat, but knowing how it works is your best protection. This course explains common scams, how fraudsters operate, and practical steps to stay safe.
+
+What you'll learn:
+- How OTP fraud works
+- Common online scams to avoid
+- Protecting your personal data
+- What to do if you're scammed`,
+    thumbnail: "/courses/confusion-removers/online-safety.jpg",
+    previewVideo: "",
+    price: 0,
+    originalPrice: 0,
+    currency: "INR",
+    
+    category: "confusion-remover",
+    subcategory: "Online Safety",
+    vertical: "general",
+    targetAudience: ["everyone", "people-worried-about-online-fraud"],
+    tags: ["fraud", "online-safety", "otp", "scams", "cyber-security"],
+    
+    difficulty: "beginner",
+    language: "Hindi",
+    totalDuration: 90,
+    lessonCount: 4,
+    moduleCount: 1,
+    rating: 4.9,
+    reviewCount: 300,
+    enrollmentCount: 1000,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-cr-fraud-1",
+        title: "Online Safety",
+        order: 1,
+        lessons: [
+          { id: "les-cr-fraud-1", title: "How OTP Fraud Works", type: "video", duration: 20, content: "", isFree: true, order: 1 },
+          { id: "les-cr-fraud-2", title: "Investment Frauds", type: "video", duration: 25, content: "", isFree: false, order: 2 },
+          { id: "les-cr-fraud-3", title: "Personal Data Protection", type: "video", duration: 25, content: "", isFree: false, order: 3 },
+          { id: "les-cr-fraud-4", title: "Reporting Fraud", type: "video", duration: 20, content: "", isFree: false, order: 4 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[1],
+    
+    outcomes: [
+      "Recognize common scams",
+      "Protect personal information",
+      "Respond properly to suspicious calls/messages",
+      "Report fraud effectively"
+    ],
+    requirements: [
+      "A phone (mobile or smartphone)",
+      "Basic awareness of using phone calls/messages",
+      "Willingness to learn safety practices"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  {
+    id: "cr_money",
+    slug: "personal-money-basics",
+    title: "Personal Money Basics",
+    tagline: "Income, savings, and financial clarity",
+    description: "Understand income, savings, EMI, and loans - the simple system of personal money explained clearly.",
+    longDescription: `Money management doesn't have to be complicated. This course breaks down personal finance into simple concepts anyone can understand and apply.
+
+What you'll learn:
+- Understanding your income
+- Smart saving strategies
+- How EMI and loans work
+- Budgeting made simple`,
+    thumbnail: "/courses/confusion-removers/personal-money.jpg",
+    previewVideo: "",
+    price: 0,
+    originalPrice: 0,
+    currency: "INR",
+    
+    category: "confusion-remover",
+    subcategory: "Personal Money",
+    vertical: "general",
+    targetAudience: ["everyone", "people-struggling-with-money-management"],
+    tags: ["money", "savings", "budget", "emi", "personal-finance"],
+    
+    difficulty: "beginner",
+    language: "Hindi",
+    totalDuration: 60,
+    lessonCount: 4,
+    moduleCount: 1,
+    rating: 4.8,
+    reviewCount: 220,
+    enrollmentCount: 800,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-cr-money-1",
+        title: "Personal Money",
+        order: 1,
+        lessons: [
+          { id: "les-cr-money-1", title: "Understanding Your Income", type: "video", duration: 12, content: "", isFree: true, order: 1 },
+          { id: "les-cr-money-2", title: "Credit Cards Explained", type: "video", duration: 15, content: "", isFree: false, order: 2 },
+          { id: "les-cr-money-3", title: "Budgeting Methods", type: "video", duration: 18, content: "", isFree: false, order: 3 },
+          { id: "les-cr-money-4", title: "Savings Strategies", type: "video", duration: 15, content: "", isFree: false, order: 4 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[1],
+    
+    outcomes: [
+      "Track income and expenses",
+      "Make smart saving decisions",
+      "Understand loans and EMI",
+      "Build better money habits"
+    ],
+    requirements: [
+      "Any income source (job, business, etc.)",
+      "Desire to manage money better",
+      "No prior financial knowledge needed"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  {
+    id: "cr_english",
+    slug: "english-communication",
+    title: "English & Communication",
+    tagline: "Remove the fear from English",
+    description: "Practical English communication for daily life and work. Build confidence in speaking and understanding English.",
+    longDescription: `English fear is common, but it shouldn't hold you back. This course focuses on practical English skills for everyday situations - conversations, phone calls, and work communication.
+
+What you'll learn:
+- Overcoming English fear
+- Phone conversation basics
+- Professional email writing
+- Practical speaking scenarios`,
+    thumbnail: "/courses/confusion-removers/english-communication.jpg",
+    previewVideo: "",
+    price: 0,
+    originalPrice: 0,
+    currency: "INR",
+    
+    category: "confusion-remover",
+    subcategory: "English Communication",
+    vertical: "general",
+    targetAudience: ["people-scared-of-english", "working-professionals", "students"],
+    tags: ["english", "communication", "speaking", "confidence", "language"],
+    
+    difficulty: "beginner",
+    language: "Hindi",
+    totalDuration: 60,
+    lessonCount: 4,
+    moduleCount: 1,
+    rating: 4.7,
+    reviewCount: 250,
+    enrollmentCount: 900,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-cr-english-1",
+        title: "English Communication",
+        order: 1,
+        lessons: [
+          { id: "les-cr-english-1", title: "Removing Fear from English", type: "video", duration: 12, content: "", isFree: true, order: 1 },
+          { id: "les-cr-english-2", title: "Phone Etiquette", type: "video", duration: 15, content: "", isFree: false, order: 2 },
+          { id: "les-cr-english-3", title: "Reading Skills", type: "video", duration: 18, content: "", isFree: false, order: 3 },
+          { id: "les-cr-english-4", title: "Professional Communication", type: "video", duration: 15, content: "", isFree: false, order: 4 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[4],
+    
+    outcomes: [
+      "Speak English with confidence",
+      "Handle phone conversations",
+      "Write professional messages",
+      "Overcome language anxiety"
+    ],
+    requirements: [
+      "Basic understanding of English alphabet",
+      "Willingness to practice",
+      "No pressure - learn at your pace"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+
+  // ==================== CONFUSION REMOVERS - COMMUNITY UNDERSTANDING ====================
+  {
+    id: "cr_bulk",
+    slug: "community-bulk-buying",
+    title: "Community Bulk Buying Model",
+    tagline: "Understanding pooling and community purchasing",
+    description: "Learn how community bulk buying works, the benefits of pooling, and how to participate safely.",
+    longDescription: `Bulk buying through community groups is becoming popular, but understanding how it works helps you participate safely and get real benefits.
+
+What you'll learn:
+- How bulk buying groups work
+- Real cost calculation
+- Building trust in groups
+- Common pitfalls to avoid`,
+    thumbnail: "/courses/confusion-removers/bulk-buying.jpg",
+    previewVideo: "",
+    price: 0,
+    originalPrice: 0,
+    currency: "INR",
+    
+    category: "community-understanding",
+    subcategory: "Bulk Buying",
+    vertical: "general",
+    targetAudience: ["community-members", "anyone-interested-in-pooling"],
+    tags: ["bulk-buying", "community", "pooling", "savings", "collective-purchasing"],
+    
+    difficulty: "beginner",
+    language: "Hindi",
+    totalDuration: 45,
+    lessonCount: 4,
+    moduleCount: 1,
+    rating: 4.6,
+    reviewCount: 100,
+    enrollmentCount: 400,
+    isActive: true,
+    isFeatured: false,
+    
+    modules: [
+      {
+        id: "mod-cr-bulk-1",
+        title: "Community Bulk Buying",
+        order: 1,
+        lessons: [
+          { id: "les-cr-bulk-1", title: "What is Community Buying?", type: "video", duration: 10, content: "", isFree: true, order: 1 },
+          { id: "les-cr-bulk-2", title: "Real Cost Calculation", type: "video", duration: 12, content: "", isFree: false, order: 2 },
+          { id: "les-cr-bulk-3", title: "Building Trust", type: "video", duration: 13, content: "", isFree: false, order: 3 },
+          { id: "les-cr-bulk-4", title: "Safety in Groups", type: "video", duration: 10, content: "", isFree: false, order: 4 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[6],
+    
+    outcomes: [
+      "Understand bulk buying economics",
+      "Calculate real savings",
+      "Participate safely in groups",
+      "Build community connections"
+    ],
+    requirements: [
+      "Interest in community activities",
+      "Basic math skills",
+      "Community mindset"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  {
+    id: "cr_foodwork",
+    slug: "food-for-work-model",
+    title: "Food-for-Work Model",
+    tagline: "Dignity-based community support",
+    description: "Understand food-for-work programs, how they function, and how to access dignity-based community support.",
+    longDescription: `Food-for-work programs provide dignity-based support to communities. Understanding how these programs work helps you access benefits and support others.
+
+What you'll learn:
+- How food-for-work programs work
+- Finding legitimate programs
+- Your rights and benefits
+- Participating with dignity`,
+    thumbnail: "/courses/confusion-removers/food-work.jpg",
+    previewVideo: "",
+    price: 0,
+    originalPrice: 0,
+    currency: "INR",
+    
+    category: "community-understanding",
+    subcategory: "Food for Work",
+    vertical: "general",
+    targetAudience: ["community-members", "people-seeking-support", "social-workers"],
+    tags: ["food-work", "community-support", "mgnrega", "dignity", "welfare"],
+    
+    difficulty: "beginner",
+    language: "Hindi",
+    totalDuration: 45,
+    lessonCount: 4,
+    moduleCount: 1,
+    rating: 4.7,
+    reviewCount: 120,
+    enrollmentCount: 450,
+    isActive: true,
+    isFeatured: false,
+    
+    modules: [
+      {
+        id: "mod-cr-foodwork-1",
+        title: "Food-for-Work Models",
+        order: 1,
+        lessons: [
+          { id: "les-cr-foodwork-1", title: "What is Food-for-Work?", type: "video", duration: 10, content: "", isFree: true, order: 1 },
+          { id: "les-cr-foodwork-2", title: "Finding Programs", type: "video", duration: 12, content: "", isFree: false, order: 2 },
+          { id: "les-cr-foodwork-3", title: "Your Rights & Benefits", type: "video", duration: 13, content: "", isFree: false, order: 3 },
+          { id: "les-cr-foodwork-4", title: "Participating with Dignity", type: "video", duration: 10, content: "", isFree: false, order: 4 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[6],
+    
+    outcomes: [
+      "Understand food-for-work programs",
+      "Find legitimate programs",
+      "Know your rights",
+      "Participate with dignity"
+    ],
+    requirements: [
+      "Interest in community programs",
+      "Basic awareness of local programs",
+      "Respect for community processes"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  {
+    id: "cr_community",
+    slug: "how-community-systems-work",
+    title: "How Community Systems Work",
+    tagline: "NGOs, Panchayats, CSR made clear",
+    description: "Understand how NGOs, Panchayats, CSR, and community systems work to organize and support communities.",
+    longDescription: `Community systems can seem complex, but understanding them helps you access support and participate in community development.
+
+What you'll learn:
+- How Panchayats function
+- Understanding NGOs and their work
+- CSR programs and how to access them
+- Government welfare schemes`,
+    thumbnail: "/courses/confusion-removers/community-systems.jpg",
+    previewVideo: "",
+    price: 0,
+    originalPrice: 0,
+    currency: "INR",
+    
+    category: "community-understanding",
+    subcategory: "Community Systems",
+    vertical: "general",
+    targetAudience: ["community-members", "social-workers", "citizens"],
+    tags: ["ngos", "panchayat", "csr", "community", "government-schemes"],
+    
+    difficulty: "beginner",
+    language: "Hindi",
+    totalDuration: 45,
+    lessonCount: 4,
+    moduleCount: 1,
+    rating: 4.6,
+    reviewCount: 130,
+    enrollmentCount: 500,
+    isActive: true,
+    isFeatured: false,
+    
+    modules: [
+      {
+        id: "mod-cr-community-1",
+        title: "Community Systems",
+        order: 1,
+        lessons: [
+          { id: "les-cr-community-1", title: "How Panchayats Work", type: "video", duration: 10, content: "", isFree: true, order: 1 },
+          { id: "les-cr-community-2", title: "Understanding NGOs", type: "video", duration: 12, content: "", isFree: false, order: 2 },
+          { id: "les-cr-community-3", title: "CSR Programs", type: "video", duration: 13, content: "", isFree: false, order: 3 },
+          { id: "les-cr-community-4", title: "Government Welfare Schemes", type: "video", duration: 10, content: "", isFree: false, order: 4 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[6],
+    
+    outcomes: [
+      "Understand local government",
+      "Work with NGOs effectively",
+      "Access CSR benefits",
+      "Utilize government schemes"
+    ],
+    requirements: [
+      "Interest in community affairs",
+      "Basic awareness of local systems",
+      "Desire to participate in community"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
   }
 ];
 

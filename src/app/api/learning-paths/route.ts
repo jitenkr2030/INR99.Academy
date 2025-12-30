@@ -235,6 +235,86 @@ const sampleLearningPaths = [
         instructor: { id: 'inst-11', name: 'Chris Taylor', avatar: null }
       }
     ]
+  },
+
+  // ==================== CONFUSION REMOVERS LEARNING PATHS ====================
+  {
+    id: 'life-essentials',
+    title: 'Life Essentials - Confusion Removers',
+    description: 'Clear, practical understanding of everyday digital tools, money, and systems. Remove confusion from daily life.',
+    icon: '💡',
+    color: 'bg-gradient-to-r from-amber-500 to-orange-600',
+    courseCount: 6,
+    totalDuration: 405,
+    totalLessons: 24,
+    previewCourses: [
+      {
+        id: 'cr_digital',
+        title: 'Digital & Smartphone Basics',
+        description: 'Understand your phone without fear',
+        difficulty: 'Beginner',
+        duration: 60,
+        lessonCount: 4,
+        instructor: { id: 'instructor-3', name: 'Amit Patel', avatar: null }
+      },
+      {
+        id: 'cr_upi',
+        title: 'UPI, Banking & Digital Money',
+        description: 'Stop fearing failed transactions',
+        difficulty: 'Beginner',
+        duration: 75,
+        lessonCount: 4,
+        instructor: { id: 'instructor-2', name: 'Priya Sharma', avatar: null }
+      },
+      {
+        id: 'cr_fraud',
+        title: 'Online Safety & Fraud Awareness',
+        description: 'Protect yourself from online scams',
+        difficulty: 'Beginner',
+        duration: 90,
+        lessonCount: 4,
+        instructor: { id: 'instructor-2', name: 'Priya Sharma', avatar: null }
+      }
+    ]
+  },
+  {
+    id: 'community-understanding',
+    title: 'Community Understanding',
+    description: 'Understanding how communities, organizations, and social systems work. Learn about NGOs, Panchayats, and community support.',
+    icon: '👥',
+    color: 'bg-gradient-to-r from-indigo-500 to-purple-600',
+    courseCount: 3,
+    totalDuration: 135,
+    totalLessons: 12,
+    previewCourses: [
+      {
+        id: 'cr_bulk',
+        title: 'Community Bulk Buying Model',
+        description: 'Understanding pooling and community purchasing',
+        difficulty: 'Beginner',
+        duration: 45,
+        lessonCount: 4,
+        instructor: { id: 'instructor-7', name: 'Rahul Mehta', avatar: null }
+      },
+      {
+        id: 'cr_foodwork',
+        title: 'Food-for-Work Model',
+        description: 'Dignity-based community support',
+        difficulty: 'Beginner',
+        duration: 45,
+        lessonCount: 4,
+        instructor: { id: 'instructor-7', name: 'Rahul Mehta', avatar: null }
+      },
+      {
+        id: 'cr_community',
+        title: 'How Community Systems Work',
+        description: 'NGOs, Panchayats, CSR made clear',
+        difficulty: 'Beginner',
+        duration: 45,
+        lessonCount: 4,
+        instructor: { id: 'instructor-7', name: 'Rahul Mehta', avatar: null }
+      }
+    ]
   }
 ]
 
