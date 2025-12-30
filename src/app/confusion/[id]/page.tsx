@@ -54,8 +54,8 @@ export default function ConfusionDetailPage() {
       const data = await response.json()
 
       if (data.success) {
-        setLesson(data.data.lesson)
-        setCourse(data.data.course)
+        setLesson(data.lesson)
+        setCourse(data.lesson.course)
       }
     } catch (error) {
       console.error('Error fetching lesson:', error)
