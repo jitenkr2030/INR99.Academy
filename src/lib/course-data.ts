@@ -204,8 +204,8 @@ Perfect for:
 - Anyone wanting to switch to a tech career
 - Professionals looking to automate tasks
 - Students preparing for coding interviews`,
-    thumbnail: "/courses/python-masterclass/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=python-preview",
+    thumbnail: "/assets/courses/python-masterclass.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 99,
     originalPrice: 1999,
     currency: "INR",
@@ -328,8 +328,8 @@ What you'll build:
 - E-commerce platform
 - Social media clone
 - REST APIs and more`,
-    thumbnail: "/courses/web-development-bootcamp/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=webdev-preview",
+    thumbnail: "/assets/courses/web-development-bootcamp.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 299,
     originalPrice: 4999,
     currency: "INR",
@@ -428,8 +428,8 @@ What you'll learn:
 - Investment options for every budget
 - Insurance planning
 - Retirement planning`,
-    thumbnail: "/courses/personal-finance-mastery/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=finance-preview",
+    thumbnail: "/assets/courses/personal-finance-mastery.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 99,
     originalPrice: 1499,
     currency: "INR",
@@ -522,8 +522,8 @@ Course highlights:
 - Value investing strategies
 - Risk management techniques
 - Portfolio building basics`,
-    thumbnail: "/courses/stock-market-fundamentals/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=stocks-preview",
+    thumbnail: "/assets/courses/stock-market-fundamentals.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 149,
     originalPrice: 2499,
     currency: "INR",
@@ -595,8 +595,8 @@ What you'll master:
 - Email Marketing
 - Google Analytics
 - Content Marketing`,
-    thumbnail: "/courses/digital-marketing-complete/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=dm-preview",
+    thumbnail: "/assets/courses/digital-marketing-complete.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 199,
     originalPrice: 3999,
     currency: "INR",
@@ -667,8 +667,8 @@ Course projects:
 - Design system creation
 - User research project
 - Complete portfolio`,
-    thumbnail: "/courses/ui-ux-design-masterclass/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=uiux-preview",
+    thumbnail: "/assets/courses/ui-ux-design-masterclass.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 199,
     originalPrice: 3499,
     currency: "INR",
@@ -739,8 +739,8 @@ Includes:
 - LinkedIn profile optimization
 - Salary negotiation tactics
 - Networking strategies`,
-    thumbnail: "/courses/job-prep-complete/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=jobprep-preview",
+    thumbnail: "/assets/courses/job-prep-complete.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 99,
     originalPrice: 1999,
     currency: "INR",
@@ -812,8 +812,8 @@ What you'll learn:
 - Funding strategies
 - MVP development
 - Growth strategies`,
-    thumbnail: "/courses/startup-foundation/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=startup-preview",
+    thumbnail: "/assets/courses/startup-foundation.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 249,
     originalPrice: 3999,
     currency: "INR",
@@ -884,8 +884,8 @@ Tools you'll master:
 - Scikit-learn
 - TensorFlow basics
 - SQL for data analysis`,
-    thumbnail: "/courses/data-science-python/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=ds-preview",
+    thumbnail: "/assets/courses/data-science-python.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 249,
     originalPrice: 4999,
     currency: "INR",
@@ -966,8 +966,8 @@ Chapters covered:
 - Surface Areas and Volumes
 - Statistics
 - Probability`,
-    thumbnail: "/courses/class10-mathematics/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=class10-math-preview",
+    thumbnail: "/assets/courses/class10-mathematics.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 149,
     originalPrice: 999,
     currency: "INR",
@@ -1070,8 +1070,8 @@ Topics covered:
 - Joint Venture
 - Partnership Accounts
 - Company Accounts`,
-    thumbnail: "/courses/bcom-financial-accounting/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=bcom-accounting-preview",
+    thumbnail: "/assets/courses/bcom-financial-accounting.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 199,
     originalPrice: 1999,
     currency: "INR",
@@ -1144,8 +1144,8 @@ What you'll learn:
 - Pivot Tables & Charts
 - Excel VBA & Macros
 - Power Query basics`,
-    thumbnail: "/courses/excel-mastery/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=excel-preview",
+    thumbnail: "/assets/courses/excel-mastery.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 99,
     originalPrice: 1499,
     currency: "INR",
@@ -1216,8 +1216,8 @@ What you'll improve:
 - Presentation skills
 - Interview communication
 - Email writing`,
-    thumbnail: "/courses/communication-english/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=english-preview",
+    thumbnail: "/assets/courses/english-communication.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 99,
     originalPrice: 1999,
     currency: "INR",
@@ -1412,8 +1412,8 @@ Topics covered:
 - Mobile security
 - Wi-Fi security
 - Data backup strategies`,
-    thumbnail: "/courses/cyber-safety-awareness/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=cyber-preview",
+    thumbnail: "/assets/courses/cyber-safety-awareness.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 49,
     originalPrice: 499,
     currency: "INR",
@@ -1495,8 +1495,8 @@ What you'll learn:
 - Stress management
 - Better sleep habits
 - Focus improvement`,
-    thumbnail: "/courses/meditation-mindfulness/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=meditation-preview",
+    thumbnail: "/assets/courses/meditation-mindfulness.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 99,
     originalPrice: 1499,
     currency: "INR",
@@ -1568,8 +1568,8 @@ Topics covered:
 - Union, State & Local Governance
 - Electoral Process
 - Constitutional Bodies`,
-    thumbnail: "/courses/indian-constitution/thumbnail.jpg",
-    previewVideo: "https://youtube.com/watch?v=constitution-preview",
+    thumbnail: "/assets/courses/indian-constitution.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
     price: 99,
     originalPrice: 999,
     currency: "INR",

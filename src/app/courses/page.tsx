@@ -407,14 +407,115 @@ export default function CoursesPage() {
               </div>
             )
           ) : (
-            <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎯</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-                Learning Paths Coming Soon
-              </h3>
-              <p style={{ color: '#6b7280' }}>
-                We're curating structured learning paths for you. In the meantime, explore our individual courses above!
-              </p>
+            <div style={{ padding: '2rem 0' }}>
+              <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎯</div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>
+                  Learning Paths by Category
+                </h3>
+                <p style={{ color: '#6b7280', maxWidth: '600px', margin: '0 auto' }}>
+                  Explore our courses organized by category. Each path is designed to help you master specific skills.
+                </p>
+              </div>
+              
+              {/* Categories as Learning Paths */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: '1.5rem'
+              }}>
+                {categories.map((category) => {
+                  const categoryCourses = courses.filter(c => c.category === category.id && c.isActive)
+                  if (categoryCourses.length === 0) return null
+                  
+                  return (
+                    <div
+                      key={category.id}
+                      style={{
+                        background: 'white',
+                        borderRadius: '0.75rem',
+                        padding: '1.5rem',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        border: '1px solid #e5e7eb'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)'
+                        e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                        <div style={{
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '0.5rem',
+                          background: '#f3f4f6',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.5rem'
+                        }}>
+                          {category.icon}
+                        </div>
+                        <div>
+                          <h4 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#111827' }}>
+                            {category.name}
+                          </h4>
+                          <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                            {categoryCourses.length} courses
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div style={{ marginBottom: '1rem' }}>
+                        {categoryCourses.slice(0, 3).map((course, idx) => (
+                          <div key={course.id} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.5rem 0',
+                            borderBottom: idx < Math.min(2, categoryCourses.slice(0, 3).length - 1) ? '1px solid #f3f4f6' : 'none'
+                          }}>
+                            <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>▶</span>
+                            <span style={{ fontSize: '0.875rem', color: '#374151', flex: 1, textAlign: 'left' }}>
+                              {course.title}
+                            </span>
+                          </div>
+                        ))}
+                        {categoryCourses.length > 3 && (
+                          <p style={{ fontSize: '0.75rem', color: '#9ca3af', paddingTop: '0.5rem' }}>
+                            +{categoryCourses.length - 3} more courses
+                          </p>
+                        )}
+                      </div>
+                      
+                      <button
+                        onClick={() => setSelectedCategory(category.id)}
+                        style={{
+                          width: '100%',
+                          padding: '0.625rem 1rem',
+                          background: '#f3f4f6',
+                          border: 'none',
+                          borderRadius: '0.375rem',
+                          color: '#374151',
+                          fontWeight: '500',
+                          fontSize: '0.875rem',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = '#e5e7eb'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = '#f3f4f6'}
+                      >
+                        View All Courses →
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
         </div>
