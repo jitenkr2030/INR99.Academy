@@ -128,3 +128,5 @@ prisma:query INSERT INTO "public"."users" ("id","email","password","name","role"
  POST /api/auth/callback/credentials 302 in 47ms
  ✓ Compiled in 570ms (337 modules)
  ✓ Compiled in 597ms (337 modules)
+ ✓ Compiled in 371ms (337 modules)
+ ✓ Compiled in 324ms (337 modules)
