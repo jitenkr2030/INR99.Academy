@@ -135,7 +135,7 @@ export default function CoursesPage() {
                 display: 'inline-flex'
               }}>
                 <button
-                  onClick={() => setActiveTab('courses')}
+                  onClick={() => {}}
                   style={{
                     padding: '0.625rem 1.5rem',
                     borderRadius: '0.375rem',
@@ -143,9 +143,9 @@ export default function CoursesPage() {
                     fontWeight: '500',
                     cursor: 'pointer',
                     border: 'none',
-                    background: activeTab === 'courses' ? 'white' : 'transparent',
-                    color: activeTab === 'courses' ? '#111827' : '#6b7280',
-                    boxShadow: activeTab === 'courses' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                    background: 'white',
+                    color: '#111827',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                     transition: 'all 0.2s'
                   }}
                 >
