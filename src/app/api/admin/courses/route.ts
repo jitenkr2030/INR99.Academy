@@ -136,3 +136,86 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    const user = getAuthenticatedUser(request)
+    
+    if (!user || user.id !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { courseId, title, description, difficulty, duration, isActive, learningPathId, thumbnail } = await request.json()
+
+    if (!courseId) {
+      return NextResponse.json({ error: 'Course ID is required' }, { status: 400 })
+    }
+
+    const updateData: any = {}
+    if (title !== undefined) updateData.title = title
+    if (description !== undefined) updateData.description = description
+    if (difficulty !== undefined) updateData.difficulty = difficulty
+    if (duration !== undefined) updateData.duration = duration
+    if (isActive !== undefined) updateData.isActive = isActive
+    if (learningPathId !== undefined) updateData.learningPathId = learningPathId
+    if (thumbnail !== undefined) updateData.thumbnail = thumbnail
+
+    const course = await db.course.update({
+      where: { id: courseId },
+      data: updateData,
+      include: {
+        instructor: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        learningPath: {
+          select: {
+            id: true,
+            title: true
+          }
+        },
+        _count: {
+          select: {
+            lessons: true,
+            progress: true,
+            assessments: true,
+            discussions: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(course)
+  } catch (error) {
+    console.error('Error updating course:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = getAuthenticatedUser(request)
+    
+    if (!user || user.id !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const courseId = searchParams.get('courseId')
+
+    if (!courseId) {
+      return NextResponse.json({ error: 'Course ID is required' }, { status: 400 })
+    }
+
+    await db.course.delete({
+      where: { id: courseId }
+    })
+
+    return NextResponse.json({ message: 'Course deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting course:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
