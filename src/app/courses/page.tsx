@@ -301,7 +301,7 @@ export default function CoursesPage() {
                         fontSize: '3rem',
                         position: 'relative'
                       }}>
-                        {course.thumbnail && course.thumbnail !== '/courses/python-masterclass/thumbnail.jpg' ? (
+                        {course.thumbnail ? (
                           <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         ) : (
                           <span style={{ fontSize: '4rem' }}>📚</span>
