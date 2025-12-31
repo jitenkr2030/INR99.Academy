@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface AdminStats {
   totalUsers: number
@@ -86,6 +86,85 @@ interface Instructor {
   name: string
 }
 
+interface Category {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  icon: string | null
+  color: string | null
+  isActive: boolean
+  isFeatured: boolean
+  sortOrder: number
+  subcategories: any[]
+  courses: any[]
+}
+
+interface CategoriesResponse {
+  categories: Category[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+interface Discussion {
+  id: string
+  title: string
+  content: string
+  isPinned: boolean
+  isActive: boolean
+  createdAt: Date
+  user: {
+    id: string
+    name: string | null
+    email: string
+  }
+  course: {
+    id: string
+    title: string
+  } | null
+  _count: {
+    replies: number
+  }
+}
+
+interface DiscussionsResponse {
+  discussions: Discussion[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+interface AnalyticsData {
+  overview: {
+    totalUsers: number
+    activeUsers: number
+    totalCourses: number
+    activeCourses: number
+    totalDiscussions: number
+    totalSubscriptions: number
+    activeSubscriptions: number
+    totalCertificates: number
+    totalPayments: number
+    totalRevenue: number
+  }
+  revenueChart: { date: string; revenue: number; subscriptions: number; certificates: number }[]
+  usersChart: { month: string; count: number }[]
+  coursesByDifficulty: { difficulty: string; count: number }[]
+  coursesByCategory: { name: string; count: number }[]
+  topCourses: { courseId: string; title: string; enrollments: number }[]
+  instructors: { id: string; name: string; courseCount: number }[]
+  subscriptionStats: { status: string; count: number }[]
+  recentDiscussions: Discussion[]
+  dailyActiveUsers: { lastLogin: Date; name: string | null; email: string }[]
+}
+
 export default function AdminDashboard() {
   const [tab, setTab] = useState('admin')
   const [mounted, setMounted] = useState(false)
@@ -119,6 +198,34 @@ export default function AdminDashboard() {
     instructorId: '',
     thumbnail: ''
   })
+
+  // Categories management state
+  const [categories, setCategories] = useState<Category[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(false)
+  const [categorySearchTerm, setCategorySearchTerm] = useState('')
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [showCreateCategoryModal, setShowCreateCategoryModal] = useState(false)
+  const [newCategory, setNewCategory] = useState({
+    name: '',
+    description: '',
+    icon: '',
+    color: '#3b82f6',
+    isFeatured: false
+  })
+
+  // Discussions management state
+  const [discussions, setDiscussions] = useState<Discussion[]>([])
+  const [discussionsLoading, setDiscussionsLoading] = useState(false)
+  const [discussionsPagination, setDiscussionsPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 })
+  const [discussionSearchTerm, setDiscussionSearchTerm] = useState('')
+  const [editingDiscussion, setEditingDiscussion] = useState<Discussion | null>(null)
+  const [showDiscussionModal, setShowDiscussionModal] = useState(false)
+
+  // Analytics state
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [selectedPeriod, setSelectedPeriod] = useState('30')
 
   useEffect(() => {
     setMounted(true)
@@ -155,6 +262,25 @@ export default function AdminDashboard() {
       setError('Failed to load dashboard data. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchAnalytics = async () => {
+    try {
+      setAnalyticsLoading(true)
+      const response = await fetch(`/api/admin/analytics?days=${selectedPeriod}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch analytics')
+      }
+
+      const data: AnalyticsData = await response.json()
+      setAnalytics(data)
+    } catch (err) {
+      console.error('Error fetching analytics:', err)
+      setError('Failed to load analytics')
+    } finally {
+      setAnalyticsLoading(false)
     }
   }
 
@@ -198,6 +324,45 @@ export default function AdminDashboard() {
     }
   }
 
+  const fetchCategories = async (page = 1, search = '') => {
+    try {
+      setCategoriesLoading(true)
+      const response = await fetch(`/api/admin/categories?page=${page}&limit=50&search=${encodeURIComponent(search)}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories')
+      }
+
+      const data: CategoriesResponse = await response.json()
+      setCategories(data.categories)
+    } catch (err) {
+      console.error('Error fetching categories:', err)
+      setError('Failed to load categories')
+    } finally {
+      setCategoriesLoading(false)
+    }
+  }
+
+  const fetchDiscussions = async (page = 1, search = '') => {
+    try {
+      setDiscussionsLoading(true)
+      const response = await fetch(`/api/admin/discussions?page=${page}&limit=10&search=${encodeURIComponent(search)}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch discussions')
+      }
+
+      const data: DiscussionsResponse = await response.json()
+      setDiscussions(data.discussions)
+      setDiscussionsPagination(data.pagination)
+    } catch (err) {
+      console.error('Error fetching discussions:', err)
+      setError('Failed to load discussions')
+    } finally {
+      setDiscussionsLoading(false)
+    }
+  }
+
   const fetchInstructors = async () => {
     try {
       const response = await fetch('/api/instructors')
@@ -223,6 +388,24 @@ export default function AdminDashboard() {
     }
   }, [tab])
 
+  useEffect(() => {
+    if (tab === 'categories') {
+      fetchCategories(1, categorySearchTerm)
+    }
+  }, [tab])
+
+  useEffect(() => {
+    if (tab === 'discussions') {
+      fetchDiscussions(discussionsPagination.page, discussionSearchTerm)
+    }
+  }, [tab])
+
+  useEffect(() => {
+    if (tab === 'analytics') {
+      fetchAnalytics()
+    }
+  }, [tab, selectedPeriod])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     fetchUsers(1, searchTerm)
@@ -233,11 +416,23 @@ export default function AdminDashboard() {
     fetchCourses(1, courseSearchTerm)
   }
 
-  const handlePageChange = (newPage: number, type: 'users' | 'courses') => {
+  const handleCategorySearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    fetchCategories(1, categorySearchTerm)
+  }
+
+  const handleDiscussionSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    fetchDiscussions(1, discussionSearchTerm)
+  }
+
+  const handlePageChange = (newPage: number, type: 'users' | 'courses' | 'discussions') => {
     if (type === 'users') {
       fetchUsers(newPage, searchTerm)
-    } else {
+    } else if (type === 'courses') {
       fetchCourses(newPage, courseSearchTerm)
+    } else {
+      fetchDiscussions(newPage, discussionSearchTerm)
     }
   }
 
@@ -383,6 +578,259 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleEditCategory = (category: Category) => {
+    setEditingCategory({ ...category })
+    setShowCategoryModal(true)
+  }
+
+  const handleSaveCategory = async () => {
+    if (!editingCategory) return
+    
+    try {
+      const response = await fetch('/api/admin/categories', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingCategory.id,
+          name: editingCategory.name,
+          description: editingCategory.description,
+          icon: editingCategory.icon,
+          color: editingCategory.color,
+          isActive: editingCategory.isActive,
+          isFeatured: editingCategory.isFeatured,
+          sortOrder: editingCategory.sortOrder
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update category')
+      }
+
+      fetchCategories(1, categorySearchTerm)
+      setShowCategoryModal(false)
+      setEditingCategory(null)
+    } catch (err) {
+      console.error('Error updating category:', err)
+      alert('Failed to update category')
+    }
+  }
+
+  const handleCreateCategory = async () => {
+    if (!newCategory.name) {
+      alert('Category name is required')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newCategory)
+      })
+
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.error || 'Failed to create category')
+      }
+
+      fetchCategories(1, categorySearchTerm)
+      setShowCreateCategoryModal(false)
+      setNewCategory({
+        name: '',
+        description: '',
+        icon: '',
+        color: '#3b82f6',
+        isFeatured: false
+      })
+    } catch (err: any) {
+      console.error('Error creating category:', err)
+      alert(err.message || 'Failed to create category')
+    }
+  }
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/categories?id=${categoryId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.error || 'Failed to delete category')
+      }
+
+      fetchCategories(1, categorySearchTerm)
+    } catch (err: any) {
+      console.error('Error deleting category:', err)
+      alert(err.message || 'Failed to delete category')
+    }
+  }
+
+  const handleEditDiscussion = (discussion: Discussion) => {
+    setEditingDiscussion({ ...discussion })
+    setShowDiscussionModal(true)
+  }
+
+  const handleSaveDiscussion = async () => {
+    if (!editingDiscussion) return
+    
+    try {
+      const response = await fetch('/api/admin/discussions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          discussionId: editingDiscussion.id,
+          isActive: editingDiscussion.isActive,
+          isPinned: editingDiscussion.isPinned
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update discussion')
+      }
+
+      fetchDiscussions(discussionsPagination.page, discussionSearchTerm)
+      setShowDiscussionModal(false)
+      setEditingDiscussion(null)
+    } catch (err) {
+      console.error('Error updating discussion:', err)
+      alert('Failed to update discussion')
+    }
+  }
+
+  const handleDeleteDiscussion = async (discussionId: string) => {
+    if (!confirm('Are you sure you want to delete this discussion? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/discussions?discussionId=${discussionId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete discussion')
+      }
+
+      fetchDiscussions(discussionsPagination.page, discussionSearchTerm)
+    } catch (err) {
+      console.error('Error deleting discussion:', err)
+      alert('Failed to delete discussion')
+    }
+  }
+
+  // Simple Bar Chart Component
+  const BarChart = ({ data, height = 200 }: { data: { label: string; value: number; color?: string }[]; height?: number }) => {
+    const maxValue = Math.max(...data.map(d => d.value), 1)
+    
+    return (
+      <div style={{ height, display: 'flex', alignItems: 'flex-end', gap: '8px', padding: '1rem' }}>
+        {data.map((item, index) => (
+          <div key={index} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ 
+              width: '100%', 
+              height: `${(item.value / maxValue) * 150}px`, 
+              background: item.color || '#dc2626',
+              borderRadius: '4px 4px 0 0',
+              minHeight: '4px'
+            }}></div>
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px', textAlign: 'center' }}>
+              {item.label.length > 10 ? item.label.substring(0, 10) + '...' : item.label}
+            </span>
+            <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1f2937' }}>
+              {item.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // Simple Line Chart Component
+  const LineChart = ({ data, height = 200, color = '#dc2626' }: { data: { label: string; value: number }[]; height?: number; color?: string }) => {
+    const maxValue = Math.max(...data.map(d => d.value), 1)
+    const points = data.map((d, i) => {
+      const x = (i / (data.length - 1 || 1)) * 100
+      const y = 100 - ((d.value / maxValue) * 80)
+      return `${x},${y}`
+    }).join(' ')
+
+    return (
+      <div style={{ height, position: 'relative', padding: '1rem' }}>
+        <svg width="100%" height="150" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <polyline
+            fill="none"
+            stroke={color}
+            strokeWidth="2"
+            points={points}
+          />
+          {data.map((d, i) => {
+            const x = (i / (data.length - 1 || 1)) * 100
+            const y = 100 - ((d.value / maxValue) * 80)
+            return (
+              <circle key={i} cx={x} cy={y} r="3" fill={color} />
+            )
+          })}
+        </svg>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
+          <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{data[0]?.label}</span>
+          <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>{data[data.length - 1]?.label}</span>
+        </div>
+      </div>
+    )
+  }
+
+  // Donut Chart Component
+  const DonutChart = ({ data, size = 150 }: { data: { label: string; value: number; color: string }[]; size?: number }) => {
+    const total = data.reduce((sum, d) => sum + d.value, 0)
+    const colors = ['#dc2626', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899']
+    let cumulativePercent = 0
+
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <svg width={size} height={size} viewBox="0 0 100 100">
+          {data.map((item, index) => {
+            const percent = (item.value / total) * 100
+            const startAngle = cumulativePercent * 3.6
+            const endAngle = startAngle + percent * 3.6
+            cumulativePercent += percent
+
+            const startRad = (startAngle - 90) * Math.PI / 180
+            const endRad = (endAngle - 90) * Math.PI / 180
+
+            const x1 = 50 + 40 * Math.cos(startRad)
+            const y1 = 50 + 40 * Math.sin(startRad)
+            const x2 = 50 + 40 * Math.cos(endRad)
+            const y2 = 50 + 40 * Math.sin(endRad)
+
+            const largeArc = percent > 50 ? 1 : 0
+
+            return (
+              <path
+                key={index}
+                d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                fill={item.color || colors[index % colors.length]}
+              />
+            )
+          })}
+          <circle cx="50" cy="50" r="25" fill="white" />
+        </svg>
+        <div style={{ display: 'grid', gap: '0.5rem' }}>
+          {data.map((item, index) => (
+            <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ width: '12px', height: '12px', borderRadius: '2px', background: item.color || colors[index % colors.length] }}></div>
+              <span style={{ fontSize: '0.875rem', color: '#374151' }}>{item.label}: {item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   if (!mounted) {
     return (
       <div style={{ minHeight: '100vh', background: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -394,10 +842,12 @@ export default function AdminDashboard() {
 
   const tabs = [
     { id: 'dashboard', label: '📊 Dashboard' },
-    { id: 'profile', label: '👤 Profile' },
+    { id: 'analytics', label: '📈 Analytics' },
     { id: 'courses', label: '📚 Courses' },
+    { id: 'categories', label: '📁 Categories' },
+    { id: 'discussions', label: '💬 Discussions' },
     { id: 'users', label: '👥 Users' },
-    { id: 'admin', label: '⚙️ Admin' }
+    { id: 'admin', label: '⚙️ Settings' }
   ]
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount)
@@ -614,33 +1064,138 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {tab === 'profile' && (
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '2rem' }}>My Profile</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
-              <div style={{ textAlign: 'center', padding: '2rem', background: '#f9fafb', borderRadius: '0.75rem' }}>
-                <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2.5rem', fontWeight: 'bold', margin: '0 auto 1rem' }}>A</div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937' }}>{user?.name || 'Demo Admin 1'}</h3>
-                <p style={{ color: '#6b7280' }}>{user?.email || 'admin1@inr99.com'}</p>
-                <span style={{ display: 'inline-block', marginTop: '0.5rem', background: '#fee2e2', color: '#991b1b', padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600' }}>Administrator</span>
-              </div>
-              <div style={{ display: 'grid', gap: '1rem' }}>
-                {[
-                  { label: 'Name', value: user?.name || 'Demo Admin 1', icon: '👤' },
-                  { label: 'Email', value: user?.email || 'admin1@inr99.com', icon: '📧' },
-                  { label: 'Role', value: user?.role || 'Administrator', icon: '🛡️' },
-                  { label: 'Member Since', value: 'January 2024', icon: '📅' }
-                ].map(item => (
-                  <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
-                    <span style={{ fontSize: '1.25rem' }}>{item.icon}</span>
-                    <div>
-                      <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>{item.label}</p>
-                      <p style={{ fontWeight: '500', color: '#1f2937' }}>{item.value}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        {tab === 'analytics' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937' }}>📈 Analytics Dashboard</h2>
+              <select
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid #d1d5db',
+                  fontSize: '0.875rem'
+                }}
+              >
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </select>
             </div>
+
+            {analyticsLoading ? (
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>Loading analytics...</div>
+            ) : analytics ? (
+              <>
+                {/* Overview Stats */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+                  {[
+                    { label: 'Total Users', value: analytics.overview.totalUsers.toLocaleString(), icon: '👥' },
+                    { label: 'Active Courses', value: analytics.overview.activeCourses.toLocaleString(), icon: '📚' },
+                    { label: 'Active Subscriptions', value: analytics.overview.activeSubscriptions.toLocaleString(), icon: '🎓' },
+                    { label: 'Total Revenue', value: formatCurrency(analytics.overview.totalRevenue), icon: '💰' },
+                    { label: 'Certificates', value: analytics.overview.totalCertificates.toLocaleString(), icon: '🏆' },
+                    { label: 'Discussions', value: analytics.overview.totalDiscussions.toLocaleString(), icon: '💬' }
+                  ].map(stat => (
+                    <div key={stat.label} style={{ background: 'white', borderRadius: '0.5rem', padding: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                      <span style={{ fontSize: '1.25rem' }}>{stat.icon}</span>
+                      <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>{stat.label}</p>
+                      <p style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937' }}>{stat.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Charts Row */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+                  {/* Revenue Chart */}
+                  <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>Revenue Trend</h3>
+                    {analytics.revenueChart.length > 0 ? (
+                      <LineChart 
+                        data={analytics.revenueChart.slice(-14).map(d => ({ label: d.date.slice(5), value: d.revenue }))}
+                        color="#10b981"
+                      />
+                    ) : (
+                      <div style={{ height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>No revenue data</div>
+                    )}
+                  </div>
+
+                  {/* User Growth Chart */}
+                  <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>User Growth</h3>
+                    {analytics.usersChart.length > 0 ? (
+                      <BarChart data={analytics.usersChart.slice(-6).map(d => ({ label: d.month.slice(2), value: d.count, color: '#3b82f6' }))} />
+                    ) : (
+                      <div style={{ height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>No user data</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Distribution Charts */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+                  {/* Courses by Difficulty */}
+                  <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>Courses by Difficulty</h3>
+                    <BarChart 
+                      data={analytics.coursesByDifficulty.map(d => ({ 
+                        label: d.difficulty.charAt(0) + d.difficulty.slice(1).toLowerCase(), 
+                        value: d.count,
+                        color: d.difficulty === 'BEGINNER' ? '#10b981' : d.difficulty === 'INTERMEDIATE' ? '#f59e0b' : '#ef4444'
+                      }))} 
+                      height={150}
+                    />
+                  </div>
+
+                  {/* Top Courses */}
+                  <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>Top Courses by Enrollment</h3>
+                    {analytics.topCourses.length > 0 ? (
+                      <div style={{ display: 'grid', gap: '0.5rem' }}>
+                        {analytics.topCourses.slice(0, 5).map((course, index) => (
+                          <div key={course.courseId} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#dc2626', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: '600' }}>
+                              {index + 1}
+                            </span>
+                            <div style={{ flex: 1 }}>
+                              <p style={{ fontSize: '0.875rem', fontWeight: '500', color: '#1f2937' }}>{course.title}</p>
+                              <div style={{ height: '6px', background: '#e5e7eb', borderRadius: '3px', marginTop: '4px' }}>
+                                <div style={{ height: '100%', width: `${(course.enrollments / analytics.topCourses[0].enrollments) * 100}%`, background: '#dc2626', borderRadius: '3px' }}></div>
+                              </div>
+                            </div>
+                            <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>{course.enrollments}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ color: '#6b7280', textAlign: 'center', padding: '1rem' }}>No course data</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>Recent Discussions</h3>
+                  {analytics.recentDiscussions.length > 0 ? (
+                    <div style={{ display: 'grid', gap: '0.5rem' }}>
+                      {analytics.recentDiscussions.slice(0, 5).map((discussion) => (
+                        <div key={discussion.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
+                          <div>
+                            <p style={{ fontWeight: '500', color: '#1f2937' }}>{discussion.title}</p>
+                            <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>{discussion.user?.name || 'Unknown'} • {discussion.course?.title || 'General'}</p>
+                          </div>
+                          <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>{discussion._count.replies} replies</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ color: '#6b7280', textAlign: 'center', padding: '1rem' }}>No recent discussions</div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>No analytics data available</div>
+            )}
           </div>
         )}
 
@@ -664,23 +1219,75 @@ export default function AdminDashboard() {
               </button>
             </div>
             
-            {/* Search Bar */}
             <form onSubmit={handleCourseSearch} style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
               <input
                 type="text"
-                placeholder="Search courses by title or description..."
+                placeholder="Search courses..."
                 value={courseSearchTerm}
                 onChange={(e) => setCourseSearchTerm(e.target.value)}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #d1d5db',
-                  fontSize: '0.875rem'
-                }}
+                style={{ flex: 1, padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }}
               />
+              <button type="submit" style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', borderRadius: '0.5rem', border: 'none', fontWeight: '600', cursor: 'pointer' }}>Search</button>
+            </form>
+
+            <div style={{ background: 'white', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr 1fr 1fr 1fr 1.5fr', gap: '1rem', padding: '1rem', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.875rem', color: '#374151' }}>
+                <div>Course</div>
+                <div>Instructor</div>
+                <div>Difficulty</div>
+                <div>Duration</div>
+                <div>Status</div>
+                <div>Actions</div>
+              </div>
+
+              {coursesLoading && <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>Loading courses...</div>}
+
+              {!coursesLoading && courses.map((course) => (
+                <div key={course.id} style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr 1fr 1fr 1fr 1.5fr', gap: '1rem', padding: '1rem', borderBottom: '1px solid #e5e7eb', alignItems: 'center' }}>
+                  <div>
+                    <h3 style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>{course.title}</h3>
+                    <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>{course._count.lessons} lessons • {course._count.progress} students</p>
+                  </div>
+                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>{course.instructor?.name || 'N/A'}</div>
+                  <div>
+                    <span style={{ padding: '0.25rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '600', background: course.difficulty === 'BEGINNER' ? '#dcfce7' : course.difficulty === 'INTERMEDIATE' ? '#fef3c7' : '#fee2e2', color: course.difficulty === 'BEGINNER' ? '#166534' : course.difficulty === 'INTERMEDIATE' ? '#854d0e' : '#991b1b' }}>
+                      {course.difficulty}
+                    </span>
+                  </div>
+                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>{formatDuration(course.duration)}</div>
+                  <div>
+                    <span style={{ padding: '0.25rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '600', background: course.isActive ? '#dcfce7' : '#fef3c7', color: course.isActive ? '#166534' : '#854d0e' }}>
+                      {course.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={() => handleEditCourse(course)} style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '500', background: 'white' }}>Edit</button>
+                    <button onClick={() => handleDeleteCourse(course.id)} style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #fecaca', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '500', background: '#fef2f2', color: '#991b1b' }}>Delete</button>
+                  </div>
+                </div>
+              ))}
+
+              {!coursesLoading && courses.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>No courses found</div>}
+
+              {!coursesLoading && coursesPagination.totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderTop: '1px solid #e5e7eb' }}>
+                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Page {coursesPagination.page} of {coursesPagination.totalPages}</div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={() => handlePageChange(coursesPagination.page - 1, 'courses')} disabled={coursesPagination.page === 1} style={{ padding: '0.5rem 1rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: coursesPagination.page === 1 ? 'not-allowed' : 'pointer', background: coursesPagination.page === 1 ? '#f3f4f6' : 'white' }}>Previous</button>
+                    <button onClick={() => handlePageChange(coursesPagination.page + 1, 'courses')} disabled={coursesPagination.page === coursesPagination.totalPages} style={{ padding: '0.5rem 1rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: coursesPagination.page === coursesPagination.totalPages ? 'not-allowed' : 'pointer', background: coursesPagination.page === coursesPagination.totalPages ? '#f3f4f6' : 'white' }}>Next</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {tab === 'categories' && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937' }}>📁 Categories</h2>
               <button
-                type="submit"
+                onClick={() => setShowCreateCategoryModal(true)}
                 style={{
                   padding: '0.75rem 1.5rem',
                   background: '#dc2626',
@@ -691,140 +1298,116 @@ export default function AdminDashboard() {
                   cursor: 'pointer'
                 }}
               >
-                Search
+                ➕ Add New Category
               </button>
+            </div>
+
+            <form onSubmit={handleCategorySearch} style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                placeholder="Search categories..."
+                value={categorySearchTerm}
+                onChange={(e) => setCategorySearchTerm(e.target.value)}
+                style={{ flex: 1, padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }}
+              />
+              <button type="submit" style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', borderRadius: '0.5rem', border: 'none', fontWeight: '600', cursor: 'pointer' }}>Search</button>
             </form>
 
-            {/* Courses Table */}
             <div style={{ background: 'white', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-              {/* Table Header */}
-              <div style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr 1fr 1fr 1fr 1.5fr', gap: '1rem', padding: '1rem', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.875rem', color: '#374151' }}>
-                <div>Course</div>
-                <div>Instructor</div>
-                <div>Difficulty</div>
-                <div>Duration</div>
-                <div>Status</div>
-                <div>Actions</div>
-              </div>
-
-              {/* Loading State */}
-              {coursesLoading && (
-                <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-                  Loading courses...
-                </div>
-              )}
-
-              {/* Courses List */}
-              {!coursesLoading && courses.map((course) => (
-                <div key={course.id} style={{ display: 'grid', gridTemplateColumns: '3fr 1.5fr 1fr 1fr 1fr 1.5fr', gap: '1rem', padding: '1rem', borderBottom: '1px solid #e5e7eb', alignItems: 'center' }}>
-                  <div>
-                    <h3 style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>{course.title}</h3>
-                    <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>{course._count.lessons} lessons • {course._count.progress} students</p>
+              {categoriesLoading && <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>Loading categories...</div>}
+              
+              {!categoriesLoading && categories.map((category) => (
+                <div key={category.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderBottom: '1px solid #e5e7eb', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '0.5rem', background: category.color || '#3b82f6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>
+                      {category.icon || '📁'}
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <h3 style={{ fontWeight: '600', color: '#1f2937' }}>{category.name}</h3>
+                        {category.isFeatured && <span style={{ padding: '0.125rem 0.5rem', borderRadius: '9999px', fontSize: '0.625rem', fontWeight: '600', background: '#fef3c7', color: '#854d0e' }}>FEATURED</span>}
+                      </div>
+                      <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>{category.description || 'No description'}</p>
+                      <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>{category.courses.length} courses • {category.subcategories.length} subcategories</p>
+                    </div>
                   </div>
-                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>{course.instructor?.name || 'N/A'}</div>
-                  <div>
-                    <span style={{ 
-                      padding: '0.25rem 0.5rem', 
-                      borderRadius: '9999px', 
-                      fontSize: '0.75rem', 
-                      fontWeight: '600',
-                      background: course.difficulty === 'BEGINNER' ? '#dcfce7' : course.difficulty === 'INTERMEDIATE' ? '#fef3c7' : '#fee2e2',
-                      color: course.difficulty === 'BEGINNER' ? '#166534' : course.difficulty === 'INTERMEDIATE' ? '#854d0e' : '#991b1b'
-                    }}>
-                      {course.difficulty}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ padding: '0.25rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '600', background: category.isActive ? '#dcfce7' : '#fef3c7', color: category.isActive ? '#166534' : '#854d0e' }}>
+                      {category.isActive ? 'Active' : 'Inactive'}
                     </span>
-                  </div>
-                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>{formatDuration(course.duration)}</div>
-                  <div>
-                    <span style={{ 
-                      padding: '0.25rem 0.5rem', 
-                      borderRadius: '9999px', 
-                      fontSize: '0.75rem', 
-                      fontWeight: '600',
-                      background: course.isActive ? '#dcfce7' : '#fef3c7',
-                      color: course.isActive ? '#166534' : '#854d0e'
-                    }}>
-                      {course.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      onClick={() => handleEditCourse(course)}
-                      style={{
-                        padding: '0.375rem 0.75rem',
-                        borderRadius: '0.375rem',
-                        border: '1px solid #d1d5db',
-                        cursor: 'pointer',
-                        fontSize: '0.75rem',
-                        fontWeight: '500',
-                        background: 'white'
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteCourse(course.id)}
-                      style={{
-                        padding: '0.375rem 0.75rem',
-                        borderRadius: '0.375rem',
-                        border: '1px solid #fecaca',
-                        cursor: 'pointer',
-                        fontSize: '0.75rem',
-                        fontWeight: '500',
-                        background: '#fef2f2',
-                        color: '#991b1b'
-                      }}
-                    >
-                      Delete
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button onClick={() => handleEditCategory(category)} style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '500', background: 'white' }}>Edit</button>
+                      <button onClick={() => handleDeleteCategory(category.id)} style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #fecaca', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '500', background: '#fef2f2', color: '#991b1b' }}>Delete</button>
+                    </div>
                   </div>
                 </div>
               ))}
 
-              {/* Empty State */}
-              {!coursesLoading && courses.length === 0 && (
-                <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-                  No courses found
-                </div>
-              )}
+              {!categoriesLoading && categories.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>No categories found</div>}
+            </div>
+          </div>
+        )}
 
-              {/* Pagination */}
-              {!coursesLoading && coursesPagination.totalPages > 1 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderTop: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                    Showing {((coursesPagination.page - 1) * coursesPagination.limit) + 1} to {Math.min(coursesPagination.page * coursesPagination.limit, coursesPagination.total)} of {coursesPagination.total} courses
+        {tab === 'discussions' && (
+          <div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>💬 Discussions Moderation</h2>
+            
+            <form onSubmit={handleDiscussionSearch} style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                placeholder="Search discussions..."
+                value={discussionSearchTerm}
+                onChange={(e) => setDiscussionSearchTerm(e.target.value)}
+                style={{ flex: 1, padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }}
+              />
+              <button type="submit" style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', borderRadius: '0.5rem', border: 'none', fontWeight: '600', cursor: 'pointer' }}>Search</button>
+            </form>
+
+            <div style={{ background: 'white', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr 1fr 1fr 1.5fr', gap: '1rem', padding: '1rem', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.875rem', color: '#374151' }}>
+                <div>Title</div>
+                <div>User / Course</div>
+                <div>Replies</div>
+                <div>Status</div>
+                <div>Actions</div>
+              </div>
+
+              {discussionsLoading && <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>Loading discussions...</div>}
+
+              {!discussionsLoading && discussions.map((discussion) => (
+                <div key={discussion.id} style={{ display: 'grid', gridTemplateColumns: '3fr 2fr 1fr 1fr 1.5fr', gap: '1rem', padding: '1rem', borderBottom: '1px solid #e5e7eb', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <h3 style={{ fontWeight: '600', color: '#1f2937' }}>{discussion.title}</h3>
+                      {discussion.isPinned && <span style={{ padding: '0.125rem 0.375rem', borderRadius: '9999px', fontSize: '0.625rem', fontWeight: '600', background: '#dbeafe', color: '#1e40af' }}>PINNED</span>}
+                    </div>
+                    <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>{discussion.content.substring(0, 80)}...</p>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: '0.875rem', color: '#374151' }}>{discussion.user?.name || 'Unknown'}</p>
+                    <p style={{ fontSize: '0.75rem', color: '#6b7280' }}>{discussion.course?.title || 'General Discussion'}</p>
+                  </div>
+                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>{discussion._count.replies}</div>
+                  <div>
+                    <span style={{ padding: '0.25rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '600', background: discussion.isActive ? '#dcfce7' : '#fee2e2', color: discussion.isActive ? '#166534' : '#991b1b' }}>
+                      {discussion.isActive ? 'Active' : 'Hidden'}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      onClick={() => handlePageChange(coursesPagination.page - 1, 'courses')}
-                      disabled={coursesPagination.page === 1}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.375rem',
-                        border: '1px solid #d1d5db',
-                        cursor: coursesPagination.page === 1 ? 'not-allowed' : 'pointer',
-                        fontSize: '0.875rem',
-                        background: coursesPagination.page === 1 ? '#f3f4f6' : 'white',
-                        color: coursesPagination.page === 1 ? '#9ca3af' : '#374151'
-                      }}
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => handlePageChange(coursesPagination.page + 1, 'courses')}
-                      disabled={coursesPagination.page === coursesPagination.totalPages}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.375rem',
-                        border: '1px solid #d1d5db',
-                        cursor: coursesPagination.page === coursesPagination.totalPages ? 'not-allowed' : 'pointer',
-                        fontSize: '0.875rem',
-                        background: coursesPagination.page === coursesPagination.totalPages ? '#f3f4f6' : 'white',
-                        color: coursesPagination.page === coursesPagination.totalPages ? '#9ca3af' : '#374151'
-                      }}
-                    >
-                      Next
-                    </button>
+                    <button onClick={() => handleEditDiscussion(discussion)} style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '500', background: 'white' }}>Edit</button>
+                    <button onClick={() => handleDeleteDiscussion(discussion.id)} style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #fecaca', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '500', background: '#fef2f2', color: '#991b1b' }}>Delete</button>
+                  </div>
+                </div>
+              ))}
+
+              {!discussionsLoading && discussions.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>No discussions found</div>}
+
+              {!discussionsLoading && discussionsPagination.totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderTop: '1px solid #e5e7eb' }}>
+                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Page {discussionsPagination.page} of {discussionsPagination.totalPages}</div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button onClick={() => handlePageChange(discussionsPagination.page - 1, 'discussions')} disabled={discussionsPagination.page === 1} style={{ padding: '0.5rem 1rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: discussionsPagination.page === 1 ? 'not-allowed' : 'pointer', background: discussionsPagination.page === 1 ? '#f3f4f6' : 'white' }}>Previous</button>
+                    <button onClick={() => handlePageChange(discussionsPagination.page + 1, 'discussions')} disabled={discussionsPagination.page === discussionsPagination.totalPages} style={{ padding: '0.5rem 1rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: discussionsPagination.page === discussionsPagination.totalPages ? 'not-allowed' : 'pointer', background: discussionsPagination.page === discussionsPagination.totalPages ? '#f3f4f6' : 'white' }}>Next</button>
                   </div>
                 </div>
               )}
@@ -836,40 +1419,18 @@ export default function AdminDashboard() {
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>👥 All Users</h2>
             
-            {/* Search Bar */}
             <form onSubmit={handleSearch} style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
               <input
                 type="text"
-                placeholder="Search users by name, email, or mobile..."
+                placeholder="Search users..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  flex: 1,
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #d1d5db',
-                  fontSize: '0.875rem'
-                }}
+                style={{ flex: 1, padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }}
               />
-              <button
-                type="submit"
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: '#dc2626',
-                  color: 'white',
-                  borderRadius: '0.5rem',
-                  border: 'none',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                Search
-              </button>
+              <button type="submit" style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', borderRadius: '0.5rem', border: 'none', fontWeight: '600', cursor: 'pointer' }}>Search</button>
             </form>
 
-            {/* Users Table */}
             <div style={{ background: 'white', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-              {/* Table Header */}
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1.5fr 1.5fr', gap: '1rem', padding: '1rem', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.875rem', color: '#374151' }}>
                 <div>Name</div>
                 <div>Email</div>
@@ -879,14 +1440,8 @@ export default function AdminDashboard() {
                 <div>Actions</div>
               </div>
 
-              {/* Loading State */}
-              {usersLoading && (
-                <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-                  Loading users...
-                </div>
-              )}
+              {usersLoading && <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>Loading users...</div>}
 
-              {/* Users List */}
               {!usersLoading && users.map((userItem) => (
                 <div key={userItem.id} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1.5fr 1.5fr', gap: '1rem', padding: '1rem', borderBottom: '1px solid #e5e7eb', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -908,83 +1463,20 @@ export default function AdminDashboard() {
                   </div>
                   <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>{formatDate(userItem.createdAt)}</div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      onClick={() => handleEditUser(userItem)}
-                      style={{
-                        padding: '0.375rem 0.75rem',
-                        borderRadius: '0.375rem',
-                        border: '1px solid #d1d5db',
-                        cursor: 'pointer',
-                        fontSize: '0.75rem',
-                        fontWeight: '500',
-                        background: 'white'
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteUser(userItem.id)}
-                      style={{
-                        padding: '0.375rem 0.75rem',
-                        borderRadius: '0.375rem',
-                        border: '1px solid #fecaca',
-                        cursor: 'pointer',
-                        fontSize: '0.75rem',
-                        fontWeight: '500',
-                        background: '#fef2f2',
-                        color: '#991b1b'
-                      }}
-                    >
-                      Delete
-                    </button>
+                    <button onClick={() => handleEditUser(userItem)} style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '500', background: 'white' }}>Edit</button>
+                    <button onClick={() => handleDeleteUser(userItem.id)} style={{ padding: '0.375rem 0.75rem', borderRadius: '0.375rem', border: '1px solid #fecaca', cursor: 'pointer', fontSize: '0.75rem', fontWeight: '500', background: '#fef2f2', color: '#991b1b' }}>Delete</button>
                   </div>
                 </div>
               ))}
 
-              {/* Empty State */}
-              {!usersLoading && users.length === 0 && (
-                <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-                  No users found
-                </div>
-              )}
+              {!usersLoading && users.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>No users found</div>}
 
-              {/* Pagination */}
               {!usersLoading && usersPagination.totalPages > 1 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderTop: '1px solid #e5e7eb' }}>
-                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                    Showing {((usersPagination.page - 1) * usersPagination.limit) + 1} to {Math.min(usersPagination.page * usersPagination.limit, usersPagination.total)} of {usersPagination.total} users
-                  </div>
+                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>Page {usersPagination.page} of {usersPagination.totalPages}</div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button
-                      onClick={() => handlePageChange(usersPagination.page - 1, 'users')}
-                      disabled={usersPagination.page === 1}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.375rem',
-                        border: '1px solid #d1d5db',
-                        cursor: usersPagination.page === 1 ? 'not-allowed' : 'pointer',
-                        fontSize: '0.875rem',
-                        background: usersPagination.page === 1 ? '#f3f4f6' : 'white',
-                        color: usersPagination.page === 1 ? '#9ca3af' : '#374151'
-                      }}
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => handlePageChange(usersPagination.page + 1, 'users')}
-                      disabled={usersPagination.page === usersPagination.totalPages}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.375rem',
-                        border: '1px solid #d1d5db',
-                        cursor: usersPagination.page === usersPagination.totalPages ? 'not-allowed' : 'pointer',
-                        fontSize: '0.875rem',
-                        background: usersPagination.page === usersPagination.totalPages ? '#f3f4f6' : 'white',
-                        color: usersPagination.page === usersPagination.totalPages ? '#9ca3af' : '#374151'
-                      }}
-                    >
-                      Next
-                    </button>
+                    <button onClick={() => handlePageChange(usersPagination.page - 1, 'users')} disabled={usersPagination.page === 1} style={{ padding: '0.5rem 1rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: usersPagination.page === 1 ? 'not-allowed' : 'pointer', background: usersPagination.page === 1 ? '#f3f4f6' : 'white' }}>Previous</button>
+                    <button onClick={() => handlePageChange(usersPagination.page + 1, 'users')} disabled={usersPagination.page === usersPagination.totalPages} style={{ padding: '0.5rem 1rem', borderRadius: '0.375rem', border: '1px solid #d1d5db', cursor: usersPagination.page === usersPagination.totalPages ? 'not-allowed' : 'pointer', background: usersPagination.page === usersPagination.totalPages ? '#f3f4f6' : 'white' }}>Next</button>
                   </div>
                 </div>
               )}
@@ -995,8 +1487,8 @@ export default function AdminDashboard() {
         {tab === 'admin' && stats && (
           <div>
             <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '2rem' }}>
-              <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937' }}>⚙️ Admin Dashboard</h1>
-              <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>Complete platform overview and management</p>
+              <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937' }}>⚙️ Admin Settings</h1>
+              <p style={{ color: '#6b7280', marginTop: '0.25rem' }}>Platform overview and configuration</p>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
@@ -1004,11 +1496,7 @@ export default function AdminDashboard() {
                 { label: 'Total Users', value: stats.totalUsers.toLocaleString(), icon: '👥' },
                 { label: 'Active Users', value: stats.activeUsers.toLocaleString(), icon: '✅' },
                 { label: 'Total Courses', value: stats.totalCourses.toLocaleString(), icon: '📚' },
-                { label: 'Total Revenue', value: formatCurrency(stats.totalRevenue), icon: '💰' },
-                { label: 'Active Students', value: stats.activeSubscriptions.toLocaleString(), icon: '🎓' },
-                { label: 'Monthly Revenue', value: formatCurrency(stats.monthlyRevenue), icon: '📈' },
-                { label: 'Certificates', value: stats.totalCertificates.toLocaleString(), icon: '🏆' },
-                { label: 'Discussions', value: stats.totalDiscussions.toLocaleString(), icon: '💬' }
+                { label: 'Total Revenue', value: formatCurrency(stats.totalRevenue), icon: '💰' }
               ].map(stat => (
                 <div key={stat.label} style={{ background: 'white', borderRadius: '0.5rem', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -1022,17 +1510,6 @@ export default function AdminDashboard() {
               ))}
             </div>
 
-            <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', marginBottom: '2rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>Quick Actions</h2>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <button type="button" style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', borderRadius: '0.5rem', border: 'none', fontWeight: '600', cursor: 'pointer' }}>👥 Manage Users</button>
-                <button type="button" style={{ padding: '0.75rem 1.5rem', background: 'white', color: '#374151', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontWeight: '600', cursor: 'pointer' }}>📚 Course Management</button>
-                <button type="button" style={{ padding: '0.75rem 1.5rem', background: 'white', color: '#374151', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontWeight: '600', cursor: 'pointer' }}>📊 Analytics & Reports</button>
-                <button type="button" style={{ padding: '0.75rem 1.5rem', background: 'white', color: '#374151', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontWeight: '600', cursor: 'pointer' }}>⚙️ System Settings</button>
-                <button type="button" style={{ padding: '0.75rem 1.5rem', background: 'white', color: '#374151', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontWeight: '600', cursor: 'pointer' }}>💰 Financial Reports</button>
-              </div>
-            </div>
-
             <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', marginBottom: '1rem' }}>System Health</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
@@ -1044,14 +1521,7 @@ export default function AdminDashboard() {
                 ].map(item => (
                   <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
                     <span style={{ color: '#6b7280' }}>{item.label}</span>
-                    <span style={{ 
-                      padding: '0.25rem 0.75rem', 
-                      borderRadius: '9999px', 
-                      fontSize: '0.875rem', 
-                      fontWeight: '600',
-                      background: item.status === 'green' ? '#dcfce7' : item.status === 'yellow' ? '#fef3c7' : '#fee2e2',
-                      color: item.status === 'green' ? '#166534' : item.status === 'yellow' ? '#854d0e' : '#991b1b'
-                    }}>{item.value}</span>
+                    <span style={{ padding: '0.25rem 0.75rem', borderRadius: '9999px', fontSize: '0.875rem', fontWeight: '600', background: item.status === 'green' ? '#dcfce7' : item.status === 'yellow' ? '#fef3c7' : '#fee2e2', color: item.status === 'green' ? '#166534' : item.status === 'yellow' ? '#854d0e' : '#991b1b' }}>{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -1061,392 +1531,237 @@ export default function AdminDashboard() {
 
       </div>
 
-      {/* Edit User Modal */}
+      {/* Modals - Edit User, Edit Course, Edit Category, Edit Discussion, Create Course, Create Category */}
       {showEditModal && editingUser && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', maxWidth: '500px', width: '90%' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>Edit User</h2>
-            
             <div style={{ display: 'grid', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Name</label>
-                <input
-                  type="text"
-                  value={editingUser.name || ''}
-                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem'
-                  }}
-                />
+                <input type="text" value={editingUser.name || ''} onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }} />
               </div>
-              
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Email</label>
-                <input
-                  type="email"
-                  value={editingUser.email}
-                  disabled
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem',
-                    background: '#f3f4f6',
-                    color: '#6b7280'
-                  }}
-                />
+                <input type="email" value={editingUser.email} disabled style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem', background: '#f3f4f6' }} />
               </div>
-              
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Status</label>
-                <select
-                  value={editingUser.isActive ? 'active' : 'inactive'}
-                  onChange={(e) => setEditingUser({ ...editingUser, isActive: e.target.value === 'active' })}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem'
-                  }}
-                >
+                <select value={editingUser.isActive ? 'active' : 'inactive'} onChange={(e) => setEditingUser({ ...editingUser, isActive: e.target.value === 'active' })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }}>
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
               </div>
             </div>
-            
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => {
-                  setShowEditModal(false)
-                  setEditingUser(null)
-                }}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #d1d5db',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  background: 'white',
-                  color: '#374151'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveUser}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  background: '#dc2626',
-                  color: 'white'
-                }}
-              >
-                Save Changes
-              </button>
+              <button onClick={() => { setShowEditModal(false); setEditingUser(null) }} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', cursor: 'pointer', fontWeight: '600', background: 'white' }}>Cancel</button>
+              <button onClick={handleSaveUser} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', fontWeight: '600', background: '#dc2626', color: 'white' }}>Save Changes</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Edit Course Modal */}
       {showCourseModal && editingCourse && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', maxWidth: '600px', width: '90%' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>Edit Course</h2>
-            
             <div style={{ display: 'grid', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Title</label>
-                <input
-                  type="text"
-                  value={editingCourse.title}
-                  onChange={(e) => setEditingCourse({ ...editingCourse, title: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem'
-                  }}
-                />
+                <input type="text" value={editingCourse.title} onChange={(e) => setEditingCourse({ ...editingCourse, title: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }} />
               </div>
-              
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Description</label>
-                <textarea
-                  value={editingCourse.description}
-                  onChange={(e) => setEditingCourse({ ...editingCourse, description: e.target.value })}
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem',
-                    resize: 'vertical'
-                  }}
-                />
+                <textarea value={editingCourse.description} onChange={(e) => setEditingCourse({ ...editingCourse, description: e.target.value })} rows={3} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem', resize: 'vertical' }} />
               </div>
-              
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Difficulty</label>
-                  <select
-                    value={editingCourse.difficulty}
-                    onChange={(e) => setEditingCourse({ ...editingCourse, difficulty: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      borderRadius: '0.5rem',
-                      border: '1px solid #d1d5db',
-                      fontSize: '0.875rem'
-                    }}
-                  >
+                  <select value={editingCourse.difficulty} onChange={(e) => setEditingCourse({ ...editingCourse, difficulty: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }}>
                     <option value="BEGINNER">Beginner</option>
                     <option value="INTERMEDIATE">Intermediate</option>
                     <option value="ADVANCED">Advanced</option>
                   </select>
                 </div>
-                
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Duration (minutes)</label>
-                  <input
-                    type="number"
-                    value={editingCourse.duration}
-                    onChange={(e) => setEditingCourse({ ...editingCourse, duration: parseInt(e.target.value) })}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      borderRadius: '0.5rem',
-                      border: '1px solid #d1d5db',
-                      fontSize: '0.875rem'
-                    }}
-                  />
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Duration (min)</label>
+                  <input type="number" value={editingCourse.duration} onChange={(e) => setEditingCourse({ ...editingCourse, duration: parseInt(e.target.value) })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }} />
                 </div>
               </div>
-              
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Status</label>
-                <select
-                  value={editingCourse.isActive ? 'active' : 'inactive'}
-                  onChange={(e) => setEditingCourse({ ...editingCourse, isActive: e.target.value === 'active' })}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem'
-                  }}
-                >
+                <select value={editingCourse.isActive ? 'active' : 'inactive'} onChange={(e) => setEditingCourse({ ...editingCourse, isActive: e.target.value === 'active' })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }}>
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
                 </select>
               </div>
             </div>
-            
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => {
-                  setShowCourseModal(false)
-                  setEditingCourse(null)
-                }}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #d1d5db',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  background: 'white',
-                  color: '#374151'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveCourse}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  background: '#dc2626',
-                  color: 'white'
-                }}
-              >
-                Save Changes
-              </button>
+              <button onClick={() => { setShowCourseModal(false); setEditingCourse(null) }} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', cursor: 'pointer', fontWeight: '600', background: 'white' }}>Cancel</button>
+              <button onClick={handleSaveCourse} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', fontWeight: '600', background: '#dc2626', color: 'white' }}>Save Changes</button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Create Course Modal */}
+      {showCategoryModal && editingCategory && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', maxWidth: '500px', width: '90%' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>Edit Category</h2>
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Name</label>
+                <input type="text" value={editingCategory.name} onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Description</label>
+                <textarea value={editingCategory.description || ''} onChange={(e) => setEditingCategory({ ...editingCategory, description: e.target.value })} rows={3} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem', resize: 'vertical' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Icon (emoji)</label>
+                  <input type="text" value={editingCategory.icon || ''} onChange={(e) => setEditingCategory({ ...editingCategory, icon: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Color</label>
+                  <input type="color" value={editingCategory.color || '#3b82f6'} onChange={(e) => setEditingCategory({ ...editingCategory, color: e.target.value })} style={{ width: '100%', height: '42px', borderRadius: '0.5rem', border: '1px solid #d1d5db' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={editingCategory.isActive} onChange={(e) => setEditingCategory({ ...editingCategory, isActive: e.target.checked })} />
+                    <span style={{ fontSize: '0.875rem', color: '#374151' }}>Active</span>
+                  </label>
+                </div>
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={editingCategory.isFeatured} onChange={(e) => setEditingCategory({ ...editingCategory, isFeatured: e.target.checked })} />
+                    <span style={{ fontSize: '0.875rem', color: '#374151' }}>Featured</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+              <button onClick={() => { setShowCategoryModal(false); setEditingCategory(null) }} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', cursor: 'pointer', fontWeight: '600', background: 'white' }}>Cancel</button>
+              <button onClick={handleSaveCategory} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', fontWeight: '600', background: '#dc2626', color: 'white' }}>Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDiscussionModal && editingDiscussion && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', maxWidth: '500px', width: '90%' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>Edit Discussion</h2>
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Title</label>
+                <input type="text" value={editingDiscussion.title} disabled style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem', background: '#f3f4f6' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Content Preview</label>
+                <div style={{ padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb', fontSize: '0.875rem', background: '#f9fafb', maxHeight: 100, overflow: 'auto' }}>{editingDiscussion.content.substring(0, 200)}...</div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={editingDiscussion.isActive} onChange={(e) => setEditingDiscussion({ ...editingDiscussion, isActive: e.target.checked })} />
+                    <span style={{ fontSize: '0.875rem', color: '#374151' }}>Visible</span>
+                  </label>
+                </div>
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={editingDiscussion.isPinned} onChange={(e) => setEditingDiscussion({ ...editingDiscussion, isPinned: e.target.checked })} />
+                    <span style={{ fontSize: '0.875rem', color: '#374151' }}>Pinned</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+              <button onClick={() => { setShowDiscussionModal(false); setEditingDiscussion(null) }} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', cursor: 'pointer', fontWeight: '600', background: 'white' }}>Cancel</button>
+              <button onClick={handleSaveDiscussion} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', fontWeight: '600', background: '#dc2626', color: 'white' }}>Save Changes</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showCreateModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', maxWidth: '600px', width: '90%' }}>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>Create New Course</h2>
-            
             <div style={{ display: 'grid', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Title *</label>
-                <input
-                  type="text"
-                  value={newCourse.title}
-                  onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
-                  placeholder="Enter course title"
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem'
-                  }}
-                />
+                <input type="text" value={newCourse.title} onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })} placeholder="Enter course title" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }} />
               </div>
-              
               <div>
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Description *</label>
-                <textarea
-                  value={newCourse.description}
-                  onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
-                  placeholder="Enter course description"
-                  rows={3}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem',
-                    resize: 'vertical'
-                  }}
-                />
+                <textarea value={newCourse.description} onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })} rows={3} placeholder="Enter course description" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem', resize: 'vertical' }} />
               </div>
-              
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Difficulty</label>
-                  <select
-                    value={newCourse.difficulty}
-                    onChange={(e) => setNewCourse({ ...newCourse, difficulty: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      borderRadius: '0.5rem',
-                      border: '1px solid #d1d5db',
-                      fontSize: '0.875rem'
-                    }}
-                  >
+                  <select value={newCourse.difficulty} onChange={(e) => setNewCourse({ ...newCourse, difficulty: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }}>
                     <option value="BEGINNER">Beginner</option>
                     <option value="INTERMEDIATE">Intermediate</option>
                     <option value="ADVANCED">Advanced</option>
                   </select>
                 </div>
-                
                 <div>
                   <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Duration (min) *</label>
-                  <input
-                    type="number"
-                    value={newCourse.duration}
-                    onChange={(e) => setNewCourse({ ...newCourse, duration: parseInt(e.target.value) })}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      borderRadius: '0.5rem',
-                      border: '1px solid #d1d5db',
-                      fontSize: '0.875rem'
-                    }}
-                  />
+                  <input type="number" value={newCourse.duration} onChange={(e) => setNewCourse({ ...newCourse, duration: parseInt(e.target.value) })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }} />
                 </div>
-
                 <div>
                   <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Instructor *</label>
-                  <select
-                    value={newCourse.instructorId}
-                    onChange={(e) => setNewCourse({ ...newCourse, instructorId: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      borderRadius: '0.5rem',
-                      border: '1px solid #d1d5db',
-                      fontSize: '0.875rem'
-                    }}
-                  >
+                  <select value={newCourse.instructorId} onChange={(e) => setNewCourse({ ...newCourse, instructorId: e.target.value })} style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }}>
                     <option value="">Select instructor</option>
-                    {instructors.map((instructor) => (
-                      <option key={instructor.id} value={instructor.id}>{instructor.name}</option>
-                    ))}
+                    {instructors.map((instructor) => (<option key={instructor.id} value={instructor.id}>{instructor.name}</option>))}
                   </select>
                 </div>
               </div>
-              
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+              <button onClick={() => { setShowCreateModal(false); setNewCourse({ title: '', description: '', difficulty: 'BEGINNER', duration: 60, instructorId: '', thumbnail: '' }) }} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', cursor: 'pointer', fontWeight: '600', background: 'white' }}>Cancel</button>
+              <button onClick={handleCreateCourse} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', fontWeight: '600', background: '#dc2626', color: 'white' }}>Create Course</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCreateCategoryModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', maxWidth: '500px', width: '90%' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>Create New Category</h2>
+            <div style={{ display: 'grid', gap: '1rem' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Thumbnail URL</label>
-                <input
-                  type="text"
-                  value={newCourse.thumbnail}
-                  onChange={(e) => setNewCourse({ ...newCourse, thumbnail: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem'
-                  }}
-                />
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Name *</label>
+                <input type="text" value={newCategory.name} onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} placeholder="Category name" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Description</label>
+                <textarea value={newCategory.description} onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })} rows={2} placeholder="Category description" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem', resize: 'vertical' }} />
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Icon (emoji)</label>
+                  <input type="text" value={newCategory.icon} onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })} placeholder="📁" style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', fontSize: '0.875rem' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Color</label>
+                  <input type="color" value={newCategory.color} onChange={(e) => setNewCategory({ ...newCategory, color: e.target.value })} style={{ width: '100%', height: '42px', borderRadius: '0.5rem', border: '1px solid #d1d5db' }} />
+                </div>
+              </div>
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={newCategory.isFeatured} onChange={(e) => setNewCategory({ ...newCategory, isFeatured: e.target.checked })} />
+                  <span style={{ fontSize: '0.875rem', color: '#374151' }}>Featured Category</span>
+                </label>
               </div>
             </div>
-            
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => {
-                  setShowCreateModal(false)
-                  setNewCourse({
-                    title: '',
-                    description: '',
-                    difficulty: 'BEGINNER',
-                    duration: 60,
-                    instructorId: '',
-                    thumbnail: ''
-                  })
-                }}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #d1d5db',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  background: 'white',
-                  color: '#374151'
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateCourse}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: '600',
-                  background: '#dc2626',
-                  color: 'white'
-                }}
-              >
-                Create Course
-              </button>
+              <button onClick={() => { setShowCreateCategoryModal(false); setNewCategory({ name: '', description: '', icon: '', color: '#3b82f6', isFeatured: false }) }} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: '1px solid #d1d5db', cursor: 'pointer', fontWeight: '600', background: 'white' }}>Cancel</button>
+              <button onClick={handleCreateCategory} style={{ padding: '0.75rem 1.5rem', borderRadius: '0.5rem', border: 'none', cursor: 'pointer', fontWeight: '600', background: '#dc2626', color: 'white' }}>Create Category</button>
             </div>
           </div>
         </div>
