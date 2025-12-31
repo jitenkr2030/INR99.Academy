@@ -17,102 +17,110 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
-    // Get basic counts
-    const [
-      totalUsers,
-      activeUsers,
-      totalCourses,
-      totalDiscussions,
-      totalSubscriptions,
-      activeSubscriptions,
-      totalCertificates,
-      totalPayments
-    ] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { isActive: true } }),
-      prisma.course.count({ where: { isActive: true } }),
-      prisma.discussion.count({ where: { isActive: true } }),
-      prisma.subscription.count(),
-      prisma.subscription.count({ where: { status: "ACTIVE" } }),
-      prisma.certificate.count(),
-      prisma.paymentRecord.count({ where: { status: "COMPLETED" } })
-    ])
+    // Get basic counts - with fallback for missing tables
+    let totalUsers = 0, activeUsers = 0, totalCourses = 0
+    let totalDiscussions = 0, totalSubscriptions = 0, activeSubscriptions = 0
+    let totalCertificates = 0, totalPayments = 0
 
-    // Get revenue data
-    const payments = await prisma.paymentRecord.findMany({
-      where: { status: "COMPLETED" },
-      select: {
-        amount: true,
-        createdAt: true
-      }
-    })
+    try {
+      ;[
+        totalUsers,
+        activeUsers,
+        totalCourses,
+        totalDiscussions,
+        totalSubscriptions,
+        activeSubscriptions,
+        totalCertificates,
+        totalPayments
+      ] = await Promise.all([
+        prisma.user.count().catch(() => 0),
+        prisma.user.count({ where: { isActive: true } }).catch(() => 0),
+        prisma.course.count({ where: { isActive: true } }).catch(() => 0),
+        prisma.discussion.count({ where: { isActive: true } }).catch(() => 0),
+        prisma.subscription.count().catch(() => 0),
+        prisma.subscription.count({ where: { status: "ACTIVE" } }).catch(() => 0),
+        prisma.certificate.count().catch(() => 0),
+        prisma.paymentRecord.count({ where: { status: "COMPLETED" } }).catch(() => 0)
+      ])
+    } catch (countError) {
+      console.warn("Some count queries failed, continuing with zeros:", countError)
+    }
 
-    const totalRevenue = payments.reduce((sum, payment) => sum + payment.amount, 0)
+    // Get revenue data safely
+    let totalRevenue = 0
+    let monthlyRevenue = 0
     
-    // Calculate monthly revenue (last 30 days)
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-    
-    const monthlyPayments = payments.filter(payment => 
-      new Date(payment.createdAt) >= thirtyDaysAgo
-    )
-    const monthlyRevenue = monthlyPayments.reduce((sum, payment) => sum + payment.amount, 0)
+    try {
+      const payments = await prisma.paymentRecord.findMany({
+        where: { status: "COMPLETED" },
+        select: { amount: true, createdAt: true }
+      }).catch(() => [])
 
-    // Get user growth data (last 6 months)
-    const sixMonthsAgo = new Date()
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
-    
-    const userGrowth = await prisma.user.groupBy({
-      by: ["createdAt"],
-      where: {
-        createdAt: {
-          gte: sixMonthsAgo
-        }
-      },
-      _count: {
-        id: true
-      },
-      orderBy: {
-        createdAt: "asc"
+      totalRevenue = payments.reduce((sum, payment) => sum + payment.amount, 0)
+      
+      // Calculate monthly revenue (last 30 days)
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+      
+      const monthlyPayments = payments.filter(payment => 
+        new Date(payment.createdAt) >= thirtyDaysAgo
+      )
+      monthlyRevenue = monthlyPayments.reduce((sum, payment) => sum + payment.amount, 0)
+    } catch (revenueError) {
+      console.warn("Revenue calculation failed:", revenueError)
+    }
+
+    // Get user growth data (last 6 months) - aggregate manually
+    let userGrowth: { month: string; count: number }[] = []
+    try {
+      const sixMonthsAgo = new Date()
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+      
+      const users = await prisma.user.findMany({
+        where: { createdAt: { gte: sixMonthsAgo } },
+        select: { createdAt: true }
+      }).catch(() => [])
+
+      // Group by month manually
+      const growthMap: Record<string, number> = {}
+      users.forEach(user => {
+        const month = new Date(user.createdAt).toISOString().slice(0, 7) // YYYY-MM
+        growthMap[month] = (growthMap[month] || 0) + 1
+      })
+      
+      userGrowth = Object.entries(growthMap)
+        .map(([month, count]) => ({ month, count }))
+        .sort((a, b) => a.month.localeCompare(b.month))
+    } catch (growthError) {
+      console.warn("User growth calculation failed:", growthError)
+    }
+
+    // Get course stats safely
+    let courseStats: { courseId: string; title: string; enrollments: number }[] = []
+    try {
+      const courseProgress = await prisma.courseProgress.groupBy({
+        by: ["courseId"],
+        _count: { id: true },
+        orderBy: { _count: { id: "desc" } },
+        take: 10
+      }).catch(() => [])
+
+      if (courseProgress.length > 0) {
+        const courseIds = courseProgress.map(cp => cp.courseId)
+        const courses = await prisma.course.findMany({
+          where: { id: { in: courseIds } },
+          select: { id: true, title: true }
+        }).catch(() => [])
+
+        courseStats = courseProgress.map(cp => ({
+          courseId: cp.courseId,
+          title: courses.find(c => c.id === cp.courseId)?.title || "Unknown Course",
+          enrollments: cp._count.id
+        }))
       }
-    })
-
-    // Get course popularity
-    const coursePopularity = await prisma.courseProgress.groupBy({
-      by: ["courseId"],
-      _count: {
-        id: true
-      },
-      orderBy: {
-        _count: {
-          id: "desc"
-        }
-      },
-      take: 10
-    })
-
-    // Get course details for popularity
-    const courseIds = coursePopularity.map(cp => cp.courseId)
-    const courses = await prisma.course.findMany({
-      where: {
-        id: {
-          in: courseIds
-        }
-      },
-      select: {
-        id: true,
-        title: true
-      }
-    })
-
-    const courseStats = coursePopularity.map(cp => {
-      const course = courses.find(c => c.id === cp.courseId)
-      return {
-        courseId: cp.courseId,
-        title: course?.title || "Unknown Course",
-        enrollments: cp._count.id
-      }
-    })
+    } catch (courseError) {
+      console.warn("Course stats calculation failed:", courseError)
+    }
 
     return NextResponse.json({
       stats: {
