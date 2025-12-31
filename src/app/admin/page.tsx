@@ -21,6 +21,31 @@ interface DashboardData {
   courseStats: any[]
 }
 
+interface User {
+  id: string
+  name: string | null
+  email: string
+  role: string
+  isActive: boolean
+  createdAt: Date
+  subscriptions: any[]
+  _count: {
+    progress: number
+    certificates: number
+    discussions: number
+  }
+}
+
+interface UsersResponse {
+  users: User[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
 export default function AdminDashboard() {
   const [tab, setTab] = useState('admin')
   const [mounted, setMounted] = useState(false)
@@ -28,6 +53,14 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState<AdminStats | null>(null)
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null)
+  
+  // Users management state
+  const [users, setUsers] = useState<User[]>([])
+  const [usersLoading, setUsersLoading] = useState(false)
+  const [usersPagination, setUsersPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 })
+  const [searchTerm, setSearchTerm] = useState('')
+  const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [showEditModal, setShowEditModal] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -39,7 +72,6 @@ export default function AdminDashboard() {
       setLoading(true)
       setError(null)
 
-      // Fetch stats from API
       const statsResponse = await fetch('/api/admin/stats')
       
       if (!statsResponse.ok) {
@@ -49,7 +81,6 @@ export default function AdminDashboard() {
       const data: DashboardData = await statsResponse.json()
       setStats(data.stats)
 
-      // Get current user from session
       const userResponse = await fetch('/api/auth/session')
       if (userResponse.ok) {
         const session = await userResponse.json()
@@ -66,6 +97,96 @@ export default function AdminDashboard() {
       setError('Failed to load dashboard data. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchUsers = async (page = 1, search = '') => {
+    try {
+      setUsersLoading(true)
+      const response = await fetch(`/api/admin/users?page=${page}&limit=10&search=${encodeURIComponent(search)}`)
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch users')
+      }
+
+      const data: UsersResponse = await response.json()
+      setUsers(data.users)
+      setUsersPagination(data.pagination)
+    } catch (err) {
+      console.error('Error fetching users:', err)
+      setError('Failed to load users')
+    } finally {
+      setUsersLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (tab === 'users') {
+      fetchUsers(usersPagination.page, searchTerm)
+    }
+  }, [tab])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    fetchUsers(1, searchTerm)
+  }
+
+  const handlePageChange = (newPage: number) => {
+    fetchUsers(newPage, searchTerm)
+  }
+
+  const handleEditUser = (user: User) => {
+    setEditingUser({ ...user })
+    setShowEditModal(true)
+  }
+
+  const handleSaveUser = async () => {
+    if (!editingUser) return
+    
+    try {
+      const response = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: editingUser.id,
+          name: editingUser.name,
+          isActive: editingUser.isActive
+        })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update user')
+      }
+
+      // Refresh users list
+      fetchUsers(usersPagination.page, searchTerm)
+      setShowEditModal(false)
+      setEditingUser(null)
+    } catch (err) {
+      console.error('Error updating user:', err)
+      alert('Failed to update user')
+    }
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/users?userId=${userId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete user')
+      }
+
+      // Refresh users list
+      fetchUsers(usersPagination.page, searchTerm)
+    } catch (err) {
+      console.error('Error deleting user:', err)
+      alert('Failed to delete user')
     }
   }
 
@@ -87,6 +208,7 @@ export default function AdminDashboard() {
   ]
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount)
+  const formatDate = (date: Date) => new Date(date).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
 
   const handleTabClick = (tabId: string, e: React.MouseEvent) => {
     e.preventDefault()
@@ -95,10 +217,9 @@ export default function AdminDashboard() {
   }
 
   // Loading state
-  if (loading && tab === 'dashboard' || tab === 'admin') {
+  if (loading && (tab === 'dashboard' || tab === 'admin')) {
     return (
       <div style={{ minHeight: '100vh', background: '#f9fafb', fontFamily: 'system-ui, sans-serif' }}>
-        {/* Navigation Bar */}
         <div style={{ background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
@@ -138,7 +259,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Loading Content */}
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
             {[1, 2, 3, 4].map((i) => (
@@ -157,7 +277,6 @@ export default function AdminDashboard() {
   if (error && (tab === 'dashboard' || tab === 'admin')) {
     return (
       <div style={{ minHeight: '100vh', background: '#f9fafb', fontFamily: 'system-ui, sans-serif' }}>
-        {/* Navigation Bar */}
         <div style={{ background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
@@ -197,7 +316,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Error Content */}
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
           <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '0.75rem', padding: '2rem', textAlign: 'center' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
@@ -340,8 +458,159 @@ export default function AdminDashboard() {
         {tab === 'users' && (
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>👥 All Users</h2>
-            <div style={{ background: 'white', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', padding: '1rem' }}>
-              <p style={{ color: '#6b7280', textAlign: 'center', padding: '2rem' }}>User management coming soon...</p>
+            
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                placeholder="Search users by name, email, or mobile..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem 1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid #d1d5db',
+                  fontSize: '0.875rem'
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  background: '#dc2626',
+                  color: 'white',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                Search
+              </button>
+            </form>
+
+            {/* Users Table */}
+            <div style={{ background: 'white', borderRadius: '0.75rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
+              {/* Table Header */}
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1.5fr 1.5fr', gap: '1rem', padding: '1rem', background: '#f9fafb', borderBottom: '1px solid #e5e7eb', fontWeight: '600', fontSize: '0.875rem', color: '#374151' }}>
+                <div>Name</div>
+                <div>Email</div>
+                <div>Role</div>
+                <div>Status</div>
+                <div>Joined</div>
+                <div>Actions</div>
+              </div>
+
+              {/* Loading State */}
+              {usersLoading && (
+                <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+                  Loading users...
+                </div>
+              )}
+
+              {/* Users List */}
+              {!usersLoading && users.map((userItem) => (
+                <div key={userItem.id} style={{ display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1.5fr 1.5fr', gap: '1rem', padding: '1rem', borderBottom: '1px solid #e5e7eb', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '600', fontSize: '0.875rem' }}>
+                      {(userItem.name || userItem.email).charAt(0).toUpperCase()}
+                    </div>
+                    <span style={{ fontWeight: '500', color: '#1f2937' }}>{userItem.name || 'N/A'}</span>
+                  </div>
+                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>{userItem.email}</div>
+                  <div>
+                    <span style={{ padding: '0.25rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '600', background: userItem.role === 'ADMIN' || userItem.role === 'SUPER_ADMIN' ? '#fee2e2' : '#dcfce7', color: userItem.role === 'ADMIN' || userItem.role === 'SUPER_ADMIN' ? '#991b1b' : '#166534' }}>
+                      {userItem.role}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ padding: '0.25rem 0.5rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: '600', background: userItem.isActive ? '#dcfce7' : '#fef3c7', color: userItem.isActive ? '#166534' : '#854d0e' }}>
+                      {userItem.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>{formatDate(userItem.createdAt)}</div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      onClick={() => handleEditUser(userItem)}
+                      style={{
+                        padding: '0.375rem 0.75rem',
+                        borderRadius: '0.375rem',
+                        border: '1px solid #d1d5db',
+                        cursor: 'pointer',
+                        fontSize: '0.75rem',
+                        fontWeight: '500',
+                        background: 'white'
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteUser(userItem.id)}
+                      style={{
+                        padding: '0.375rem 0.75rem',
+                        borderRadius: '0.375rem',
+                        border: '1px solid #fecaca',
+                        cursor: 'pointer',
+                        fontSize: '0.75rem',
+                        fontWeight: '500',
+                        background: '#fef2f2',
+                        color: '#991b1b'
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Empty State */}
+              {!usersLoading && users.length === 0 && (
+                <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
+                  No users found
+                </div>
+              )}
+
+              {/* Pagination */}
+              {!usersLoading && usersPagination.totalPages > 1 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', borderTop: '1px solid #e5e7eb' }}>
+                  <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                    Showing {((usersPagination.page - 1) * usersPagination.limit) + 1} to {Math.min(usersPagination.page * usersPagination.limit, usersPagination.total)} of {usersPagination.total} users
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      onClick={() => handlePageChange(usersPagination.page - 1)}
+                      disabled={usersPagination.page === 1}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.375rem',
+                        border: '1px solid #d1d5db',
+                        cursor: usersPagination.page === 1 ? 'not-allowed' : 'pointer',
+                        fontSize: '0.875rem',
+                        background: usersPagination.page === 1 ? '#f3f4f6' : 'white',
+                        color: usersPagination.page === 1 ? '#9ca3af' : '#374151'
+                      }}
+                    >
+                      Previous
+                    </button>
+                    <button
+                      onClick={() => handlePageChange(usersPagination.page + 1)}
+                      disabled={usersPagination.page === usersPagination.totalPages}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.375rem',
+                        border: '1px solid #d1d5db',
+                        cursor: usersPagination.page === usersPagination.totalPages ? 'not-allowed' : 'pointer',
+                        fontSize: '0.875rem',
+                        background: usersPagination.page === usersPagination.totalPages ? '#f3f4f6' : 'white',
+                        color: usersPagination.page === usersPagination.totalPages ? '#9ca3af' : '#374151'
+                      }}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -414,6 +683,103 @@ export default function AdminDashboard() {
         )}
 
       </div>
+
+      {/* Edit User Modal */}
+      {showEditModal && editingUser && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', maxWidth: '500px', width: '90%' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>Edit User</h2>
+            
+            <div style={{ display: 'grid', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Name</label>
+                <input
+                  type="text"
+                  value={editingUser.name || ''}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #d1d5db',
+                    fontSize: '0.875rem'
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Email</label>
+                <input
+                  type="email"
+                  value={editingUser.email}
+                  disabled
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #d1d5db',
+                    fontSize: '0.875rem',
+                    background: '#f3f4f6',
+                    color: '#6b7280'
+                  }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>Status</label>
+                <select
+                  value={editingUser.isActive ? 'active' : 'inactive'}
+                  onChange={(e) => setEditingUser({ ...editingUser, isActive: e.target.value === 'active' })}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #d1d5db',
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => {
+                  setShowEditModal(false)
+                  setEditingUser(null)
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid #d1d5db',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  background: 'white',
+                  color: '#374151'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveUser}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  background: '#dc2626',
+                  color: 'white'
+                }}
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
