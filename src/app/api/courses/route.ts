@@ -78,6 +78,13 @@ export async function GET(request: NextRequest) {
       lessonCount: course._count.lessons,
       assessmentCount: course._count.assessments,
       createdAt: course.createdAt,
+      pricing: {
+        type: 'subscription',
+        price: 99,
+        currency: 'INR',
+        period: 'month',
+        description: 'Subscribe at INR 99/month to access all courses',
+      },
     }))
 
     return NextResponse.json({

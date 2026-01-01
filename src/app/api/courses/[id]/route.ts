@@ -199,12 +199,17 @@ export async function GET(
         thumbnail: course.thumbnail,
         difficulty: course.difficulty,
         duration: course.duration,
-        price: 0, // Default to free for now
-        originalPrice: 0,
+        pricing: {
+          type: 'subscription',
+          price: 99,
+          currency: 'INR',
+          period: 'month',
+          description: 'Subscribe at INR 99/month to access all courses',
+        },
         rating: 4.5, // Default rating
         reviewCount: 100, // Default review count
         tagline: `Master ${course.title} with our comprehensive course`,
-        language: 'Hinglish',
+        language: 'Hindi',
         instructor: course.instructor,
         learningPath: course.learningPath,
         modules: modules,
@@ -214,7 +219,7 @@ export async function GET(
           duration: lesson.duration,
           order: lesson.order,
           type: 'video' as const,
-          isFree: false,
+          isLocked: true, // All lessons require subscription
           videoUrl: lesson.videoUrl,
           content: lesson.content,
         })),
