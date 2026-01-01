@@ -62,8 +62,13 @@ interface Course {
   thumbnail: string | null
   difficulty: string
   duration: number
-  price: number
-  originalPrice: number
+  pricing?: {
+    type: string
+    price: number
+    currency: string
+    period: string
+    description: string
+  } | null
   rating: number
   reviewCount: number
   tagline?: string
@@ -105,6 +110,7 @@ export default function CourseDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
   const [isEnrolled, setIsEnrolled] = useState(false)
+  const [isSubscribed, setIsSubscribed] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success'>('idle')
   const [showReceipt, setShowReceipt] = useState(false)
@@ -117,6 +123,15 @@ export default function CourseDetailPage() {
         if (response.ok) {
           const data: ApiResponse = await response.json()
           setCourse(data.course)
+          
+          // Check subscription status if user is logged in
+          if (session?.user) {
+            const subResponse = await fetch('/api/user/subscription')
+            if (subResponse.ok) {
+              const subData = await subResponse.json()
+              setIsSubscribed(subData.isActive)
+            }
+          }
         } else {
           setError('Course not found')
         }
@@ -129,7 +144,7 @@ export default function CourseDetailPage() {
     }
 
     fetchCourse()
-  }, [courseId])
+  }, [courseId, session])
 
   // Sync with progress context when course loads
   useEffect(() => {
@@ -698,29 +713,31 @@ export default function CourseDetailPage() {
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button variant="outline" className="w-full justify-start">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download All Resources
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  View Certificate
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <User className="h-4 w-4 mr-2" />
-                  Contact Instructor
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Quick Actions - Only show when NOT subscribed */}
+            {!isSubscribed && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button variant="outline" className="w-full justify-start">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download All Resources
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <BookOpen className="h-4 w-4 mr-2" />
+                    View Certificate
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <User className="h-4 w-4 mr-2" />
+                    Contact Instructor
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Login Prompt for Progress Tracking */}
-            {!session?.user && (
+            {/* Login Prompt for Progress Tracking - Only show when NOT subscribed */}
+            {!isSubscribed && (
               <Card className="bg-orange-50 border-orange-200">
                 <CardHeader>
                   <CardTitle className="text-lg text-orange-800">Track Your Progress</CardTitle>
@@ -739,6 +756,16 @@ export default function CourseDetailPage() {
               </Card>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Footer Branding */}
+      <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-8 mt-8">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold mb-2">INR99.Academy</h2>
+          <p className="text-lg opacity-90">
+            Empowering learners worldwide with affordable, high-quality education.
+          </p>
         </div>
       </div>
 
