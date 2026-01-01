@@ -1,69 +1,138 @@
 "use client"
 
-import { useState, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { NewNavigation } from '@/components/new-navigation'
-import { 
-  courses, 
-  getCoursesByCategory, 
-  getAllCategories, 
-  getFeaturedCourses,
-  searchCourses,
-  type Course 
-} from '@/lib/course-data'
+
+interface Category {
+  id: string
+  name: string
+  slug: string
+  description: string
+  icon: string
+  color: string
+  isFeatured: boolean
+  subcategories?: Array<{
+    id: string
+    name: string
+    slug: string
+  }>
+}
+
+interface Instructor {
+  id: string
+  name: string
+  avatar: string | null
+  expertise: string[]
+}
+
+interface LearningPath {
+  id: string
+  title: string
+  color: string
+  icon: string
+}
+
+interface Course {
+  id: string
+  title: string
+  description: string
+  thumbnail: string | null
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+  duration: number
+  price: number
+  instructor: Instructor
+  learningPath: LearningPath | null
+  lessonCount: number
+  assessmentCount: number
+  createdAt: string
+}
+
+interface CoursesResponse {
+  success: boolean
+  courses: Course[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
 
 export default function CoursesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [courses, setCourses] = useState<Course[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const categories = getAllCategories()
-  
-  // Use static data - no loading state needed
-  const allCourses = useMemo(() => 
-    courses.filter(c => c.isActive), 
-    []
-  )
-  
-  const featuredCourses = useMemo(() => 
-    getFeaturedCourses(), 
-    []
-  )
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories')
+        if (response.ok) {
+          const data = await response.json()
+          setCategories(data)
+        }
+      } catch (err) {
+        console.error('Failed to fetch categories:', err)
+      }
+    }
+    fetchCategories()
+  }, [])
+
+  // Fetch courses from API
+  useEffect(() => {
+    const fetchCourses = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const params = new URLSearchParams()
+        if (selectedCategory) params.set('categoryId', selectedCategory)
+        if (selectedDifficulty) params.set('difficulty', selectedDifficulty)
+        params.set('limit', '100') // Fetch all for client-side filtering
+
+        const response = await fetch(`/api/courses?${params.toString()}`)
+        if (response.ok) {
+          const data: CoursesResponse = await response.json()
+          setCourses(data.courses)
+        } else {
+          setError('Failed to load courses')
+        }
+      } catch (err) {
+        console.error('Failed to fetch courses:', err)
+        setError('Failed to load courses')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCourses()
+  }, [selectedCategory, selectedDifficulty])
 
   const filteredCourses = useMemo(() => {
-    let result = allCourses
+    let result = courses
 
-    // Filter by search term
+    // Filter by search term (client-side search)
     if (searchTerm) {
-      result = searchCourses(searchTerm)
-    }
-
-    // Filter by difficulty
-    if (selectedDifficulty) {
-      const difficultyMap: Record<string, string[]> = {
-        'BEGINNER': ['beginner'],
-        'INTERMEDIATE': ['intermediate'],
-        'ADVANCED': ['advanced']
-      }
-      const targetDifficulties = difficultyMap[selectedDifficulty] || []
-      result = result.filter(course => 
-        targetDifficulties.includes(course.difficulty)
+      const term = searchTerm.toLowerCase()
+      result = result.filter(course =>
+        course.title.toLowerCase().includes(term) ||
+        course.description.toLowerCase().includes(term) ||
+        course.instructor.name.toLowerCase().includes(term)
       )
     }
 
-    // Filter by category
-    if (selectedCategory) {
-      result = result.filter(course => course.category === selectedCategory)
-    }
-
     return result
-  }, [allCourses, searchTerm, selectedDifficulty, selectedCategory])
+  }, [courses, searchTerm])
 
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'beginner': return { bg: '#dcfce7', text: '#16a34a' }
-      case 'intermediate': return { bg: '#fef3c7', text: '#d97706' }
-      case 'advanced': return { bg: '#fee2e2', text: '#dc2626' }
+    switch (difficulty.toUpperCase()) {
+      case 'BEGINNER': return { bg: '#dcfce7', text: '#16a34a' }
+      case 'INTERMEDIATE': return { bg: '#fef3c7', text: '#d97706' }
+      case 'ADVANCED': return { bg: '#fee2e2', text: '#dc2626' }
       default: return { bg: '#f3f4f6', text: '#6b7280' }
     }
   }
@@ -76,9 +145,9 @@ export default function CoursesPage() {
   }
 
   // Calculate stats from actual data
-  const totalCourses = allCourses.length
-  const totalLessons = allCourses.reduce((sum, c) => sum + c.lessonCount, 0)
-  const uniqueInstructors = new Set(allCourses.map(c => c.instructor.id)).size
+  const totalCourses = courses.length
+  const totalLessons = courses.reduce((sum, c) => sum + c.lessonCount, 0)
+  const uniqueInstructors = new Set(courses.map(c => c.instructor.id)).size
 
   return (
     <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -264,7 +333,29 @@ export default function CoursesPage() {
           </div>
 
           {/* Content */}
-          {filteredCourses.length === 0 ? (
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
+              <div style={{ color: '#6b7280', fontSize: '1.125rem' }}>Loading courses...</div>
+            </div>
+          ) : error ? (
+            <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
+              <p style={{ color: '#dc2626', fontSize: '1.125rem' }}>{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                style={{
+                  marginTop: '1rem',
+                  padding: '0.5rem 1rem',
+                  background: '#ea580c',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredCourses.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
               <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>No courses found matching your criteria.</p>
               <p style={{ color: '#9ca3af', marginTop: '0.5rem' }}>Try adjusting your search or filters.</p>
@@ -277,8 +368,8 @@ export default function CoursesPage() {
             }}>
               {filteredCourses.map((course) => {
                 const diffColors = getDifficultyColor(course.difficulty)
-                const categoryInfo = categories.find(c => c.id === course.category)
-                
+                const learningPathInfo = course.learningPath
+
                 return (
                   <div
                     key={course.id}
@@ -313,26 +404,12 @@ export default function CoursesPage() {
                       ) : (
                         <span style={{ fontSize: '4rem' }}>📚</span>
                       )}
-                      {/* Price Badge */}
-                      <div style={{
-                        position: 'absolute',
-                        top: '0.75rem',
-                        right: '0.75rem',
-                        background: course.price === 0 ? '#16a34a' : '#ea580c',
-                        color: 'white',
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '9999px',
-                        fontSize: '0.875rem',
-                        fontWeight: '600'
-                      }}>
-                        {course.price === 0 ? 'FREE' : `₹${course.price}`}
-                      </div>
                     </div>
-                    
+
                     {/* Content */}
                     <div style={{ padding: '1.25rem' }}>
                       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                        {categoryInfo && (
+                        {learningPathInfo && (
                           <span style={{
                             background: '#e0e7ff',
                             color: '#4f46e5',
@@ -341,7 +418,7 @@ export default function CoursesPage() {
                             fontSize: '0.75rem',
                             fontWeight: '500'
                           }}>
-                            {categoryInfo.icon} {categoryInfo.name}
+                            {learningPathInfo.icon} {learningPathInfo.title}
                           </span>
                         )}
                         <span style={{
@@ -355,7 +432,7 @@ export default function CoursesPage() {
                           {course.difficulty.charAt(0).toUpperCase() + course.difficulty.slice(1)}
                         </span>
                       </div>
-                      
+
                       <h3 style={{
                         fontSize: '1.125rem',
                         fontWeight: '600',
@@ -391,7 +468,7 @@ export default function CoursesPage() {
                             By {course.instructor.name}
                           </p>
                           <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                            {formatDuration(course.totalDuration)} • {course.lessonCount} lessons
+                            {formatDuration(course.duration)} • {course.lessonCount} lessons
                           </p>
                         </div>
                         <Link href={`/courses/${course.id}`} style={{

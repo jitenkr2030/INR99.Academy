@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCourses, getInstructors, getLearningPaths, getLessonsByCourseId } from '@/lib/simple-db'
+import { db } from '@/lib/db'
 
 export async function GET(
   request: NextRequest,
@@ -8,14 +8,59 @@ export async function GET(
   try {
     const courseId = params.id
 
-    // Get data from simple fallback database
-    const courses = getCourses()
-    const instructors = getInstructors()
-    const learningPaths = getLearningPaths()
-    const lessons = getLessonsByCourseId(courseId)
-
-    // Find the course
-    const course = courses.find(c => c.id === courseId && c.isActive)
+    // Fetch course from database with all related data
+    const course = await db.course.findFirst({
+      where: {
+        id: courseId,
+        isActive: true,
+      },
+      include: {
+        instructor: {
+          select: {
+            id: true,
+            name: true,
+            bio: true,
+            avatar: true,
+            expertise: true,
+            title: true,
+          },
+        },
+        learningPath: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            color: true,
+            icon: true,
+          },
+        },
+        lessons: {
+          where: {
+            isActive: true,
+          },
+          orderBy: {
+            order: 'asc',
+          },
+          select: {
+            id: true,
+            title: true,
+            duration: true,
+            order: true,
+            videoUrl: true,
+            content: true,
+            type: true,
+            isFree: true,
+          },
+        },
+        _count: {
+          select: {
+            lessons: true,
+            assessments: true,
+            enrollments: true,
+          },
+        },
+      },
+    })
 
     if (!course) {
       return NextResponse.json(
@@ -24,24 +69,38 @@ export async function GET(
       )
     }
 
-    // Get instructor and learning path info
-    const instructor = instructors.find(i => i.id === course.instructorId)
-    const learningPath = learningPaths.find(lp => lp.id === course.learningPathId)
+    // Group lessons into a single module (since we don't have a Module model)
+    // Each lesson becomes a module with one lesson for now
+    const modules = course.lessons.map((lesson, index) => ({
+      id: `module-${lesson.id}`,
+      title: `Section ${index + 1}: ${lesson.title}`,
+      order: index + 1,
+      lessons: [{
+        id: lesson.id,
+        title: lesson.title,
+        duration: lesson.duration,
+        order: lesson.order,
+        type: lesson.type || 'video',
+        isFree: lesson.isFree || false,
+        videoUrl: lesson.videoUrl,
+        content: lesson.content,
+      }]
+    }))
 
-    // Mock assessments for demo (can be enhanced later)
-    const assessments = [
+    // Generate assessments based on lessons
+    const assessments = course.lessons.length > 0 ? [
       {
         id: `assess-${courseId}-1`,
         title: 'Chapter Quiz',
         type: 'QUIZ',
-        lessonId: lessons[0]?.id
+        lessonId: course.lessons[0]?.id
       },
       {
         id: `assess-${courseId}-2`,
         title: 'Final Assessment',
         type: 'PRACTICE'
       }
-    ]
+    ] : []
 
     return NextResponse.json({
       success: true,
@@ -49,35 +108,46 @@ export async function GET(
         id: course.id,
         title: course.title,
         description: course.description,
+        longDescription: course.description, // Using description as longDescription for now
         thumbnail: course.thumbnail,
         difficulty: course.difficulty,
         duration: course.duration,
-        instructor: instructor ? {
-          id: instructor.id,
-          name: instructor.name,
-          bio: instructor.expertise,
-          avatar: instructor.avatar,
-          expertise: instructor.expertise
-        } : null,
-        learningPath: learningPath ? {
-          id: learningPath.id,
-          title: learningPath.title,
-          description: learningPath.description,
-          color: learningPath.color,
-          icon: learningPath.icon
-        } : null,
-        lessons: lessons,
+        price: 0, // Default to free for now
+        originalPrice: 0,
+        rating: 4.5, // Default rating
+        reviewCount: 100, // Default review count
+        tagline: `Master ${course.title} with our comprehensive course`,
+        language: 'Hinglish',
+        instructor: course.instructor,
+        learningPath: course.learningPath,
+        modules: modules,
+        lessons: course.lessons,
+        lessonCount: course._count.lessons,
+        moduleCount: modules.length,
         assessments: assessments,
-        totalLessons: lessons.length,
+        totalLessons: course._count.lessons,
         totalAssessments: assessments.length,
-        createdAt: course.createdAt
+        enrollmentCount: course._count.enrollments || 0,
+        outcomes: [
+          `Understand ${course.title} fundamentals`,
+          `Build real-world projects`,
+          `Apply concepts in practical scenarios`,
+          `Gain confidence in ${course.title}`,
+        ],
+        requirements: [
+          'Basic understanding of the subject',
+          'A computer with internet access',
+          'Willingness to learn',
+        ],
+        createdAt: course.createdAt,
+        updatedAt: new Date().toISOString(),
       }
     })
 
   } catch (error) {
     console.error('Get course error:', error)
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { success: false, message: 'Internal server error', error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

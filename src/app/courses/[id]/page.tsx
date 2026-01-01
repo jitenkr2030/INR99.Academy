@@ -10,14 +10,14 @@ import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useLearningProgress } from '@/contexts/learning-progress-context'
-import { 
-  Clock, 
-  BookOpen, 
-  Play, 
-  FileText, 
-  Headphones, 
-  Download, 
-  ChevronLeft, 
+import {
+  Clock,
+  BookOpen,
+  Play,
+  FileText,
+  Headphones,
+  Download,
+  ChevronLeft,
   ChevronRight,
   User,
   Target,
@@ -26,18 +26,83 @@ import {
   Users
 } from "lucide-react"
 import Link from "next/link"
-import { getCourseById, type Course } from '@/lib/course-data'
+
+interface Lesson {
+  id: string
+  title: string
+  duration: number
+  order: number
+  type: string
+  isFree: boolean
+  videoUrl?: string | null
+  content?: string | null
+}
+
+interface Module {
+  id: string
+  title: string
+  order: number
+  lessons: Lesson[]
+}
+
+interface Instructor {
+  id: string
+  name: string
+  bio?: string | null
+  avatar?: string | null
+  expertise?: string[]
+  title?: string
+}
+
+interface Course {
+  id: string
+  title: string
+  description: string
+  longDescription: string
+  thumbnail: string | null
+  difficulty: string
+  duration: number
+  price: number
+  originalPrice: number
+  rating: number
+  reviewCount: number
+  tagline?: string
+  language: string
+  instructor: Instructor
+  learningPath?: {
+    id: string
+    title: string
+    description: string
+    color: string
+    icon: string
+  } | null
+  modules: Module[]
+  lessons: Lesson[]
+  lessonCount: number
+  moduleCount: number
+  enrollmentCount: number
+  outcomes: string[]
+  requirements: string[]
+  createdAt: string
+  updatedAt: string
+}
+
+interface ApiResponse {
+  success: boolean
+  course: Course
+}
 
 export default function CourseDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { data: session } = useSession()
   const { getCourseProgress, markLessonComplete } = useLearningProgress()
-  
+
   const courseId = params.id as string
-  
+
   const [course, setCourse] = useState<Course | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set())
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
@@ -46,14 +111,24 @@ export default function CourseDetailPage() {
   const [receiptData, setReceiptData] = useState<any>(null)
 
   useEffect(() => {
-    // Load course from static data
-    const courseData = getCourseById(courseId)
-    
-    if (courseData) {
-      setCourse(courseData)
+    const fetchCourse = async () => {
+      try {
+        const response = await fetch(`/api/courses/${courseId}`)
+        if (response.ok) {
+          const data: ApiResponse = await response.json()
+          setCourse(data.course)
+        } else {
+          setError('Course not found')
+        }
+      } catch (err) {
+        console.error('Failed to fetch course:', err)
+        setError('Failed to load course')
+      } finally {
+        setLoading(false)
+      }
     }
-    
-    setLoading(false)
+
+    fetchCourse()
   }, [courseId])
 
   // Sync with progress context when course loads
@@ -63,7 +138,7 @@ export default function CourseDetailPage() {
       if (progress) {
         const completedCount = Math.floor((progress.progress / 100) * course.lessonCount)
         const completed = new Set<string>()
-        
+
         // Get all lesson IDs from modules
         const allLessonIds: string[] = []
         course.modules.forEach(module => {
@@ -71,7 +146,7 @@ export default function CourseDetailPage() {
             allLessonIds.push(lesson.id)
           })
         })
-        
+
         for (let i = 0; i < completedCount && i < allLessonIds.length; i++) {
           completed.add(allLessonIds[i])
         }
@@ -81,12 +156,12 @@ export default function CourseDetailPage() {
   }, [course, session, getCourseProgress])
 
   const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'beginner':
+    switch (difficulty.toUpperCase()) {
+      case 'BEGINNER':
         return 'bg-green-100 text-green-800'
-      case 'intermediate':
+      case 'INTERMEDIATE':
         return 'bg-yellow-100 text-yellow-800'
-      case 'advanced':
+      case 'ADVANCED':
         return 'bg-red-100 text-red-800'
       default:
         return 'bg-gray-100 text-gray-800'
@@ -175,12 +250,12 @@ export default function CourseDetailPage() {
     )
   }
 
-  if (!course) {
+  if (error || !course) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Course not found</h2>
-          <p className="text-gray-600 mb-4">The course you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600 mb-4">{error || "The course you're looking for doesn't exist or has been removed."}</p>
           <Link href="/courses">
             <Button>Back to Courses</Button>
           </Link>
@@ -243,7 +318,7 @@ export default function CourseDetailPage() {
                   {course.difficulty.charAt(0).toUpperCase() + course.difficulty.slice(1)}
                 </Badge>
                 <Badge variant="outline">
-                  ⏱️ {formatDuration(course.totalDuration)}
+                  ⏱️ {formatDuration(course.duration)}
                 </Badge>
                 <Badge variant="outline">
                   📚 {course.lessonCount} lessons
@@ -288,7 +363,7 @@ export default function CourseDetailPage() {
               <div className="flex items-center gap-6 text-sm text-gray-600 flex-wrap">
                 <div className="flex items-center gap-1">
                   <Clock className="h-4 w-4" />
-                  <span>{formatDuration(course.totalDuration)}</span>
+                  <span>{formatDuration(course.duration)}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <BookOpen className="h-4 w-4" />
@@ -420,7 +495,7 @@ export default function CourseDetailPage() {
                         </div>
                         <div>
                           <span className="text-gray-500">Total Duration:</span>
-                          <span className="ml-2 font-medium">{formatDuration(course.totalDuration)}</span>
+                          <span className="ml-2 font-medium">{formatDuration(course.duration)}</span>
                         </div>
                         <div>
                           <span className="text-gray-500">Last Updated:</span>
@@ -437,7 +512,7 @@ export default function CourseDetailPage() {
                   <CardHeader>
                     <CardTitle>Course Curriculum</CardTitle>
                     <CardDescription>
-                      {course.moduleCount} modules • {course.lessonCount} lessons • {formatDuration(course.totalDuration)} total
+                      {course.moduleCount} modules • {course.lessonCount} lessons • {formatDuration(course.duration)} total
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
