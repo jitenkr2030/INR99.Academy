@@ -24,7 +24,7 @@ interface Instructor {
   name: string
   title: string | null
   avatar: string | null
-  expertise: string[]
+  expertise: string // Changed from string[] to string since API returns JSON string
 }
 
 interface LearningPath {
@@ -34,6 +34,14 @@ interface LearningPath {
   icon: string
 }
 
+interface Pricing {
+  type: string
+  price: number
+  currency: string
+  period: string
+  description: string
+}
+
 interface Course {
   id: string
   title: string
@@ -41,12 +49,12 @@ interface Course {
   thumbnail: string | null
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
   duration: number
-  price: number
   instructor: Instructor
   learningPath: LearningPath | null
   lessonCount: number
   assessmentCount: number
   createdAt: string
+  pricing: Pricing
 }
 
 interface CoursesResponse {
