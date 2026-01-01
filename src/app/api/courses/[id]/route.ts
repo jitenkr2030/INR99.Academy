@@ -66,13 +66,70 @@ export async function GET(
       )
     }
 
-    // Group lessons into a single module (since we don't have a Module model)
-    // Each lesson becomes a module with one lesson for now
-    const modules = course.lessons.map((lesson, index) => ({
-      id: `module-${lesson.id}`,
-      title: `Section ${index + 1}: ${lesson.title}`,
-      order: index + 1,
-      lessons: [{
+    // Group lessons into modules based on lesson ID prefix
+    // Lesson IDs follow pattern: cr_ecm_XXX where first digit(s) = module number
+    // e.g., cr_ecm_101 -> module 1; cr_ecm_201 -> module 2; cr_ecm_1001 -> module 10
+    
+    const moduleNames: Record<string, string> = {
+      '1': 'Foundation Building',
+      '2': 'Grammar Mastery',
+      '3': 'Speaking Confidence',
+      '4': 'Vocabulary Building',
+      '5': 'Professional Writing',
+      '6': 'Interview Skills',
+      '7': 'Presentation Skills',
+      '8': 'Conversation Skills',
+      '9': 'Business Communication',
+      '10': 'Advanced Communication',
+    }
+
+    const moduleLessons: Record<string, typeof course.lessons> = {}
+    
+    for (const lesson of course.lessons) {
+      // Extract module number from lesson ID
+      // cr_ecm_101 -> module 1 (lesson 1); cr_ecm_201 -> module 2 (lesson 1); cr_ecm_1001 -> module 10 (lesson 1)
+      let moduleNum = '1' // Default to module 1 for ECM lessons
+      if (lesson.id.startsWith('cr_ecm_')) {
+        const numericPart = lesson.id.replace('cr_ecm_', '')
+        // Extract the first digit(s) before the last digit(s) to determine module
+        // For 101-170: first digit is module (1); for 1001-1070: first two digits are module (10)
+        if (numericPart.length >= 4 && numericPart.startsWith('10')) {
+          // Module 10: cr_ecm_1001, cr_ecm_1002, etc.
+          moduleNum = '10'
+        } else if (numericPart.length >= 3 && numericPart.length < 4) {
+          // Modules 1-9: cr_ecm_101, cr_ecm_102, etc. (3-digit numeric part)
+          const firstDigit = numericPart.charAt(0)
+          if (firstDigit !== '0') {
+            moduleNum = firstDigit
+          }
+          // If firstDigit is '0', keep moduleNum as '1' (lessons 065-070 are extra Module 1 lessons)
+        } else {
+          // Fallback: extract all leading digits
+          const match = numericPart.match(/^(\d+)/)
+          if (match) {
+            const num = parseInt(match[1])
+            if (num >= 1000) {
+              moduleNum = '10'
+            } else if (num >= 100) {
+              moduleNum = Math.floor(num / 100).toString()
+            }
+            // If num < 100 (like 065 = 65), keep as module 1
+          }
+        }
+      }
+      
+      if (!moduleLessons[moduleNum]) {
+        moduleLessons[moduleNum] = []
+      }
+      moduleLessons[moduleNum].push(lesson)
+    }
+    
+    // Build modules array
+    const modules = Object.entries(moduleLessons).map(([moduleNum, lessons]) => ({
+      id: `module-${moduleNum}`,
+      title: `Module ${moduleNum}: ${moduleNames[moduleNum] || 'Module ' + moduleNum}`,
+      order: parseInt(moduleNum),
+      lessons: lessons.map(lesson => ({
         id: lesson.id,
         title: lesson.title,
         duration: lesson.duration,
@@ -81,8 +138,8 @@ export async function GET(
         isFree: false,
         videoUrl: lesson.videoUrl,
         content: lesson.content,
-      }]
-    }))
+      })).sort((a, b) => a.order - b.order),
+    })).sort((a, b) => a.order - b.order)
 
     // Generate assessments based on lessons
     const assessments = course.lessons.length > 0 ? [
