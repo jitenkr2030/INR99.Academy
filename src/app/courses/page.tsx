@@ -22,6 +22,7 @@ interface Category {
 interface Instructor {
   id: string
   name: string
+  title: string | null
   avatar: string | null
   expertise: string[]
 }
