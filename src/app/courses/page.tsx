@@ -1,8 +1,66 @@
 "use client"
 
-import { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { NewNavigation } from '@/components/new-navigation'
+
+// Error boundary to catch rendering errors
+class ErrorBoundary extends React.Component<{children: React.ReactNode; fallback?: React.ReactNode}> {
+  state = { hasError: false, error: null as Error | null }
+  
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+  
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Courses page error:', error)
+    console.error('Component stack:', errorInfo.componentStack)
+  }
+  
+  render() {
+    if (this.state.hasError) {
+      return (
+        this.props.fallback || (
+          <div style={{ 
+            padding: '4rem 1rem', 
+            textAlign: 'center',
+            background: '#f9fafb',
+            minHeight: '60vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <h2 style={{ fontSize: '1.5rem', color: '#dc2626', marginBottom: '1rem' }}>
+              Something went wrong
+            </h2>
+            <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
+              We're having trouble loading the courses. Please try again.
+            </p>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null })
+                window.location.reload()
+              }}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: '#ea580c',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.5rem',
+                cursor: 'pointer',
+                fontSize: '1rem'
+              }}
+            >
+              Refresh Page
+            </button>
+          </div>
+        )
+      )
+    }
+    return this.props.children
+  }
+}
 
 interface Category {
   id: string
@@ -105,10 +163,16 @@ export default function CoursesPage() {
         params.set('limit', '100') // Fetch all for client-side filtering
 
         const response = await fetch(`/api/courses?${params.toString()}`)
+        console.log('Courses API response status:', response.status)
+
         if (response.ok) {
-          const data: CoursesResponse = await response.json()
+          const data = await response.json()
+          console.log('Courses API response success:', data.success)
+          console.log('Number of courses received:', data.courses?.length || 0)
+          console.log('First course structure:', JSON.stringify(data.courses?.[0], null, 2))
           setCourses(data.courses)
         } else {
+          console.error('Courses API error:', response.status, response.statusText)
           setError('Failed to load courses')
         }
       } catch (err) {
@@ -130,10 +194,11 @@ export default function CoursesPage() {
       result = result.filter(course =>
         course.title.toLowerCase().includes(term) ||
         course.description.toLowerCase().includes(term) ||
-        course.instructor.name.toLowerCase().includes(term)
+        (course.instructor.name && course.instructor.name.toLowerCase().includes(term))
       )
     }
 
+    console.log('Filtered courses:', result.length, 'out of', courses.length)
     return result
   }, [courses, searchTerm])
 
@@ -159,8 +224,43 @@ export default function CoursesPage() {
   const uniqueInstructors = new Set(courses.map(c => c.instructor.id)).size
 
   return (
-    <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      <NewNavigation />
+    <ErrorBoundary
+      fallback={
+        <div style={{ 
+          padding: '4rem 1rem', 
+          textAlign: 'center',
+          background: '#f9fafb',
+          minHeight: '60vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <h2 style={{ fontSize: '1.5rem', color: '#dc2626', marginBottom: '1rem' }}>
+            Something went wrong loading courses
+          </h2>
+          <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
+            Please refresh the page to try again.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            style={{
+              padding: '0.75rem 1.5rem',
+              background: '#ea580c',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              fontSize: '1rem'
+            }}
+          >
+            Refresh Page
+          </button>
+        </div>
+      }
+    >
+      <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+        <NewNavigation />
 
       <div style={{ paddingTop: '64px', minHeight: '100vh', background: '#f9fafb' }}>
         {/* Header */}
@@ -542,6 +642,7 @@ export default function CoursesPage() {
           </p>
         </div>
       </footer>
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }
