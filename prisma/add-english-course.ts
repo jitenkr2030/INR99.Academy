@@ -16,6 +16,7 @@ async function main() {
       data: {
         id: 'inst_english',
         name: 'Prof. Rajesh Kumar',
+        title: 'English Professor',
         bio: 'Prof. Rajesh Kumar is an experienced instructor specializing in English Literature, Communication, Arts. With expertise in multiple domains, they bring practical knowledge and real-world examples to help students succeed.',
         avatar: '/instructors/inst2.jpg',
         expertise: JSON.stringify(['English Literature', 'Communication', 'Arts', 'Humanities', 'Creative Writing']),

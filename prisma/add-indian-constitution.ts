@@ -30,6 +30,7 @@ async function createIndianConstitutionCourse() {
       data: {
         id: 'inst_meera_krishnan',
         name: 'Dr. Meera Krishnan',
+        title: 'Physics Professor',
         bio: 'Expert in Constitutional Law and Indian Governance with over 15 years of teaching experience.',
         avatar: '/instructors/inst_meera.jpg',
         expertise: 'Constitutional Law, Political Science, Governance, Civics, Indian History',

@@ -261,6 +261,7 @@ model Course {
 model Instructor {
   id        String   @id @default(cuid())
   name      String
+  title     String?
   bio       String?
   avatar    String?
   expertise String?
