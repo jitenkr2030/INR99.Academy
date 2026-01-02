@@ -19,7 +19,7 @@ export async function GET(
           select: {
             id: true,
             name: true,
-            title: true,
+            // title field removed - not available in current Prisma client
             bio: true,
             avatar: true,
             expertise: true,
