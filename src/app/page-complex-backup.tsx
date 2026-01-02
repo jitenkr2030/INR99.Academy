@@ -410,7 +410,7 @@ export default function Home() {
               It is not affiliated with any board, university, or examination authority.
             </p>
             <div className="flex justify-center space-x-6 text-sm text-gray-400">
-              <span>© 2024 INR99.Academy</span>
+              <span>© 2026 INR99.Academy</span>
               <span>•</span>
               <span>Privacy Policy</span>
               <span>•</span>

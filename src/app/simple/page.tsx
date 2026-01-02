@@ -193,7 +193,7 @@ export default function SimpleHome() {
       }}>
         <h3 style={{ marginBottom: '0.5rem' }}>INR99.Academy</h3>
         <p style={{ opacity: 0.6, fontSize: '0.875rem' }}>India's Learning Infrastructure - As reliable as UPI</p>
-        <p style={{ marginTop: '1rem', opacity: 0.6, fontSize: '0.875rem' }}>© 2024 INR99.Academy</p>
+        <p style={{ marginTop: '1rem', opacity: 0.6, fontSize: '0.875rem' }}>© 2026 INR99.Academy</p>
       </footer>
     </div>
   )
