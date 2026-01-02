@@ -605,7 +605,7 @@ export default function CoursesPage() {
       }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <p style={{ color: '#9ca3af', fontSize: '0.875rem' }}>
-            © 2024 INR99.Academy - India's Learning Infrastructure
+            © 2026 INR99.Academy - India's Learning Infrastructure
           </p>
         </div>
       </footer>

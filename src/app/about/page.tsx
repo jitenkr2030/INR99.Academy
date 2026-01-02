@@ -638,7 +638,7 @@ export default function AboutPage() {
             color: '#9ca3af',
             fontSize: '0.875rem'
           }}>
-            © 2024 INR99.Academy - India's Learning Infrastructure
+            © 2026 INR99.Academy - India's Learning Infrastructure
           </p>
         </div>
       </footer>

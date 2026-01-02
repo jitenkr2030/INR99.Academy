@@ -474,7 +474,7 @@ export default function NewLandingPage() {
             color: '#9ca3af',
             fontSize: '0.75rem'
           }}>
-            <span>© 2024 INR99.Academy</span>
+            <span>© 2026 INR99.Academy</span>
             <span>•</span>
             <span>Privacy Policy</span>
             <span>•</span>
