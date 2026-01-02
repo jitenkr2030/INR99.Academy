@@ -1,66 +1,8 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { NewNavigation } from '@/components/new-navigation'
-
-// Error boundary to catch rendering errors
-class ErrorBoundary extends React.Component<{children: React.ReactNode; fallback?: React.ReactNode}> {
-  state = { hasError: false, error: null as Error | null }
-  
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
-  }
-  
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Courses page error:', error)
-    console.error('Component stack:', errorInfo.componentStack)
-  }
-  
-  render() {
-    if (this.state.hasError) {
-      return (
-        this.props.fallback || (
-          <div style={{ 
-            padding: '4rem 1rem', 
-            textAlign: 'center',
-            background: '#f9fafb',
-            minHeight: '60vh',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <h2 style={{ fontSize: '1.5rem', color: '#dc2626', marginBottom: '1rem' }}>
-              Something went wrong
-            </h2>
-            <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
-              We're having trouble loading the courses. Please try again.
-            </p>
-            <button
-              onClick={() => {
-                this.setState({ hasError: false, error: null })
-                window.location.reload()
-              }}
-              style={{
-                padding: '0.75rem 1.5rem',
-                background: '#ea580c',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.5rem',
-                cursor: 'pointer',
-                fontSize: '1rem'
-              }}
-            >
-              Refresh Page
-            </button>
-          </div>
-        )
-      )
-    }
-    return this.props.children
-  }
-}
 
 interface Category {
   id: string
@@ -82,7 +24,7 @@ interface Instructor {
   name: string
   title: string | null
   avatar: string | null
-  expertise: string // Changed from string[] to string since API returns JSON string
+  expertise: string
 }
 
 interface LearningPath {
@@ -160,19 +102,13 @@ export default function CoursesPage() {
         const params = new URLSearchParams()
         if (selectedCategory) params.set('categoryId', selectedCategory)
         if (selectedDifficulty) params.set('difficulty', selectedDifficulty)
-        params.set('limit', '100') // Fetch all for client-side filtering
+        params.set('limit', '100')
 
         const response = await fetch(`/api/courses?${params.toString()}`)
-        console.log('Courses API response status:', response.status)
-
         if (response.ok) {
-          const data = await response.json()
-          console.log('Courses API response success:', data.success)
-          console.log('Number of courses received:', data.courses?.length || 0)
-          console.log('First course structure:', JSON.stringify(data.courses?.[0], null, 2))
+          const data: CoursesResponse = await response.json()
           setCourses(data.courses)
         } else {
-          console.error('Courses API error:', response.status, response.statusText)
           setError('Failed to load courses')
         }
       } catch (err) {
@@ -198,7 +134,6 @@ export default function CoursesPage() {
       )
     }
 
-    console.log('Filtered courses:', result.length, 'out of', courses.length)
     return result
   }, [courses, searchTerm])
 
@@ -224,43 +159,8 @@ export default function CoursesPage() {
   const uniqueInstructors = new Set(courses.map(c => c.instructor.id)).size
 
   return (
-    <ErrorBoundary
-      fallback={
-        <div style={{ 
-          padding: '4rem 1rem', 
-          textAlign: 'center',
-          background: '#f9fafb',
-          minHeight: '60vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <h2 style={{ fontSize: '1.5rem', color: '#dc2626', marginBottom: '1rem' }}>
-            Something went wrong loading courses
-          </h2>
-          <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
-            Please refresh the page to try again.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#ea580c',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.5rem',
-              cursor: 'pointer',
-              fontSize: '1rem'
-            }}
-          >
-            Refresh Page
-          </button>
-        </div>
-      }
-    >
-      <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-        <NewNavigation />
+    <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+      <NewNavigation />
 
       <div style={{ paddingTop: '64px', minHeight: '100vh', background: '#f9fafb' }}>
         {/* Header */}
@@ -285,7 +185,7 @@ export default function CoursesPage() {
                   transform: 'translateY(-50%)',
                   color: '#9ca3af'
                 }}>
-                  🔍
+                  Search
                 </span>
                 <input
                   type="text"
@@ -326,7 +226,7 @@ export default function CoursesPage() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  📚 All Courses
+                  All Courses
                 </button>
                 <Link
                   href="/learning-paths"
@@ -346,17 +246,7 @@ export default function CoursesPage() {
                     transition: 'all 0.2s'
                   }}
                 >
-                  🎯 Learning Paths
-                  <span style={{
-                    background: '#ea580c',
-                    color: 'white',
-                    padding: '0.125rem 0.5rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.625rem',
-                    fontWeight: '600'
-                  }}>
-                    NEW
-                  </span>
+                  Learning Paths
                 </Link>
               </div>
             </div>
@@ -376,7 +266,7 @@ export default function CoursesPage() {
             <span style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '500' }}>
               Filters:
             </span>
-            
+
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -511,7 +401,7 @@ export default function CoursesPage() {
                       {course.thumbnail ? (
                         <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       ) : (
-                        <span style={{ fontSize: '4rem' }}>📚</span>
+                        <span style={{ fontSize: '4rem' }}>Book</span>
                       )}
                     </div>
 
@@ -550,7 +440,7 @@ export default function CoursesPage() {
                       }}>
                         {course.title}
                       </h3>
-                      
+
                       <p style={{
                         color: '#6b7280',
                         fontSize: '0.875rem',
@@ -564,7 +454,7 @@ export default function CoursesPage() {
                       }}>
                         {course.description}
                       </p>
-                      
+
                       <div style={{
                         display: 'flex',
                         justifyContent: 'space-between',
@@ -611,10 +501,10 @@ export default function CoursesPage() {
               textAlign: 'center'
             }}>
               {[
-                { icon: '📚', number: totalCourses.toString(), label: 'Expert Courses', color: '#ea580c' },
-                { icon: '🎯', number: '10+', label: 'Learning Categories', color: '#16a34a' },
-                { icon: '⏱️', number: `${totalLessons}+`, label: 'Video Lessons', color: '#2563eb' },
-                { icon: '👨‍🏫', number: uniqueInstructors.toString(), label: 'Expert Instructors', color: '#9333ea' }
+                { icon: 'Book', number: totalCourses.toString(), label: 'Expert Courses', color: '#ea580c' },
+                { icon: 'Target', number: '10+', label: 'Learning Categories', color: '#16a34a' },
+                { icon: 'Clock', number: `${totalLessons}+`, label: 'Video Lessons', color: '#2563eb' },
+                { icon: 'Teacher', number: uniqueInstructors.toString(), label: 'Expert Instructors', color: '#9333ea' }
               ].map((stat, index) => (
                 <div key={index}>
                   <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{stat.icon}</div>
@@ -642,7 +532,6 @@ export default function CoursesPage() {
           </p>
         </div>
       </footer>
-      </div>
-    </ErrorBoundary>
+    </div>
   )
 }
