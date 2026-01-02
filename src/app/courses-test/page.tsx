@@ -46,7 +46,15 @@ export default function CoursesTestPage() {
         setDebugInfo(`API Response Status: ${response.status}`)
 
         if (!response.ok) {
+          let errorDetails = ''
+          try {
+            const errorData = await response.json()
+            errorDetails = JSON.stringify(errorData, null, 2)
+          } catch {
+            errorDetails = 'Could not parse error response'
+          }
           setError(`API Error: ${response.status} ${response.statusText}`)
+          setDebugInfo(`Error Details:\n${errorDetails}`)
           setLoading(false)
           return
         }
@@ -61,8 +69,9 @@ export default function CoursesTestPage() {
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+        const errorData = err instanceof Error ? { message: err.message, stack: err.stack } : err
         setError(`Fetch Error: ${errorMessage}`)
-        setDebugInfo(`Full Error: ${JSON.stringify(err)}`)
+        setDebugInfo(`Full Error: ${JSON.stringify(errorData, null, 2)}`)
       } finally {
         setLoading(false)
       }

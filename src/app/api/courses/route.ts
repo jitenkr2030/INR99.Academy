@@ -101,8 +101,11 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Get courses error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : ''
+    console.error('Error stack:', errorStack)
     return NextResponse.json(
-      { success: false, message: 'Internal server error', error: error instanceof Error ? error.message : 'Unknown error' },
+      { success: false, message: 'Internal server error', error: errorMessage, details: errorStack },
       { status: 500 }
     )
   }
