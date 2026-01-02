@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Star, ArrowRight } from "lucide-react"
+import { BookOpen, Star, ArrowRight, GraduationCap, Award, Trophy, Settings, Heart, Zap, Target, TrendingUp, Briefcase } from "lucide-react"
 import Link from "next/link"
 
 interface LearningPath {
@@ -22,11 +22,24 @@ interface LearningPath {
   }>
 }
 
-interface LearningPathCardProps {
-  path: LearningPath
+// Map icon names to Lucide React components
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  GraduationCap,
+  Award,
+  Trophy,
+  Settings,
+  Heart,
+  Zap,
+  Target,
+  TrendingUp,
+  Briefcase,
+  Star,
 }
 
 export function LearningPathCard({ path }: LearningPathCardProps) {
+  // Get the icon component from the map, default to BookOpen if not found
+  const IconComponent = path.icon && iconMap[path.icon] ? iconMap[path.icon] : BookOpen
+  
   return (
     <Card className="hover:shadow-lg transition-all duration-200 group">
       <CardHeader className="pb-4">
@@ -34,7 +47,7 @@ export function LearningPathCard({ path }: LearningPathCardProps) {
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-lg ${path.color} flex items-center justify-center`}>
               {path.icon ? (
-                <span className="text-xl">{path.icon}</span>
+                <IconComponent className="h-6 w-6 text-white" />
               ) : (
                 <BookOpen className="h-6 w-6 text-white" />
               )}
@@ -62,7 +75,7 @@ export function LearningPathCard({ path }: LearningPathCardProps) {
             <div className="space-y-2">
               {path.previewCourses.slice(0, 2).map((course) => (
                 <div key={course.id} className="flex items-center gap-2 text-sm text-gray-600">
-                  <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                  <div className="w-2 h-2 bg-orange-400 rounded-full flex-shrink-0"></div>
                   <span className="truncate">{course.title}</span>
                 </div>
               ))}
