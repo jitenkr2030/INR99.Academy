@@ -153,6 +153,64 @@ export default function CoursesPage() {
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`
   }
 
+  // Get thumbnail path - maps course ID to thumbnail file
+  const getThumbnailPath = (courseId: string, currentThumbnail: string | null) => {
+    // If thumbnail already has full path and file exists, use it
+    if (currentThumbnail && (currentThumbnail.startsWith('/assets/') || currentThumbnail.startsWith('/images/'))) {
+      return currentThumbnail
+    }
+    
+    // Map course IDs to their thumbnail files
+    const thumbnailMap: Record<string, string> = {
+      // Confusion Removers courses
+      'cr_english_mastery': '/assets/courses/english-communication.svg',
+      'cr_indian_constitution': '/assets/courses/indian-constitution.svg',
+      'cr_upi': '/assets/courses/cr_upi.svg',
+      'cr_digital': '/assets/courses/cr_digital.svg',
+      'cr_fraud': '/assets/courses/cr_fraud.svg',
+      'cr_bulk': '/assets/courses/cr_bulk.svg',
+      'cr_community': '/assets/courses/cr_community.svg',
+      'cr_foodwork': '/assets/courses/cr_foodwork.svg',
+      'cr_money': '/assets/courses/cr_money.svg',
+      'cr_gov': '/assets/courses/cr_gov.svg',
+      'cr_english': '/assets/courses/cr_english.svg',
+      
+      // Additional courses
+      'python-masterclass': '/assets/courses/python-masterclass.svg',
+      'data-science-python': '/assets/courses/data-science-python.svg',
+      'web-development-bootcamp': '/assets/courses/web-development-bootcamp.svg',
+      'ui-ux-design-masterclass': '/assets/courses/ui-ux-design-masterclass.svg',
+      'digital-marketing-complete': '/assets/courses/digital-marketing-complete.svg',
+      'personal-finance-mastery': '/assets/courses/personal-finance-mastery.svg',
+      'stock-market-fundamentals': '/assets/courses/stock-market-fundamentals.svg',
+      'indian-constitution-citizenship': '/assets/courses/indian-constitution-citizenship.svg',
+      'excel-mastery': '/assets/courses/excel-mastery.svg',
+      'cyber-safety-awareness': '/assets/courses/cyber-safety-awareness.svg',
+      'job-prep-complete': '/assets/courses/job-prep-complete.svg',
+      'startup-foundation': '/assets/courses/startup-foundation.svg',
+      'meditation-mindfulness': '/assets/courses/meditation-mindfulness.svg',
+      'bcom-financial-accounting': '/assets/courses/bcom-financial-accounting.svg',
+      'class10-mathematics': '/assets/courses/class10-mathematics.svg',
+    }
+    
+    // Check if we have a direct mapping
+    if (thumbnailMap[courseId]) {
+      return thumbnailMap[courseId]
+    }
+    
+    // Try to find a matching thumbnail based on partial ID match
+    const availableThumbnails = Object.values(thumbnailMap)
+    for (const thumb of availableThumbnails) {
+      const thumbName = thumb.split('/').pop()?.replace('.svg', '')
+      if (thumbName && courseId.includes(thumbName)) {
+        return thumb
+      }
+    }
+    
+    // Return original thumbnail path if nothing matches
+    return currentThumbnail
+  }
+
   // Calculate stats from actual data
   const totalCourses = courses.length
   const totalLessons = courses.reduce((sum, c) => sum + c.lessonCount, 0)
@@ -391,18 +449,37 @@ export default function CoursesPage() {
                     {/* Thumbnail */}
                     <div style={{
                       aspectRatio: '16/9',
-                      background: '#dbeafe',
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '3rem',
-                      position: 'relative'
+                      position: 'relative',
+                      overflow: 'hidden'
                     }}>
-                      {course.thumbnail ? (
-                        <img src={course.thumbnail} alt={course.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <span style={{ fontSize: '4rem' }}>Book</span>
-                      )}
+                      {(() => {
+                        const thumbnailPath = getThumbnailPath(course.id, course.thumbnail)
+                        if (thumbnailPath) {
+                          return (
+                            <img 
+                              src={thumbnailPath} 
+                              alt={course.title}
+                              style={{ 
+                                width: '100%', 
+                                height: '100%', 
+                                objectFit: 'cover',
+                                opacity: 0.9
+                              }}
+                              onError={(e) => {
+                                // If image fails, show emoji
+                                e.currentTarget.style.display = 'none'
+                                e.currentTarget.parentElement!.innerHTML = '<span style="font-size: 4rem;">📚</span>'
+                              }}
+                            />
+                          )
+                        }
+                        return <span style={{ fontSize: '4rem' }}>📚</span>
+                      })()}
                     </div>
 
                     {/* Content */}
