@@ -1,15 +1,30 @@
 import nodemailer from 'nodemailer'
 
-// Create transporter - configure with your SMTP settings
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-})
+// Check if SMTP is configured
+const isEmailConfigured = () => {
+  return !!(
+    process.env.SMTP_HOST && 
+    process.env.SMTP_USER && 
+    process.env.SMTP_PASS &&
+    process.env.SMTP_HOST !== '' &&
+    process.env.SMTP_USER !== ''
+  )
+}
+
+// Create transporter only if SMTP is configured
+let transporter: nodemailer.Transporter | null = null
+
+if (isEmailConfigured()) {
+  transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  })
+}
 
 interface EmailOptions {
   to: string
@@ -18,6 +33,13 @@ interface EmailOptions {
 }
 
 export async function sendEmail({ to, subject, html }: EmailOptions): Promise<boolean> {
+  // If email is not configured, skip sending
+  if (!transporter || !isEmailConfigured()) {
+    console.log(`[Email Skipped] To: ${to}, Subject: ${subject}`)
+    console.log('[Email System] SMTP not configured. Messages will be managed via Admin Dashboard.')
+    return false
+  }
+
   try {
     await transporter.sendMail({
       from: `"INR99 Academy" <${process.env.SMTP_USER || 'noreply@inr99.com'}>`,
@@ -38,6 +60,13 @@ export async function sendContactNotification(
   subject: string,
   message: string
 ): Promise<boolean> {
+  // Check if email is configured
+  if (!isEmailConfigured()) {
+    console.log(`[New Contact Message] ${senderName} (${senderEmail}): ${subject}`)
+    console.log('  → View all messages at /admin/messages')
+    return false
+  }
+  
   const adminEmail = process.env.ADMIN_EMAIL || 'support@inr.academy'
   
   const html = `
@@ -96,6 +125,12 @@ export async function sendUserAcknowledgment(
   userName: string,
   subject: string
 ): Promise<boolean> {
+  // Check if email is configured
+  if (!isEmailConfigured()) {
+    console.log(`[User Acknowledgment] Skipped for ${userEmail}`)
+    return false
+  }
+  
   const html = `
     <!DOCTYPE html>
     <html>
@@ -114,23 +149,11 @@ export async function sendUserAcknowledgment(
         
         <p>We've received your message regarding "<strong>${subject}</strong>".</p>
         
-        <p>Our team will review your inquiry and get back to you as soon as possible. We typically respond within 24-48 hours on business days.</p>
-        
-        <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin: 20px 0;">
-          <p style="margin: 0 0 10px 0; font-weight: bold; color: #64748b;">While you wait, you might want to:</p>
-          <ul style="margin: 0; padding-left: 20px;">
-            <li>Browse our <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://inr99.com'}/courses" style="color: #ea580c;">course catalog</a></li>
-            <li>Explore our <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://inr99.com'}/learning-paths" style="color: #ea580c;">learning paths</a></li>
-            <li>Check our <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://inr99.com'}/faq" style="color: #ea580c;">FAQ section</a></li>
-          </ul>
-        </div>
-        
-        <p>If you have any urgent questions, feel free to reach out to us directly at <a href="tel:+919876543210" style="color: #ea580c;">+91 98765 43210</a>.</p>
+        <p>Our team will review your inquiry and get back to you as soon as possible.</p>
         
         <p style="margin-top: 30px;">Best regards,<br><strong>The INR99 Academy Team</strong></p>
         
         <p style="margin-top: 30px; font-size: 12px; color: #94a3b8; text-align: center;">
-          Empowering learners worldwide with affordable, high-quality education.<br>
           © ${new Date().getFullYear()} INR99 Academy. All rights reserved.
         </p>
       </div>
@@ -151,6 +174,12 @@ export async function sendReplyNotification(
   originalSubject: string,
   replyMessage: string
 ): Promise<boolean> {
+  // Check if email is configured
+  if (!isEmailConfigured()) {
+    console.log(`[Reply Notification] Skipped for ${userEmail}`)
+    return false
+  }
+  
   const html = `
     <!DOCTYPE html>
     <html>
@@ -175,8 +204,6 @@ export async function sendReplyNotification(
             <p style="margin: 0; white-space: pre-wrap;">${replyMessage}</p>
           </div>
         </div>
-        
-        <p>If you need further assistance, please don't hesitate to reply to this email or <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://inr99.com'}/contact" style="color: #ea580c;">contact us again</a>.</p>
         
         <p style="margin-top: 30px;">Best regards,<br><strong>The INR99 Academy Team</strong></p>
       </div>

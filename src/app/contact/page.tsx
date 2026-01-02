@@ -166,7 +166,6 @@ export default function ContactPage() {
                 <AlertDescription className="text-green-800">
                   <strong>Thank you for your message!</strong>
                   <p className="mt-1">We've received your inquiry and will get back to you within 24-48 hours.</p>
-                  <p className="mt-2 text-sm">A confirmation email has been sent to your email address.</p>
                 </AlertDescription>
               </Alert>
             )}
