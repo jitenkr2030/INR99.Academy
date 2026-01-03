@@ -71,7 +71,8 @@ export async function GET(
     
     const isEnglishCourse = course.id === 'cr_english_mastery'
     const isConstitutionCourse = course.id === 'cr_indian_constitution'
-    const isPublicSpeakingCourse = course.id === 'course_public_speaking' || course.id === 'career14'
+    const isPublicSpeakingIntermediate = course.id === 'career14'
+    const isPublicSpeakingAdvanced = course.id === 'course_public_speaking'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -99,7 +100,7 @@ export async function GET(
       '10': 'Rights, Duties & Civic Engagement',
     }
 
-    const publicSpeakingModuleNames: Record<string, string> = {
+    const publicSpeakingAdvancedModuleNames: Record<string, string> = {
       '1': 'The Psychology of Performance',
       '2': 'Advanced Presentation Structure',
       '3': 'Visual Rhetoric and Slide Design',
@@ -110,6 +111,15 @@ export async function GET(
       '8': 'Handling the Unexpected',
       '9': 'Virtual and Hybrid Presentations',
       '10': 'Professional Application and Capstone',
+    }
+
+    const publicSpeakingIntermediateModuleNames: Record<string, string> = {
+      '1': 'Foundation of Public Speaking',
+      '2': 'Structuring Your Message',
+      '3': 'Voice and Delivery',
+      '4': 'Body Language',
+      '5': 'Audience Connection',
+      '6': 'Practical Application',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -164,9 +174,25 @@ export async function GET(
         } else if (lesson.order >= 51) {
           moduleNum = '10'
         }
-      } else if (isPublicSpeakingCourse) {
-        // Public Speaking course: use order ranges (101-105, 201-205, etc.)
-        // Module 1: orders 101-105, Module 2: orders 201-205, etc.
+      } else if (isPublicSpeakingIntermediate) {
+        // Public Speaking INTERMEDIATE course: use order ranges (101-105, 201-205, etc.)
+        // Only 6 modules: Module 1: orders 101-105, Module 2: orders 201-205, etc.
+        if (lesson.order >= 101 && lesson.order <= 105) {
+          moduleNum = '1'
+        } else if (lesson.order >= 201 && lesson.order <= 205) {
+          moduleNum = '2'
+        } else if (lesson.order >= 301 && lesson.order <= 305) {
+          moduleNum = '3'
+        } else if (lesson.order >= 401 && lesson.order <= 405) {
+          moduleNum = '4'
+        } else if (lesson.order >= 501 && lesson.order <= 505) {
+          moduleNum = '5'
+        } else if (lesson.order >= 601 && lesson.order <= 605) {
+          moduleNum = '6'
+        }
+      } else if (isPublicSpeakingAdvanced) {
+        // Public Speaking ADVANCED course: use order ranges (101-105, 201-205, etc.)
+        // 10 modules: Module 1: orders 101-105, Module 2: orders 201-205, etc.
         if (lesson.order >= 101 && lesson.order <= 105) {
           moduleNum = '1'
         } else if (lesson.order >= 201 && lesson.order <= 205) {
@@ -199,7 +225,13 @@ export async function GET(
     // Build modules array
     const modules = Object.entries(moduleLessons).map(([moduleNum, lessons]) => ({
       id: `module-${moduleNum}`,
-      title: `Module ${moduleNum}: ${isEnglishCourse ? englishModuleNames[moduleNum] : isConstitutionCourse ? constitutionModuleNames[moduleNum] : isPublicSpeakingCourse ? publicSpeakingModuleNames[moduleNum] : 'Module ' + moduleNum}`,
+      title: `Module ${moduleNum}: ${
+        isEnglishCourse ? englishModuleNames[moduleNum] : 
+        isConstitutionCourse ? constitutionModuleNames[moduleNum] : 
+        isPublicSpeakingIntermediate ? publicSpeakingIntermediateModuleNames[moduleNum] :
+        isPublicSpeakingAdvanced ? publicSpeakingAdvancedModuleNames[moduleNum] :
+        'Module ' + moduleNum
+      }`,
       order: parseInt(moduleNum),
       lessons: lessons.map(lesson => ({
         id: lesson.id,
