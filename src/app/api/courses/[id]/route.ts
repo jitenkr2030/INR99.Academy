@@ -657,7 +657,6 @@ export async function GET(
           moduleNum = '8'
         }
       }
-      }
       
       if (!moduleLessons[moduleNum]) {
         moduleLessons[moduleNum] = []
