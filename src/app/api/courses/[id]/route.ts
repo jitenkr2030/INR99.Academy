@@ -88,6 +88,11 @@ export async function GET(
     const isDigitalMarketing = course.id === 'career13'
     const isSocialMedia = course.id === 'career15'
     const isBrandStrategy = course.id === 'career16'
+    const isInvestmentWealth = course.id === 'life2'
+    const isTaxInsurance = course.id === 'life3'
+    const isNutritionHealth = course.id === 'life4'
+    const isFitnessExercise = course.id === 'life5'
+    const isMentalHealth = course.id === 'life6'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -287,6 +292,30 @@ export async function GET(
       '6': 'Digital Brand Management',
       '7': 'Brand Equity & Valuation',
       '8': 'Crisis Management & Brand Protection',
+    }
+
+    const investmentWealthModuleNames: Record<string, string> = {
+      '1': 'Investment Fundamentals & Market Basics',
+      '2': 'Advanced Wealth Building Strategies',
+    }
+
+    const taxInsuranceModuleNames: Record<string, string> = {
+      '1': 'Tax Planning & Compliance',
+      '2': 'Insurance Planning & Risk Management',
+    }
+
+    const nutritionHealthModuleNames: Record<string, string> = {
+      '1': 'Nutrition Fundamentals',
+      '2': 'Healthy Living Practices',
+    }
+
+    const fitnessExerciseModuleNames: Record<string, string> = {
+      '1': 'Fitness Fundamentals',
+      '2': 'Exercise Programming',
+    }
+
+    const mentalHealthModuleNames: Record<string, string> = {
+      '1': 'Mental Health & Mindfulness Basics',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -656,6 +685,49 @@ export async function GET(
         } else if (lesson.order >= 700 && lesson.order <= 799) {
           moduleNum = '8'
         }
+      } else if (isInvestmentWealth) {
+        // Investment & Wealth Building: use order ranges
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '2'
+        }
+      } else if (isTaxInsurance) {
+        // Tax Planning & Insurance: use order ranges
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '1'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '2'
+        }
+      } else if (isNutritionHealth) {
+        // Nutrition & Healthy Living: use order ranges
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '1'
+        } else if (lesson.order >= 200 && lesson.order <= 219) {
+          moduleNum = '2'
+        }
+      } else if (isFitnessExercise) {
+        // Fitness & Exercise: use order ranges
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '1'
+        } else if (lesson.order >= 200 && lesson.order <= 239) {
+          moduleNum = '2'
+        }
+      } else if (isMentalHealth) {
+        // Mental Health & Mindfulness: use order ranges
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '1'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -687,6 +759,11 @@ export async function GET(
         isDigitalMarketing ? digitalMarketingModuleNames[moduleNum] :
         isSocialMedia ? socialMediaModuleNames[moduleNum] :
         isBrandStrategy ? brandStrategyModuleNames[moduleNum] :
+        isInvestmentWealth ? investmentWealthModuleNames[moduleNum] :
+        isTaxInsurance ? taxInsuranceModuleNames[moduleNum] :
+        isNutritionHealth ? nutritionHealthModuleNames[moduleNum] :
+        isFitnessExercise ? fitnessExerciseModuleNames[moduleNum] :
+        isMentalHealth ? mentalHealthModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
