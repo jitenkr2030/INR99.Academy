@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a5276;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#154360;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f4d03f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f7dc6f;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#28b463;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#52be80;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bg)"/>
+
+  <!-- Decorative elements -->
+  <circle cx="380" cy="40" r="70" fill="url(#accent1)" opacity="0.15"/>
+  <circle cx="30" cy="270" r="90" fill="url(#accent2)" opacity="0.15"/>
+
+  <!-- Header bar -->
+  <rect x="0" y="0" width="400" height="60" fill="rgba(255,255,255,0.05)"/>
+  <text x="20" y="38" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#f4d03f">INR99</text>
+  <text x="85" y="38" font-family="Arial, sans-serif" font-size="14" fill="#ffffff">Academy</text>
+
+  <!-- Main content area - Calculator and charts -->
+  <g transform="translate(200, 145)">
+    <!-- Calculator icon -->
+    <g transform="translate(-35, -30)">
+      <rect x="0" y="0" width="70" height="90" rx="5" fill="#2471a3" stroke="#f4d03f" stroke-width="2"/>
+      <rect x="5" y="5" width="60" height="20" rx="2" fill="#1a5276"/>
+      <text x="35" y="19" font-family="monospace" font-size="12" fill="#f4d03f" text-anchor="middle">1234.56</text>
+      
+      <!-- Calculator buttons -->
+      <circle cx="18" cy="38" r="7" fill="#f4d03f"/>
+      <circle cx="52" cy="38" r="7" fill="#f4d03f"/>
+      <circle cx="18" cy="55" r="7" fill="#f7dc6f"/>
+      <circle cx="52" cy="55" r="7" fill="#f7dc6f"/>
+      <circle cx="18" cy="72" r="7" fill="#52be80"/>
+      <circle cx="52" cy="72" r="7" fill="#52be80"/>
+    </g>
+
+    <!-- Bar chart representing business metrics -->
+    <g transform="translate(40, -20)">
+      <rect x="0" y="40" width="50" height="5" rx="1" fill="#f4d03f"/>
+      <rect x="0" y="32" width="40" height="6" rx="1" fill="#f7dc6f"/>
+      <rect x="0" y="24" width="30" height="6" rx="1" fill="#52be80"/>
+      <rect x="0" y="16" width="20" height="6" rx="1" fill="#28b463"/>
+      
+      <!-- Chart axis -->
+      <line x1="0" y1="50" x2="60" y2="50" stroke="#f4d03f" stroke-width="1"/>
+      <line x1="0" y1="10" x2="0" y2="50" stroke="#f4d03f" stroke-width="1"/>
+    </g>
+
+    <!-- Cost Management text banner -->
+    <g transform="translate(0, 50)">
+      <rect x="-85" y="-12" width="170" height="24" rx="12" fill="rgba(244,208,63,0.2)" stroke="#f4d03f" stroke-width="1"/>
+      <text x="0" y="5" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#f4d03f" text-anchor="middle">COST & MANAGEMENT</text>
+    </g>
+  </g>
+
+  <!-- Course title -->
+  <text x="200" y="235" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">CMA Foundation</text>
+  <text x="200" y="257" font-family="Arial, sans-serif" font-size="14" fill="#f4d03f" text-anchor="middle">Complete Course</text>
+
+  <!-- Module indicators -->
+  <g transform="translate(60, 275)">
+    <rect x="0" y="0" width="50" height="5" rx="2" fill="#f4d03f"/>
+    <rect x="60" y="0" width="50" height="5" rx="2" fill="#f4d03f"/>
+    <rect x="120" y="0" width="50" height="5" rx="2" fill="#f4d03f"/>
+    <rect x="180" y="0" width="50" height="5" rx="2" fill="#52be80"/>
+  </g>
+
+  <!-- Footer info -->
+  <text x="200" y="292" font-family="Arial, sans-serif" font-size="10" fill="#ffffff" opacity="0.7" text-anchor="middle">4 Modules • 32 Lessons • 83 Hours • ICMAI Syllabus</text>
+</svg>

@@ -234,6 +234,7 @@ export default function CourseDetailPage() {
       'cs_executive': '/assets/courses/cs-executive.svg',
       'cs_foundation': '/assets/courses/cs-foundation.svg',
       'cs_professional': '/assets/courses/cs-professional.svg',
+      'cma_foundation': '/assets/courses/cma-foundation.svg',
     }
     
     if (thumbnailMap[courseId]) {

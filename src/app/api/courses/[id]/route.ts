@@ -136,6 +136,7 @@ export async function GET(
     const isCSExecutive = course.id === 'cs_executive'
     const isCSFoundation = course.id === 'cs_foundation'
     const isCSProfessional = course.id === 'cs_professional'
+    const isCMAFoundation = course.id === 'cma_foundation'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -647,6 +648,13 @@ export async function GET(
       '7': 'Corporate Disputes & Arbitration (Module III – Paper 7)',
       '8': 'Economic, Business & Commercial Laws (Advanced) (Module III – Paper 8)',
       '9': 'Professional Readiness & Exam Mastery',
+    }
+
+    const cmaFoundationModuleNames: Record<string, string> = {
+      '1': 'Fundamentals of Business Laws & Ethics (Paper 1)',
+      '2': 'Fundamentals of Financial & Cost Accounting (Paper 2)',
+      '3': 'Fundamentals of Business Mathematics & Statistics (Paper 3)',
+      '4': 'Fundamentals of Business Economics & Management (Paper 4)',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1550,6 +1558,21 @@ export async function GET(
         } else if (lesson.order >= 800 && lesson.order <= 899) {
           moduleNum = '9'
         }
+      } else if (isCMAFoundation) {
+        // CMA Foundation Complete Course: use order ranges (4 papers)
+        // Module 1: orders 1-99 (Paper 1 - Business Laws & Ethics)
+        // Module 2: orders 100-199 (Paper 2 - Financial & Cost Accounting)
+        // Module 3: orders 200-299 (Paper 3 - Business Mathematics & Statistics)
+        // Module 4: orders 300-399 (Paper 4 - Business Economics & Management)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1629,6 +1652,7 @@ export async function GET(
         isCSExecutive ? csExecutiveModuleNames[moduleNum] :
         isCSFoundation ? csFoundationModuleNames[moduleNum] :
         isCSProfessional ? csProfessionalModuleNames[moduleNum] :
+        isCMAFoundation ? cmaFoundationModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
