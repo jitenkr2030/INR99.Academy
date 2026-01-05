@@ -132,6 +132,7 @@ export async function GET(
     const isCommerceBasics = course.id === 'course-commerce-basics'
     const isCAFoundation = course.id === 'course-ca-foundation'
     const isCAIntermediate = course.id === 'course-ca-intermediate'
+    const isCAFinal = course.id === 'course-ca-final'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -602,6 +603,17 @@ export async function GET(
       '6': 'Financial Management (Group II – Paper 6A)',
       '7': 'Strategic Management (Group II – Paper 6B)',
       '8': 'Exam Preparation & Revision',
+    }
+
+    const caFinalModuleNames: Record<string, string> = {
+      '1': 'Financial Reporting (Group I – Paper 1)',
+      '2': 'Advanced Auditing & Professional Ethics (Group I – Paper 2)',
+      '3': 'Direct Tax Laws & International Taxation (Group I – Paper 3)',
+      '4': 'Indirect Tax Laws (GST & Customs) (Group I – Paper 4)',
+      '5': 'Strategic Financial Management (Group II – Paper 5)',
+      '6': 'Strategic Cost Management & Performance Evaluation (Group II – Paper 6A)',
+      '7': 'Corporate & Economic Laws (Group II – Paper 6B)',
+      '8': 'Final Exam Mastery & Professional Readiness',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1406,6 +1418,33 @@ export async function GET(
         } else if (lesson.order >= 700 && lesson.order <= 799) {
           moduleNum = '8'
         }
+      } else if (isCAFinal) {
+        // CA Final Complete Course: use order ranges (8 papers/modules)
+        // Module 1: orders 1-99 (Paper 1 - Financial Reporting)
+        // Module 2: orders 100-199 (Paper 2 - Advanced Auditing)
+        // Module 3: orders 200-299 (Paper 3 - Direct Tax)
+        // Module 4: orders 300-399 (Paper 4 - Indirect Tax/GST)
+        // Module 5: orders 400-499 (Paper 5 - Strategic FM)
+        // Module 6: orders 500-599 (Paper 6A - Strategic Cost)
+        // Module 7: orders 600-699 (Paper 6B - Corporate Laws)
+        // Module 8: orders 700-799 (Exam Mastery)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500 && lesson.order <= 599) {
+          moduleNum = '6'
+        } else if (lesson.order >= 600 && lesson.order <= 699) {
+          moduleNum = '7'
+        } else if (lesson.order >= 700 && lesson.order <= 799) {
+          moduleNum = '8'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1481,6 +1520,7 @@ export async function GET(
         isCommerceBasics ? commerceBasicsModuleNames[moduleNum] :
         isCAFoundation ? caFoundationModuleNames[moduleNum] :
         isCAIntermediate ? caIntermediateModuleNames[moduleNum] :
+        isCAFinal ? caFinalModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),

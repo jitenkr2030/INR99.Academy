@@ -230,6 +230,7 @@ export default function CourseDetailPage() {
       'course-commerce-basics': '/assets/courses/commerce-basics.svg',
       'course-ca-foundation': '/assets/courses/ca-foundation.svg',
       'course-ca-intermediate': '/assets/courses/ca-intermediate.svg',
+      'course-ca-final': '/assets/courses/ca-final.svg',
     }
     
     if (thumbnailMap[courseId]) {
