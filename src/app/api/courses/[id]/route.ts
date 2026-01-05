@@ -133,6 +133,7 @@ export async function GET(
     const isCAFoundation = course.id === 'course-ca-foundation'
     const isCAIntermediate = course.id === 'course-ca-intermediate'
     const isCAFinal = course.id === 'course-ca-final'
+    const isCSExecutive = course.id === 'cs_executive'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -614,6 +615,17 @@ export async function GET(
       '6': 'Strategic Cost Management & Performance Evaluation (Group II – Paper 6A)',
       '7': 'Corporate & Economic Laws (Group II – Paper 6B)',
       '8': 'Final Exam Mastery & Professional Readiness',
+    }
+
+    const csExecutiveModuleNames: Record<string, string> = {
+      '1': 'Jurisprudence, Interpretation & General Laws (Module I – Paper 1)',
+      '2': 'Company Law (Module I – Paper 2)',
+      '3': 'Setting up of Business, Industrial & Labour Laws (Module I – Paper 3)',
+      '4': 'Tax Laws & Practice (Module I – Paper 4)',
+      '5': 'Corporate & Management Accounting (Module II – Paper 5)',
+      '6': 'Securities Laws & Capital Markets (Module II – Paper 6)',
+      '7': 'Economic, Commercial & Intellectual Property Laws (Module II – Paper 7)',
+      '8': 'Exam Preparation, Case Writing & Revision',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1445,6 +1457,33 @@ export async function GET(
         } else if (lesson.order >= 700 && lesson.order <= 799) {
           moduleNum = '8'
         }
+      } else if (isCSExecutive) {
+        // CS Executive Complete Course: use order ranges (8 papers/modules)
+        // Module 1: orders 1-99 (Paper 1 - Jurisprudence)
+        // Module 2: orders 101-199 (Paper 2 - Company Law)
+        // Module 3: orders 201-299 (Paper 3 - Business & Labour Laws)
+        // Module 4: orders 301-399 (Paper 4 - Tax Laws)
+        // Module 5: orders 401-499 (Paper 5 - Management Accounting)
+        // Module 6: orders 501-599 (Paper 6 - Securities Laws)
+        // Module 7: orders 601-699 (Paper 7 - Economic Laws)
+        // Module 8: orders 701-799 (Exam Preparation)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500 && lesson.order <= 599) {
+          moduleNum = '6'
+        } else if (lesson.order >= 600 && lesson.order <= 699) {
+          moduleNum = '7'
+        } else if (lesson.order >= 700 && lesson.order <= 799) {
+          moduleNum = '8'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1521,6 +1560,7 @@ export async function GET(
         isCAFoundation ? caFoundationModuleNames[moduleNum] :
         isCAIntermediate ? caIntermediateModuleNames[moduleNum] :
         isCAFinal ? caFinalModuleNames[moduleNum] :
+        isCSExecutive ? csExecutiveModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
