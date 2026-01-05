@@ -469,6 +469,43 @@ export async function GET(request: NextRequest) {
       learningPathsData = sampleLearningPaths
     }
 
+    // If still no data or only sample data, try to fetch LearningPathCategory as fallback
+    if (learningPathsData.length === 0 || learningPathsData.every(path => path.id.startsWith('sample-'))) {
+      try {
+        const categories = await db.learningPathCategory.findMany({
+          where: { isActive: true },
+          orderBy: { sortOrder: 'asc' },
+          include: {
+            _count: {
+              select: { learningPaths: true }
+            }
+          }
+        })
+
+        if (categories.length > 0) {
+          // Transform LearningPathCategory into LearningPath format
+          const categoryPaths = categories.map((cat: any) => ({
+            id: cat.id,
+            title: cat.name,
+            description: cat.description || `Explore ${cat.name} courses and learning paths`,
+            icon: cat.icon || '📚',
+            color: cat.color || 'bg-gradient-to-r from-blue-500 to-indigo-600',
+            sortOrder: cat.sortOrder,
+            isActive: cat.isActive,
+            isCategory: true, // Flag to identify these are categories, not traditional learning paths
+            courseCount: cat._count.learningPaths,
+            totalDuration: 0,
+            totalLessons: 0,
+            previewCourses: []
+          }))
+
+          learningPathsData = categoryPaths
+        }
+      } catch (categoryError) {
+        console.error('Error fetching LearningPathCategory as fallback:', categoryError)
+      }
+    }
+
     // If specific pathId was requested but not found in DB, try sample data
     if (pathId && learningPathsData.length === 1 && !learningPathsData[0].courses) {
       const samplePath = sampleLearningPaths.find(p => p.id === pathId)
