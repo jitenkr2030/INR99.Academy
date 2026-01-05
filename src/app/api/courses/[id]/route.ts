@@ -134,6 +134,7 @@ export async function GET(
     const isCAIntermediate = course.id === 'course-ca-intermediate'
     const isCAFinal = course.id === 'course-ca-final'
     const isCSExecutive = course.id === 'cs_executive'
+    const isCSFoundation = course.id === 'cs_foundation'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -626,6 +627,13 @@ export async function GET(
       '6': 'Securities Laws & Capital Markets (Module II – Paper 6)',
       '7': 'Economic, Commercial & Intellectual Property Laws (Module II – Paper 7)',
       '8': 'Exam Preparation, Case Writing & Revision',
+    }
+
+    const csFoundationModuleNames: Record<string, string> = {
+      '1': 'Business Environment & Law (Paper 1)',
+      '2': 'Business Management, Ethics & Entrepreneurship (Paper 2)',
+      '3': 'Business Economics (Paper 3)',
+      '4': 'Fundamentals of Accounting & Auditing (Paper 4)',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1484,6 +1492,21 @@ export async function GET(
         } else if (lesson.order >= 700 && lesson.order <= 799) {
           moduleNum = '8'
         }
+      } else if (isCSFoundation) {
+        // CS Foundation Complete Course: use order ranges (4 papers)
+        // Module 1: orders 1-99 (Paper 1 - Business Environment & Law)
+        // Module 2: orders 100-199 (Paper 2 - Business Management & Ethics)
+        // Module 3: orders 200-299 (Paper 3 - Business Economics)
+        // Module 4: orders 300-399 (Paper 4 - Accounting & Auditing)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1561,6 +1584,7 @@ export async function GET(
         isCAIntermediate ? caIntermediateModuleNames[moduleNum] :
         isCAFinal ? caFinalModuleNames[moduleNum] :
         isCSExecutive ? csExecutiveModuleNames[moduleNum] :
+        isCSFoundation ? csFoundationModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),

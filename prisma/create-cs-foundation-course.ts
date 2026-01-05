@@ -35,6 +35,17 @@ async function main() {
 
   // Create course
   console.log('📚 Creating CS Foundation course...')
+
+  // First create the subcategory
+  const subCategory = await prisma.subCategory.create({
+    data: {
+      name: 'CS Foundation',
+      slug: 'cs-foundation',
+      categoryId: categoryId
+    }
+  })
+  console.log('✅ SubCategory created')
+
   const course = await prisma.course.create({
     data: {
       id: courseId,
@@ -42,18 +53,11 @@ async function main() {
       description: 'Complete conceptual and exam-oriented preparation for the Company Secretary (CS) Foundation Programme by ICSI. Build a strong base in law, business environment, economics, and accounting.',
       difficulty: 'BEGINNER',
       duration: 4800, // 80 hours in minutes
-      price: 99,
       thumbnail: '/assets/courses/cs-foundation.svg',
       isActive: true,
       categoryId: categoryId,
-      subcategories: {
-        create: [
-          { name: 'CS Foundation', slug: 'cs-foundation', categoryId: categoryId }
-        ]
-      },
-      instructor: {
-        connect: { id: 'inst_professional' }
-      }
+      subCategoryId: subCategory.id,
+      instructorId: 'inst-ca-faculty'
     }
   })
   console.log('✅ Course created:', course.title)
@@ -114,7 +118,8 @@ async function main() {
         duration: lessonData.duration,
         order: lessonData.order,
         courseId: courseId,
-        isActive: true
+        isActive: true,
+        content: `Content for ${lessonData.title}`
       }
     })
     console.log(`✅ Lesson ${lessonData.order}: ${lessonData.title}`)
@@ -126,45 +131,35 @@ async function main() {
     data: {
       title: 'Module 1: Business Environment & Law Mock Test',
       type: 'QUIZ',
-      courseId: courseId,
-      duration: 30,
-      passingScore: 40
+      courseId: courseId
     }
   })
   await prisma.assessment.create({
     data: {
       title: 'Module 2: Business Management & Ethics Quiz',
       type: 'QUIZ',
-      courseId: courseId,
-      duration: 30,
-      passingScore: 40
+      courseId: courseId
     }
   })
   await prisma.assessment.create({
     data: {
       title: 'Module 3: Business Economics Assessment',
       type: 'QUIZ',
-      courseId: courseId,
-      duration: 30,
-      passingScore: 40
+      courseId: courseId
     }
   })
   await prisma.assessment.create({
     data: {
       title: 'Module 4: Accounting & Auditing Practice Test',
       type: 'QUIZ',
-      courseId: courseId,
-      duration: 30,
-      passingScore: 40
+      courseId: courseId
     }
   })
   await prisma.assessment.create({
     data: {
       title: 'CS Foundation Complete Mock Test',
       type: 'PRACTICE',
-      courseId: courseId,
-      duration: 180,
-      passingScore: 50
+      courseId: courseId
     }
   })
   console.log('✅ Assessments created')

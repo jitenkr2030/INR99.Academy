@@ -232,6 +232,7 @@ export default function CourseDetailPage() {
       'course-ca-intermediate': '/assets/courses/ca-intermediate.svg',
       'course-ca-final': '/assets/courses/ca-final.svg',
       'cs_executive': '/assets/courses/cs-executive.svg',
+      'cs_foundation': '/assets/courses/cs-foundation.svg',
     }
     
     if (thumbnailMap[courseId]) {
