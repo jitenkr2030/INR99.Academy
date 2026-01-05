@@ -9,7 +9,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const featured = searchParams.get('featured') === 'true'
     const includeSubcategories = searchParams.get('includeSubcategories') !== 'false'
-    const includeLearningPathCategories = searchParams.get('includeLPCategories') === 'true'
 
     // Fetch categories from database
     const categories = await prisma.category.findMany({
@@ -65,41 +64,7 @@ export async function GET(request: NextRequest) {
       }),
     }))
 
-    // If includeLearningPathCategories is true, also fetch LearningPathCategory data
-    let allCategories = formattedCategories
-
-    if (includeLearningPathCategories) {
-      const learningPathCategories = await prisma.learningPathCategory.findMany({
-        where: { isActive: true },
-        orderBy: { sortOrder: 'asc' },
-        include: {
-          _count: {
-            select: { learningPaths: true }
-          }
-        }
-      })
-
-      // Transform LearningPathCategory into Category format
-      const lpCategories = learningPathCategories.map((cat) => ({
-        id: cat.id,
-        name: cat.name,
-        slug: cat.slug,
-        description: cat.description || `Explore ${cat.name} courses`,
-        icon: cat.icon || 'BookOpen',
-        color: cat.color || getColorForCategory(cat.slug),
-        isFeatured: cat.isFeatured || false,
-        isActive: cat.isActive,
-        sortOrder: cat.sortOrder,
-        subcategories: [],
-        courseCount: 0, // These are categories, not courses
-        isLearningPathCategory: true,
-      }))
-
-      // Combine both arrays, with LearningPathCategory data first
-      allCategories = [...lpCategories, ...formattedCategories]
-    }
-
-    return NextResponse.json(allCategories)
+    return NextResponse.json(formattedCategories)
   } catch (error) {
     console.error('Get categories error:', error)
     return NextResponse.json(
