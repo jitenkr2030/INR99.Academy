@@ -137,6 +137,7 @@ export async function GET(
     const isCSFoundation = course.id === 'cs_foundation'
     const isCSProfessional = course.id === 'cs_professional'
     const isCMAFoundation = course.id === 'cma_foundation'
+    const isCMAIntermediate = course.id === 'cma_intermediate'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -655,6 +656,17 @@ export async function GET(
       '2': 'Fundamentals of Financial & Cost Accounting (Paper 2)',
       '3': 'Fundamentals of Business Mathematics & Statistics (Paper 3)',
       '4': 'Fundamentals of Business Economics & Management (Paper 4)',
+    }
+
+    const cmaIntermediateModuleNames: Record<string, string> = {
+      '1': 'Financial Accounting (Group I – Paper 5)',
+      '2': 'Corporate Laws & Compliance (Group I – Paper 6)',
+      '3': 'Direct Taxation (Group I – Paper 7)',
+      '4': 'Cost Accounting (Group II – Paper 8)',
+      '5': 'Operations & Strategic Management (Group II – Paper 9)',
+      '6': 'Corporate Accounting & Auditing (Group II – Paper 10)',
+      '7': 'Financial Management (Group II – Paper 11)',
+      '8': 'Exam Preparation & Revision',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1573,6 +1585,33 @@ export async function GET(
         } else if (lesson.order >= 300 && lesson.order <= 399) {
           moduleNum = '4'
         }
+      } else if (isCMAIntermediate) {
+        // CMA Intermediate Complete Course: use order ranges (8 papers/modules)
+        // Module 1: orders 1-99 (Paper 5 - Financial Accounting)
+        // Module 2: orders 100-199 (Paper 6 - Corporate Laws & Compliance)
+        // Module 3: orders 200-299 (Paper 7 - Direct Taxation)
+        // Module 4: orders 300-399 (Paper 8 - Cost Accounting)
+        // Module 5: orders 400-499 (Paper 9 - Operations & Strategic Management)
+        // Module 6: orders 500-599 (Paper 10 - Corporate Accounting & Auditing)
+        // Module 7: orders 600-699 (Paper 11 - Financial Management)
+        // Module 8: orders 700-799 (Exam Preparation)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500 && lesson.order <= 599) {
+          moduleNum = '6'
+        } else if (lesson.order >= 600 && lesson.order <= 699) {
+          moduleNum = '7'
+        } else if (lesson.order >= 700 && lesson.order <= 799) {
+          moduleNum = '8'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1653,6 +1692,7 @@ export async function GET(
         isCSFoundation ? csFoundationModuleNames[moduleNum] :
         isCSProfessional ? csProfessionalModuleNames[moduleNum] :
         isCMAFoundation ? cmaFoundationModuleNames[moduleNum] :
+        isCMAIntermediate ? cmaIntermediateModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
