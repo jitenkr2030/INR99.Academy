@@ -81,13 +81,24 @@ export default function CoursesPage() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/categories')
+        // Fetch both Category and LearningPathCategory data
+        const response = await fetch('/api/categories?includeLPCategories=true')
         if (response.ok) {
           const data = await response.json()
           setCategories(data)
         }
       } catch (err) {
         console.error('Failed to fetch categories:', err)
+        // Fallback to original endpoint if the new one fails
+        try {
+          const fallbackResponse = await fetch('/api/categories')
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json()
+            setCategories(fallbackData)
+          }
+        } catch (fallbackErr) {
+          console.error('Failed to fetch categories (fallback):', fallbackErr)
+        }
       }
     }
     fetchCategories()
