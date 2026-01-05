@@ -228,6 +228,7 @@ export default function CourseDetailPage() {
       'course_public_speaking': '/assets/courses/public-speaking.svg',
       'career14': '/assets/courses/public-speaking.svg',
       'course-commerce-basics': '/assets/courses/commerce-basics.svg',
+      'course-ca-foundation': '/assets/courses/ca-foundation.svg',
     }
     
     if (thumbnailMap[courseId]) {

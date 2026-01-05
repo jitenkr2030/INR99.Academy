@@ -130,6 +130,7 @@ export async function GET(
     const isHistoryOfArt = course.id === 'college15'
     const isCommunicationSkills = course.id === 'college16'
     const isCommerceBasics = course.id === 'course-commerce-basics'
+    const isCAFoundation = course.id === 'course-ca-foundation'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -582,6 +583,13 @@ export async function GET(
       '4': 'Business Environment & Management Basics',
       '5': 'Fundamentals of Economics',
       '6': 'Commerce in Real Life & Career Pathways',
+    }
+
+    const caFoundationModuleNames: Record<string, string> = {
+      '1': 'Principles and Practice of Accounting (Paper 1)',
+      '2': 'Business Laws & Business Correspondence (Paper 2)',
+      '3': 'Business Mathematics, Logical Reasoning & Statistics (Paper 3)',
+      '4': 'Business Economics & Business & Commercial Knowledge (Paper 4)',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1344,6 +1352,21 @@ export async function GET(
         } else if (lesson.order >= 26 && lesson.order <= 30) {
           moduleNum = '6'
         }
+      } else if (isCAFoundation) {
+        // CA Foundation Complete Course: use order ranges (4 papers)
+        // Module 1: orders 1-99 (Paper 1 - Accounting)
+        // Module 2: orders 100-199 (Paper 2 - Law)
+        // Module 3: orders 200-299 (Paper 3 - Quantitative Aptitude)
+        // Module 4: orders 300-399 (Paper 4 - Economics & BCK)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1417,6 +1440,7 @@ export async function GET(
         isHistoryOfArt ? historyOfArtModuleNames[moduleNum] :
         isCommunicationSkills ? communicationSkillsModuleNames[moduleNum] :
         isCommerceBasics ? commerceBasicsModuleNames[moduleNum] :
+        isCAFoundation ? caFoundationModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
