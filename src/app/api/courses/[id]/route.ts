@@ -131,6 +131,7 @@ export async function GET(
     const isCommunicationSkills = course.id === 'college16'
     const isCommerceBasics = course.id === 'course-commerce-basics'
     const isCAFoundation = course.id === 'course-ca-foundation'
+    const isCAIntermediate = course.id === 'course-ca-intermediate'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -590,6 +591,17 @@ export async function GET(
       '2': 'Business Laws & Business Correspondence (Paper 2)',
       '3': 'Business Mathematics, Logical Reasoning & Statistics (Paper 3)',
       '4': 'Business Economics & Business & Commercial Knowledge (Paper 4)',
+    }
+
+    const caIntermediateModuleNames: Record<string, string> = {
+      '1': 'Advanced Accounting (Group I – Paper 1)',
+      '2': 'Corporate & Other Laws (Group I – Paper 2)',
+      '3': 'Taxation (Group I – Paper 3)',
+      '4': 'Cost and Management Accounting (Group II – Paper 4)',
+      '5': 'Auditing & Ethics (Group II – Paper 5)',
+      '6': 'Financial Management (Group II – Paper 6A)',
+      '7': 'Strategic Management (Group II – Paper 6B)',
+      '8': 'Exam Preparation & Revision',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1367,6 +1379,33 @@ export async function GET(
         } else if (lesson.order >= 300 && lesson.order <= 399) {
           moduleNum = '4'
         }
+      } else if (isCAIntermediate) {
+        // CA Intermediate Complete Course: use order ranges (8 papers/modules)
+        // Module 1: orders 1-99 (Paper 1 - Advanced Accounting)
+        // Module 2: orders 100-199 (Paper 2 - Corporate & Other Laws)
+        // Module 3: orders 200-299 (Paper 3 - Taxation)
+        // Module 4: orders 300-399 (Paper 4 - Cost Management)
+        // Module 5: orders 400-499 (Paper 5 - Auditing & Ethics)
+        // Module 6: orders 500-599 (Paper 6A - Financial Management)
+        // Module 7: orders 600-699 (Paper 6B - Strategic Management)
+        // Module 8: orders 700-799 (Exam Preparation)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500 && lesson.order <= 599) {
+          moduleNum = '6'
+        } else if (lesson.order >= 600 && lesson.order <= 699) {
+          moduleNum = '7'
+        } else if (lesson.order >= 700 && lesson.order <= 799) {
+          moduleNum = '8'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1441,6 +1480,7 @@ export async function GET(
         isCommunicationSkills ? communicationSkillsModuleNames[moduleNum] :
         isCommerceBasics ? commerceBasicsModuleNames[moduleNum] :
         isCAFoundation ? caFoundationModuleNames[moduleNum] :
+        isCAIntermediate ? caIntermediateModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
