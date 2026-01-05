@@ -129,6 +129,7 @@ export async function GET(
     const isPhilosophyBasics = course.id === 'college14'
     const isHistoryOfArt = course.id === 'college15'
     const isCommunicationSkills = course.id === 'college16'
+    const isCommerceBasics = course.id === 'course-commerce-basics'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -572,6 +573,15 @@ export async function GET(
       '2': 'Written Communication Skills',
       '3': 'Oral Presentation & Public Speaking',
       '4': 'Interpersonal, Group & Professional Communication',
+    }
+
+    const commerceBasicsModuleNames: Record<string, string> = {
+      '1': 'Introduction to Commerce',
+      '2': 'Fundamentals of Accountancy',
+      '3': 'Business Studies – Business Organization',
+      '4': 'Business Environment & Management Basics',
+      '5': 'Fundamentals of Economics',
+      '6': 'Commerce in Real Life & Career Pathways',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1318,6 +1328,22 @@ export async function GET(
         } else if (lesson.order >= 300 && lesson.order <= 489) {
           moduleNum = '4'
         }
+      } else if (isCommerceBasics) {
+        // Commerce Basics: use order ranges (6 modules × 5 lessons each)
+        // Module 1: orders 1-5, Module 2: orders 6-10, etc.
+        if (lesson.order >= 1 && lesson.order <= 5) {
+          moduleNum = '1'
+        } else if (lesson.order >= 6 && lesson.order <= 10) {
+          moduleNum = '2'
+        } else if (lesson.order >= 11 && lesson.order <= 15) {
+          moduleNum = '3'
+        } else if (lesson.order >= 16 && lesson.order <= 20) {
+          moduleNum = '4'
+        } else if (lesson.order >= 21 && lesson.order <= 25) {
+          moduleNum = '5'
+        } else if (lesson.order >= 26 && lesson.order <= 30) {
+          moduleNum = '6'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1390,6 +1416,7 @@ export async function GET(
         isPhilosophyBasics ? philosophyBasicsModuleNames[moduleNum] :
         isHistoryOfArt ? historyOfArtModuleNames[moduleNum] :
         isCommunicationSkills ? communicationSkillsModuleNames[moduleNum] :
+        isCommerceBasics ? commerceBasicsModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),

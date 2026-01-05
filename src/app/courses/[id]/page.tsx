@@ -227,6 +227,7 @@ export default function CourseDetailPage() {
       'class10-mathematics': '/assets/courses/class10-mathematics.svg',
       'course_public_speaking': '/assets/courses/public-speaking.svg',
       'career14': '/assets/courses/public-speaking.svg',
+      'course-commerce-basics': '/assets/courses/commerce-basics.svg',
     }
     
     if (thumbnailMap[courseId]) {
