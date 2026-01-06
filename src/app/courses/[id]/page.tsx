@@ -248,6 +248,7 @@ export default function CourseDetailPage() {
       'acca_level1': '/assets/courses/acca-level1.svg',
       'acca_level2': '/assets/courses/acca-level2.svg',
       'acca_level3': '/assets/courses/acca-level3.svg',
+      'school_education': '/assets/courses/school-education.svg',
     }
     
     if (thumbnailMap[courseId]) {

@@ -150,6 +150,7 @@ export async function GET(
     const isACCALevel1 = course.id === 'acca_level1'
     const isACCALevel2 = course.id === 'acca_level2'
     const isACCALevel3 = course.id === 'acca_level3'
+    const isSchoolEducation = course.id === 'school_education'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -803,6 +804,18 @@ export async function GET(
       '4': 'AAA - Advanced Audit & Assurance (Optional)',
       '5': 'APM - Advanced Performance Management (Optional)',
       '6': 'ATX - Advanced Taxation (Optional)',
+    }
+
+    const schoolEducationModuleNames: Record<string, string> = {
+      '1': 'Primary & Middle School (Class 1-5)',
+      '2': 'Primary & Middle School (Class 6-8)',
+      '3': 'Secondary School (Class 9-10)',
+      '4': 'Senior Secondary - Science Stream (Class 11-12)',
+      '5': 'Senior Secondary - Commerce Stream (Class 11-12)',
+      '6': 'Senior Secondary - Arts/Humanities (Class 11-12)',
+      '7': 'Board Exam Crash Prep',
+      '8': 'Concept Clarity & Doubt Solving',
+      '9': 'Skill Add-ons for School Students',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -2021,6 +2034,36 @@ export async function GET(
         } else if (lesson.order >= 285) {
           moduleNum = '6'
         }
+      } else if (isSchoolEducation) {
+        // School Education Complete Course: use order ranges
+        // Module 1: orders 1-50 (Primary & Middle School Class 1-5)
+        // Module 2: orders 51-110 (Primary & Middle School Class 6-8)
+        // Module 3: orders 111-175 (Secondary School Class 9-10)
+        // Module 4: orders 176-270 (Senior Secondary Science Stream)
+        // Module 5: orders 271-315 (Senior Secondary Commerce Stream)
+        // Module 6: orders 316-360 (Senior Secondary Arts/Humanities)
+        // Module 7: orders 361-380 (Board Exam Crash Prep)
+        // Module 8: orders 381-400 (Concept Clarity & Doubt Solving)
+        // Module 9: orders 401+ (Skill Add-ons)
+        if (lesson.order >= 1 && lesson.order <= 50) {
+          moduleNum = '1'
+        } else if (lesson.order >= 51 && lesson.order <= 110) {
+          moduleNum = '2'
+        } else if (lesson.order >= 111 && lesson.order <= 175) {
+          moduleNum = '3'
+        } else if (lesson.order >= 176 && lesson.order <= 270) {
+          moduleNum = '4'
+        } else if (lesson.order >= 271 && lesson.order <= 315) {
+          moduleNum = '5'
+        } else if (lesson.order >= 316 && lesson.order <= 360) {
+          moduleNum = '6'
+        } else if (lesson.order >= 361 && lesson.order <= 380) {
+          moduleNum = '7'
+        } else if (lesson.order >= 381 && lesson.order <= 400) {
+          moduleNum = '8'
+        } else if (lesson.order >= 401) {
+          moduleNum = '9'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -2114,6 +2157,7 @@ export async function GET(
         isACCALevel1 ? accaLevel1ModuleNames[moduleNum] :
         isACCALevel2 ? accaLevel2ModuleNames[moduleNum] :
         isACCALevel3 ? accaLevel3ModuleNames[moduleNum] :
+        isSchoolEducation ? schoolEducationModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
