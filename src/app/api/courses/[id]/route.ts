@@ -141,6 +141,7 @@ export async function GET(
     const isCMAFinal = course.id === 'cma_final'
     const isCFALevel1 = course.id === 'cfa_level1'
     const isCFALevel2 = course.id === 'cfa_level2'
+    const isCFALevel3 = course.id === 'cfa_level3'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -708,6 +709,20 @@ export async function GET(
       '9': 'Alternative Investments (Advanced)',
       '10': 'Portfolio Management & Wealth Planning',
       '11': 'Integrated Vignette Practice & Revision',
+    }
+
+    const cfaLevel3ModuleNames: Record<string, string> = {
+      '1': 'Wealth Management',
+      '2': 'Individual Wealth Management',
+      '3': 'Institutional Wealth Management',
+      '4': 'Behavioral Finance & Private Wealth',
+      '5': 'Alternative Investments',
+      '6': 'Capital Market Expectations',
+      '7': 'Asset Allocation',
+      '8': 'Fixed Income & Derivatives',
+      '9': 'Equity & Alternative Strategies',
+      '10': 'Portfolio Execution & Monitoring',
+      '11': 'Integrated Practice & Revision',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1722,6 +1737,42 @@ export async function GET(
         } else if (lesson.order >= 1000 && lesson.order <= 1099) {
           moduleNum = '11'
         }
+      } else if (isCFALevel3) {
+        // CFA Level 3 Complete Course: use order ranges (11 modules)
+        // Module 1: orders 1-99 (Wealth Management)
+        // Module 2: orders 100-199 (Individual Wealth Management)
+        // Module 3: orders 200-299 (Institutional Wealth Management)
+        // Module 4: orders 300-399 (Behavioral Finance & Private Wealth)
+        // Module 5: orders 400-499 (Alternative Investments)
+        // Module 6: orders 500-599 (Capital Market Expectations)
+        // Module 7: orders 600-699 (Asset Allocation)
+        // Module 8: orders 700-799 (Fixed Income & Derivatives)
+        // Module 9: orders 800-899 (Equity & Alternative Strategies)
+        // Module 10: orders 900-999 (Portfolio Execution & Monitoring)
+        // Module 11: orders 1000-1099 (Integrated Practice & Revision)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500 && lesson.order <= 599) {
+          moduleNum = '6'
+        } else if (lesson.order >= 600 && lesson.order <= 699) {
+          moduleNum = '7'
+        } else if (lesson.order >= 700 && lesson.order <= 799) {
+          moduleNum = '8'
+        } else if (lesson.order >= 800 && lesson.order <= 899) {
+          moduleNum = '9'
+        } else if (lesson.order >= 900 && lesson.order <= 999) {
+          moduleNum = '10'
+        } else if (lesson.order >= 1000 && lesson.order <= 1099) {
+          moduleNum = '11'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1806,6 +1857,7 @@ export async function GET(
         isCMAFinal ? cmaFinalModuleNames[moduleNum] :
         isCFALevel1 ? cfaLevel1ModuleNames[moduleNum] :
         isCFALevel2 ? cfaLevel2ModuleNames[moduleNum] :
+        isCFALevel3 ? cfaLevel3ModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
