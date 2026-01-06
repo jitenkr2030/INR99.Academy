@@ -143,6 +143,7 @@ export async function GET(
     const isCFALevel2 = course.id === 'cfa_level2'
     const isCFALevel3 = course.id === 'cfa_level3'
     const isFRMPart1 = course.id === 'frm_part1'
+    const isFRMPart2 = course.id === 'frm_part2'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -735,6 +736,18 @@ export async function GET(
       '6': 'Probability & Statistics Applications',
       '7': 'Integrated FRM Exam Practice',
       '8': 'Final Revision & Exam Strategy',
+    }
+
+    const frmPart2ModuleNames: Record<string, string> = {
+      '1': 'Market Risk Measurement & Management (Advanced)',
+      '2': 'Credit Risk Measurement & Management',
+      '3': 'Operational & Liquidity Risk',
+      '4': 'Investment & Portfolio Risk Management',
+      '5': 'Risk Models & Quantitative Applications',
+      '6': 'Current Issues in Financial Risk',
+      '7': 'Integrated Risk Management & ERM',
+      '8': 'Exam Practice & Mock Tests',
+      '9': 'Final Revision & Exam Strategy',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1812,6 +1825,36 @@ export async function GET(
         } else if (lesson.order >= 700 && lesson.order <= 799) {
           moduleNum = '8'
         }
+      } else if (isFRMPart2) {
+        // FRM Part 2 Complete Course: use order ranges (9 modules)
+        // Module 1: orders 1-99 (Market Risk Measurement & Management)
+        // Module 2: orders 100-199 (Credit Risk Measurement & Management)
+        // Module 3: orders 200-299 (Operational & Liquidity Risk)
+        // Module 4: orders 300-399 (Investment & Portfolio Risk Management)
+        // Module 5: orders 400-499 (Risk Models & Quantitative Applications)
+        // Module 6: orders 500-599 (Current Issues in Financial Risk)
+        // Module 7: orders 600-699 (Integrated Risk Management & ERM)
+        // Module 8: orders 700-799 (Exam Practice & Mock Tests)
+        // Module 9: orders 800-899 (Final Revision & Exam Strategy)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500 && lesson.order <= 599) {
+          moduleNum = '6'
+        } else if (lesson.order >= 600 && lesson.order <= 699) {
+          moduleNum = '7'
+        } else if (lesson.order >= 700 && lesson.order <= 799) {
+          moduleNum = '8'
+        } else if (lesson.order >= 800 && lesson.order <= 899) {
+          moduleNum = '9'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1898,6 +1941,7 @@ export async function GET(
         isCFALevel2 ? cfaLevel2ModuleNames[moduleNum] :
         isCFALevel3 ? cfaLevel3ModuleNames[moduleNum] :
         isFRMPart1 ? frmPart1ModuleNames[moduleNum] :
+        isFRMPart2 ? frmPart2ModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),

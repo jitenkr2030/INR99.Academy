@@ -241,6 +241,7 @@ export default function CourseDetailPage() {
       'cfa_level2': '/assets/courses/cfa-level2.svg',
       'cfa_level3': '/assets/courses/cfa-level3.svg',
       'frm_part1': '/assets/courses/frm-part1.svg',
+      'frm_part2': '/assets/courses/frm-part2.svg',
     }
     
     if (thumbnailMap[courseId]) {
