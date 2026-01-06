@@ -237,6 +237,7 @@ export default function CourseDetailPage() {
       'cma_foundation': '/assets/courses/cma-foundation.svg',
       'cma_intermediate': '/assets/courses/cma-intermediate.svg',
       'cma_final': '/assets/courses/cma-final.svg',
+      'cfa_level1': '/assets/courses/cfa-level1.svg',
     }
     
     if (thumbnailMap[courseId]) {
