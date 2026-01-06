@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0f3460"/>
+      <stop offset="100%" style="stop-color:#e94560"/>
+    </linearGradient>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#f0f0f5"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bgGradient)"/>
+
+  <!-- Decorative Elements -->
+  <circle cx="350" cy="50" r="80" fill="url(#accentGradient)" opacity="0.1"/>
+  <circle cx="50" cy="250" r="60" fill="url(#accentGradient)" opacity="0.08"/>
+  <rect x="320" y="220" width="80" height="80" fill="url(#accentGradient)" opacity="0.05" transform="rotate(15 360 260)"/>
+
+  <!-- Main Card -->
+  <rect x="30" y="40" width="340" height="220" rx="16" fill="url(#cardGradient)" filter="url(#shadow)"/>
+
+  <!-- Left Accent Bar -->
+  <rect x="30" y="40" width="8" height="220" rx="4" fill="#e94560"/>
+  <rect x="38" y="40" width="4" height="220" rx="2" fill="#0f3460" opacity="0.3"/>
+
+  <!-- Course Icon/Illustration - Financial Chart -->
+  <g transform="translate(70, 75)">
+    <!-- Chart Background -->
+    <rect x="0" y="0" width="100" height="70" rx="8" fill="#0f3460" opacity="0.1"/>
+    <!-- Chart Grid Lines -->
+    <line x1="15" y1="15" x2="15" y2="60" stroke="#0f3460" stroke-width="1" opacity="0.3"/>
+    <line x1="15" y1="60" x2="90" y2="60" stroke="#0f3460" stroke-width="1" opacity="0.3"/>
+    <line x1="15" y1="37" x2="90" y2="37" stroke="#0f3460" stroke-width="1" opacity="0.2"/>
+    <line x1="15" y1="22" x2="90" y2="22" stroke="#0f3460" stroke-width="1" opacity="0.2"/>
+    <!-- Rising Graph Line -->
+    <polyline points="15,55 30,50 45,52 60,40 75,35 90,25" fill="none" stroke="#e94560" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Data Points -->
+    <circle cx="15" cy="55" r="3" fill="#e94560"/>
+    <circle cx="30" cy="50" r="3" fill="#e94560"/>
+    <circle cx="45" cy="52" r="3" fill="#e94560"/>
+    <circle cx="60" cy="40" r="3" fill="#e94560"/>
+    <circle cx="75" cy="35" r="3" fill="#e94560"/>
+    <circle cx="90" cy="25" r="3" fill="#e94560"/>
+  </g>
+
+  <!-- Title Section -->
+  <text x="70" y="175" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#e94560">US CMA CERTIFICATION</text>
+
+  <!-- Course Title -->
+  <text x="70" y="200" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1a1a2e">Part 2</text>
+  <text x="125" y="200" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#0f3460">Complete Course</text>
+
+  <!-- Subtitle - Course Modules -->
+  <text x="70" y="225" font-family="Arial, sans-serif" font-size="11" fill="#666">Financial Decision Making &amp; Strategy</text>
+
+  <!-- Course Stats -->
+  <g transform="translate(70, 245)">
+    <!-- Duration -->
+    <rect x="0" y="0" width="55" height="22" rx="11" fill="#0f3460" opacity="0.1"/>
+    <text x="28" y="14" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#0f3460" text-anchor="middle">150h</text>
+    <!-- Lessons -->
+    <rect x="65" y="0" width="55" height="22" rx="11" fill="#e94560" opacity="0.1"/>
+    <text x="93" y="14" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#e94560" text-anchor="middle">125 L</text>
+    <!-- Level -->
+    <rect x="130" y="0" width="65" height="22" rx="11" fill="#1a1a2e" opacity="0.1"/>
+    <text x="163" y="14" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#1a1a2e" text-anchor="middle">ADVANCED</text>
+  </g>
+
+  <!-- Right Side - Module List -->
+  <g transform="translate(230, 80)">
+    <!-- Module 1 -->
+    <rect x="0" y="0" width="110" height="20" rx="4" fill="#0f3460" opacity="0.08"/>
+    <circle cx="12" cy="10" r="5" fill="#e94560"/>
+    <text x="24" y="14" font-family="Arial, sans-serif" font-size="8" fill="#1a1a2e">Financial Analysis</text>
+
+    <!-- Module 2 -->
+    <rect x="0" y="26" width="110" height="20" rx="4" fill="#0f3460" opacity="0.08"/>
+    <circle cx="12" cy="36" r="5" fill="#e94560"/>
+    <text x="24" y="40" font-family="Arial, sans-serif" font-size="8" fill="#1a1a2e">Corporate Finance</text>
+
+    <!-- Module 3 -->
+    <rect x="0" y="52" width="110" height="20" rx="4" fill="#0f3460" opacity="0.08"/>
+    <circle cx="12" cy="62" r="5" fill="#e94560"/>
+    <text x="24" y="66" font-family="Arial, sans-serif" font-size="8" fill="#1a1a2e">Decision Analysis</text>
+
+    <!-- Module 4 -->
+    <rect x="0" y="78" width="110" height="20" rx="4" fill="#0f3460" opacity="0.08"/>
+    <circle cx="12" cy="88" r="5" fill="#e94560"/>
+    <text x="24" y="92" font-family="Arial, sans-serif" font-size="8" fill="#1a1a2e">Investment Decisions</text>
+
+    <!-- Module 5 -->
+    <rect x="0" y="104" width="110" height="20" rx="4" fill="#0f3460" opacity="0.08"/>
+    <circle cx="12" cy="114" r="5" fill="#e94560"/>
+    <text x="24" y="118" font-family="Arial, sans-serif" font-size="8" fill="#1a1a2e">Ethics &amp; Governance</text>
+
+    <!-- Module 6 -->
+    <rect x="0" y="130" width="110" height="20" rx="4" fill="#e94560" opacity="0.15"/>
+    <circle cx="12" cy="140" r="5" fill="#e94560"/>
+    <text x="24" y="144" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#e94560">Exam Strategy</text>
+  </g>
+
+  <!-- Bottom Tag -->
+  <rect x="30" y="278" width="90" height="14" rx="7" fill="#1a1a2e"/>
+  <text x="75" y="288" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">CMA PART 2</text>
+
+  <!-- Certification Badge -->
+  <g transform="translate(330, 268)">
+    <circle cx="25" cy="7" r="10" fill="#e94560"/>
+    <path d="M25 2 L27 5 L25 5 L25 2 Z" fill="#ffffff" transform="translate(0, 2)"/>
+    <path d="M25 2 L27 5 L25 5 L25 2 Z" fill="#ffffff" transform="rotate(120 25 7)"/>
+    <path d="M25 2 L27 5 L25 5 L25 2 Z" fill="#ffffff" transform="rotate(240 25 7)"/>
+    <text x="25" y="11" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">CMA</text>
+  </g>
+</svg>

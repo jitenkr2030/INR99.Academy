@@ -145,6 +145,7 @@ export async function GET(
     const isFRMPart1 = course.id === 'frm_part1'
     const isFRMPart2 = course.id === 'frm_part2'
     const isUSCMAPart1 = course.id === 'us_cma_part1'
+    const isUSCMAPart2 = course.id === 'us_cma_part2'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -758,6 +759,15 @@ export async function GET(
       '4': 'Cost Management',
       '5': 'Internal Controls',
       '6': 'Technology and Analytics in Finance',
+    }
+
+    const usCMAPart2ModuleNames: Record<string, string> = {
+      '1': 'Financial Statement Analysis',
+      '2': 'Corporate Finance',
+      '3': 'Decision Analysis & Risk Management',
+      '4': 'Investment & Portfolio Decisions',
+      '5': 'Professional Ethics & Governance',
+      '6': 'Strategic Decision-Making & Exam Practice',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1886,6 +1896,27 @@ export async function GET(
         } else if (lesson.order >= 109 && lesson.order <= 123) {
           moduleNum = '6'
         }
+      } else if (isUSCMAPart2) {
+        // US CMA Part 2 Complete Course: use order ranges (6 modules)
+        // Module 1: orders 1-20 (Financial Statement Analysis)
+        // Module 2: orders 21-48 (Corporate Finance)
+        // Module 3: orders 49-73 (Decision Analysis & Risk Management)
+        // Module 4: orders 74-96 (Investment & Portfolio Decisions)
+        // Module 5: orders 97-112 (Professional Ethics & Governance)
+        // Module 6: orders 113-125 (Strategic Decision-Making & Exam Practice)
+        if (lesson.order >= 1 && lesson.order <= 20) {
+          moduleNum = '1'
+        } else if (lesson.order >= 21 && lesson.order <= 48) {
+          moduleNum = '2'
+        } else if (lesson.order >= 49 && lesson.order <= 73) {
+          moduleNum = '3'
+        } else if (lesson.order >= 74 && lesson.order <= 96) {
+          moduleNum = '4'
+        } else if (lesson.order >= 97 && lesson.order <= 112) {
+          moduleNum = '5'
+        } else if (lesson.order >= 113 && lesson.order <= 125) {
+          moduleNum = '6'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1974,6 +2005,7 @@ export async function GET(
         isFRMPart1 ? frmPart1ModuleNames[moduleNum] :
         isFRMPart2 ? frmPart2ModuleNames[moduleNum] :
         isUSCMAPart1 ? usCMAPart1ModuleNames[moduleNum] :
+        isUSCMAPart2 ? usCMAPart2ModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
