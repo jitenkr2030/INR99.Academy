@@ -506,8 +506,8 @@ export default function ContactPage() {
                     <span className="text-xl">📞</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Phone</h3>
-                    <p className="text-gray-600">+91 98765 43210</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">WhatsApp Only</h3>
+                    <p className="text-gray-600">+91 8700189551</p>
                     <p className="text-gray-500 text-sm">Mon - Sat, 9 AM - 6 PM</p>
                   </div>
                 </div>
@@ -519,7 +519,7 @@ export default function ContactPage() {
                     <span className="text-xl">💬</span>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Live Chat</h3>
+                    <h3 className="font-semibold text-gray-900 mb-1">WhatsApp Chat</h3>
                     <p className="text-gray-600">Available 24/7</p>
                     <p className="text-gray-500 text-sm">Quick answers to common questions</p>
                   </div>
@@ -535,9 +535,9 @@ export default function ContactPage() {
                     <h3 className="font-semibold text-gray-900 mb-1">Address</h3>
                     <p className="text-gray-600">
                       INR99 Academy<br />
-                      123 Education Street<br />
-                      Tech Park, Bangalore - 560001<br />
-                      Karnataka, India
+                      Street No-2  Main<br />
+                      Sagar Pur, New Delhi - 110046<br />
+                      New Delhi, India
                     </p>
                   </div>
                 </div>
