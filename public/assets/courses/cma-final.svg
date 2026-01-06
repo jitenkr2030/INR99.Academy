@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a365d;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2c5282;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2b6cb0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f6ad55;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ed8936;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bgGradient)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="50" cy="50" r="80" fill="#3182ce" opacity="0.1"/>
+  <circle cx="350" cy="250" r="100" fill="#2c5282" opacity="0.2"/>
+  <circle cx="320" cy="60" r="40" fill="#f6ad55" opacity="0.15"/>
+
+  <!-- Main card -->
+  <rect x="30" y="40" width="340" height="220" rx="16" fill="rgba(255,255,255,0.95)" filter="url(#shadow)"/>
+
+  <!-- CMA badge -->
+  <rect x="50" y="55" width="70" height="24" rx="12" fill="url(#accentGradient)"/>
+  <text x="85" y="71" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="white" text-anchor="middle">CMA</text>
+
+  <!-- Course title -->
+  <text x="200" y="110" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#1a365d" text-anchor="middle">CMA Final</text>
+  <text x="200" y="138" font-family="Arial, sans-serif" font-size="22" font-weight="bold" fill="#1a365d" text-anchor="middle">Complete Course</text>
+
+  <!-- Divider -->
+  <line x1="80" y1="155" x2="320" y2="155" stroke="#e2e8f0" stroke-width="2"/>
+
+  <!-- Features -->
+  <g transform="translate(60, 175)">
+    <!-- Feature 1 -->
+    <circle cx="8" cy="8" r="5" fill="#38a169"/>
+    <text x="22" y="13" font-family="Arial, sans-serif" font-size="12" fill="#4a5568">8 Comprehensive Modules</text>
+
+    <!-- Feature 2 -->
+    <circle cx="8" cy="32" r="5" fill="#38a169"/>
+    <text x="22" y="37" font-family="Arial, sans-serif" font-size="12" fill="#4a5568">148+ Hours Duration</text>
+
+    <!-- Feature 3 -->
+    <circle cx="8" cy="56" r="5" fill="#38a169"/>
+    <text x="22" y="61" font-family="Arial, sans-serif" font-size="12" fill="#4a5568">Papers 13-19 (Both Groups)</text>
+  </g>
+
+  <!-- Papers info -->
+  <g transform="translate(230, 175)">
+    <text x="0" y="0" font-family="Arial, sans-serif" font-size="10" fill="#718096">Advanced Level</text>
+    <text x="0" y="18" font-family="Arial, sans-serif" font-size="10" fill="#718096">Group III & IV</text>
+    <text x="0" y="36" font-family="Arial, sans-serif" font-size="10" fill="#718096">Exam Ready</text>
+  </g>
+
+  <!-- Bottom accent -->
+  <rect x="30" y="240" width="340" height="20" rx="0" fill="url(#accentGradient)"/>
+  <rect x="30" y="240" width="340" height="20" rx="0" fill="none" stroke="#c53030" stroke-width="3"/>
+</svg>

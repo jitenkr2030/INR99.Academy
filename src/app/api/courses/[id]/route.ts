@@ -138,6 +138,7 @@ export async function GET(
     const isCSProfessional = course.id === 'cs_professional'
     const isCMAFoundation = course.id === 'cma_foundation'
     const isCMAIntermediate = course.id === 'cma_intermediate'
+    const isCMAFinal = course.id === 'cma_final'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -667,6 +668,17 @@ export async function GET(
       '6': 'Corporate Accounting & Auditing (Group II – Paper 10)',
       '7': 'Financial Management (Group II – Paper 11)',
       '8': 'Exam Preparation & Revision',
+    }
+
+    const cmaFinalModuleNames: Record<string, string> = {
+      '1': 'Corporate & Economic Laws (Group III – Paper 13)',
+      '2': 'Strategic Financial Management (Group III – Paper 14)',
+      '3': 'Direct Tax Laws & International Taxation (Group III – Paper 15)',
+      '4': 'Indirect Tax Laws & Practice (Group III – Paper 16)',
+      '5': 'Strategic Cost Management – Decision Making (Group IV – Paper 17)',
+      '6': 'Corporate Financial Reporting (Group IV – Paper 18)',
+      '7': 'Cost & Management Audit (Group IV – Paper 19)',
+      '8': 'Exam Mastery, Case Writing & Professional Readiness',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1612,6 +1624,33 @@ export async function GET(
         } else if (lesson.order >= 700 && lesson.order <= 799) {
           moduleNum = '8'
         }
+      } else if (isCMAFinal) {
+        // CMA Final Complete Course: use order ranges (8 papers/modules)
+        // Module 1: orders 1-99 (Paper 13 - Corporate & Economic Laws)
+        // Module 2: orders 100-199 (Paper 14 - Strategic Financial Management)
+        // Module 3: orders 200-299 (Paper 15 - Direct Tax Laws & International Taxation)
+        // Module 4: orders 300-399 (Paper 16 - Indirect Tax Laws & Practice)
+        // Module 5: orders 400-499 (Paper 17 - Strategic Cost Management)
+        // Module 6: orders 500-599 (Paper 18 - Corporate Financial Reporting)
+        // Module 7: orders 600-699 (Paper 19 - Cost & Management Audit)
+        // Module 8: orders 700-799 (Exam Mastery)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500 && lesson.order <= 599) {
+          moduleNum = '6'
+        } else if (lesson.order >= 600 && lesson.order <= 699) {
+          moduleNum = '7'
+        } else if (lesson.order >= 700 && lesson.order <= 799) {
+          moduleNum = '8'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1693,6 +1732,7 @@ export async function GET(
         isCSProfessional ? csProfessionalModuleNames[moduleNum] :
         isCMAFoundation ? cmaFoundationModuleNames[moduleNum] :
         isCMAIntermediate ? cmaIntermediateModuleNames[moduleNum] :
+        isCMAFinal ? cmaFinalModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
