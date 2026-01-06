@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a237e"/>
+      <stop offset="100%" style="stop-color:#3f51b5"/>
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0d1b2a"/>
+      <stop offset="100%" style="stop-color:#f50057"/>
+    </linearGradient>
+    <linearGradient id="cardGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#e8eaf6"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="300" fill="url(#bgGradient)"/>
+
+  <!-- Decorative Elements -->
+  <circle cx="370" cy="50" r="100" fill="#f50057" opacity="0.05"/>
+  <circle cx="30" cy="270" r="70" fill="#0d1b2a" opacity="0.08"/>
+  <rect x="320" y="200" width="80" height="80" fill="#f50057" opacity="0.03" transform="rotate(15 360 240)"/>
+
+  <!-- Main Card -->
+  <rect x="30" y="40" width="340" height="220" rx="16" fill="url(#cardGradient)" filter="url(#shadow)"/>
+
+  <!-- Left Accent Bar -->
+  <rect x="30" y="40" width="8" height="220" rx="4" fill="#f50057"/>
+  <rect x="38" y="40" width="4" height="220" rx="2" fill="#1a237e" opacity="0.3"/>
+
+  <!-- Network/Connected Nodes Symbol -->
+  <g transform="translate(75, 75)">
+    <!-- Connected nodes representing 6 papers -->
+    <!-- Node 1 - LW -->
+    <circle cx="25" cy="25" r="8" fill="#3f51b5"/>
+    <circle cx="25" cy="25" r="4" fill="#ffffff"/>
+    <!-- Node 2 - PM -->
+    <circle cx="55" cy="15" r="8" fill="#5c6bc0"/>
+    <circle cx="55" cy="15" r="4" fill="#ffffff"/>
+    <!-- Node 3 - TX -->
+    <circle cx="70" cy="40" r="8" fill="#7986cb"/>
+    <circle cx="70" cy="40" r="4" fill="#ffffff"/>
+    <!-- Node 4 - FR -->
+    <circle cx="55" cy="65" r="8" fill="#9fa8da"/>
+    <circle cx="55" cy="65" r="4" fill="#1a237e"/>
+    <!-- Node 5 - AA -->
+    <circle cx="25" cy="55" r="8" fill="#c5cae9"/>
+    <circle cx="25" cy="55" r="4" fill="#1a237e"/>
+    <!-- Node 6 - FM -->
+    <circle cx="15" cy="40" r="8" fill="#f50057"/>
+    <circle cx="15" cy="40" r="4" fill="#ffffff"/>
+    <!-- Connecting lines -->
+    <line x1="25" y1="25" x2="55" y2="15" stroke="#3f51b5" stroke-width="1.5" opacity="0.5"/>
+    <line x1="55" y1="15" x2="70" y2="40" stroke="#5c6bc0" stroke-width="1.5" opacity="0.5"/>
+    <line x1="70" y1="40" x2="55" y2="65" stroke="#7986cb" stroke-width="1.5" opacity="0.5"/>
+    <line x1="55" y1="65" x2="25" y2="55" stroke="#9fa8da" stroke-width="1.5" opacity="0.5"/>
+    <line x1="25" y1="55" x2="15" y2="40" stroke="#c5cae9" stroke-width="1.5" opacity="0.5"/>
+    <line x1="15" y1="40" x2="25" y2="25" stroke="#f50057" stroke-width="1.5" opacity="0.5"/>
+    <!-- ACCA Text -->
+    <text x="42" y="-5" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#3f51b5" text-anchor="middle">ACCA</text>
+  </g>
+
+  <!-- Title Section -->
+  <text x="70" y="175" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#f50057">APPLIED SKILLS</text>
+
+  <!-- Course Title -->
+  <text x="70" y="200" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#1a237e">Level 2</text>
+  <text x="125" y="200" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#3f51b5">Complete Course</text>
+
+  <!-- Subtitle - Papers -->
+  <text x="70" y="225" font-family="Arial, sans-serif" font-size="11" fill="#3f51b5">LW • PM • TX • FR • AA • FM</text>
+
+  <!-- Course Stats -->
+  <g transform="translate(70, 245)">
+    <!-- Duration -->
+    <rect x="0" y="0" width="55" height="22" rx="11" fill="#3f51b5" opacity="0.1"/>
+    <text x="28" y="14" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#3f51b5" text-anchor="middle">300h</text>
+    <!-- Lessons -->
+    <rect x="65" y="0" width="55" height="22" rx="11" fill="#f50057" opacity="0.1"/>
+    <text x="93" y="14" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#f50057" text-anchor="middle">272 L</text>
+    <!-- Level -->
+    <rect x="130" y="0" width="75" height="22" rx="11" fill="#1a237e" opacity="0.1"/>
+    <text x="168" y="14" font-family="Arial, sans-serif" font-size="9" font-weight="bold" fill="#1a237e" text-anchor="middle">ADVANCED</text>
+  </g>
+
+  <!-- Right Side - Module List -->
+  <g transform="translate(230, 80)">
+    <!-- Paper 1 -->
+    <rect x="0" y="0" width="110" height="18" rx="4" fill="#3f51b5" opacity="0.08"/>
+    <circle cx="10" cy="9" r="4" fill="#3f51b5"/>
+    <text x="20" y="13" font-family="Arial, sans-serif" font-size="7" fill="#1a237e">LW - Law</text>
+
+    <!-- Paper 2 -->
+    <rect x="0" y="23" width="110" height="18" rx="4" fill="#3f51b5" opacity="0.08"/>
+    <circle cx="10" cy="32" r="4" fill="#5c6bc0"/>
+    <text x="20" y="36" font-family="Arial, sans-serif" font-size="7" fill="#1a237e">PM - Performance</text>
+
+    <!-- Paper 3 -->
+    <rect x="0" y="46" width="110" height="18" rx="4" fill="#3f51b5" opacity="0.08"/>
+    <circle cx="10" cy="55" r="4" fill="#7986cb"/>
+    <text x="20" y="59" font-family="Arial, sans-serif" font-size="7" fill="#1a237e">TX - Taxation</text>
+
+    <!-- Paper 4 -->
+    <rect x="0" y="69" width="110" height="18" rx="4" fill="#3f51b5" opacity="0.08"/>
+    <circle cx="10" cy="78" r="4" fill="#9fa8da"/>
+    <text x="20" y="82" font-family="Arial, sans-serif" font-size="7" fill="#1a237e">FR - Reporting</text>
+
+    <!-- Paper 5 -->
+    <rect x="0" y="92" width="110" height="18" rx="4" fill="#f50057" opacity="0.1"/>
+    <circle cx="10" cy="101" r="4" fill="#f50057"/>
+    <text x="20" y="105" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="#c51162">AA - Audit</text>
+
+    <!-- Paper 6 -->
+    <rect x="0" y="115" width="110" height="18" rx="4" fill="#f50057" opacity="0.1"/>
+    <circle cx="10" cy="124" r="4" fill="#f50057"/>
+    <text x="20" y="128" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="#c51162">FM - Finance</text>
+  </g>
+
+  <!-- Bottom Tag -->
+  <rect x="30" y="278" width="90" height="14" rx="7" fill="#3f51b5"/>
+  <text x="75" y="288" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">APPLIED SKILLS</text>
+
+  <!-- Certification Badge -->
+  <g transform="translate(330, 268)">
+    <circle cx="25" cy="7" r="10" fill="#f50057"/>
+    <path d="M25 2 L27 5 L25 5 L25 2 Z" fill="#ffffff" transform="translate(0, 2)"/>
+    <path d="M25 2 L27 5 L25 5 L25 2 Z" fill="#ffffff" transform="rotate(120 25 7)"/>
+    <path d="M25 2 L27 5 L25 5 L25 2 Z" fill="#ffffff" transform="rotate(240 25 7)"/>
+    <text x="25" y="11" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#ffffff" text-anchor="middle">AC</text>
+  </g>
+</svg>

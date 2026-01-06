@@ -245,6 +245,8 @@ export default function CourseDetailPage() {
       'us_cma_part1': '/assets/courses/us-cma-part1.svg',
       'us_cma_part2': '/assets/courses/us-cma-part2.svg',
       'us_cpa': '/assets/courses/us-cpa.svg',
+      'acca_level1': '/assets/courses/acca-level1.svg',
+      'acca_level2': '/assets/courses/acca-level2.svg',
     }
     
     if (thumbnailMap[courseId]) {

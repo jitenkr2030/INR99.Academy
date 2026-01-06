@@ -147,6 +147,8 @@ export async function GET(
     const isUSCMAPart1 = course.id === 'us_cma_part1'
     const isUSCMAPart2 = course.id === 'us_cma_part2'
     const isUSCPA = course.id === 'us_cpa'
+    const isACCALevel1 = course.id === 'acca_level1'
+    const isACCALevel2 = course.id === 'acca_level2'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -776,6 +778,21 @@ export async function GET(
       '2': 'AUD - Auditing & Attestation',
       '3': 'REG - Regulation',
       '4': 'Discipline Section (BAR/ISC/TCP)',
+    }
+
+    const accaLevel1ModuleNames: Record<string, string> = {
+      '1': 'BT - Business & Technology',
+      '2': 'MA - Management Accounting',
+      '3': 'FA - Financial Accounting',
+    }
+
+    const accaLevel2ModuleNames: Record<string, string> = {
+      '1': 'LW - Corporate & Business Law',
+      '2': 'PM - Performance Management',
+      '3': 'TX - Taxation',
+      '4': 'FR - Financial Reporting',
+      '5': 'AA - Audit & Assurance',
+      '6': 'FM - Financial Management',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1940,6 +1957,39 @@ export async function GET(
         } else if (lesson.order >= 441) {
           moduleNum = '4'
         }
+      } else if (isACCALevel1) {
+        // ACCA Level 1 Complete Course: use order ranges (3 papers)
+        // Paper 1: orders 1-57 (BT - Business & Technology)
+        // Paper 2: orders 58-114 (MA - Management Accounting)
+        // Paper 3: orders 115-171 (FA - Financial Accounting)
+        if (lesson.order >= 1 && lesson.order <= 57) {
+          moduleNum = '1'
+        } else if (lesson.order >= 58 && lesson.order <= 114) {
+          moduleNum = '2'
+        } else if (lesson.order >= 115) {
+          moduleNum = '3'
+        }
+      } else if (isACCALevel2) {
+        // ACCA Level 2 Complete Course: use order ranges (6 papers)
+        // Paper 1: orders 1-40 (LW - Corporate & Business Law)
+        // Paper 2: orders 41-90 (PM - Performance Management)
+        // Paper 3: orders 91-145 (TX - Taxation)
+        // Paper 4: orders 146-200 (FR - Financial Reporting)
+        // Paper 5: orders 201-245 (AA - Audit & Assurance)
+        // Paper 6: orders 246-300 (FM - Financial Management)
+        if (lesson.order >= 1 && lesson.order <= 40) {
+          moduleNum = '1'
+        } else if (lesson.order >= 41 && lesson.order <= 90) {
+          moduleNum = '2'
+        } else if (lesson.order >= 91 && lesson.order <= 145) {
+          moduleNum = '3'
+        } else if (lesson.order >= 146 && lesson.order <= 200) {
+          moduleNum = '4'
+        } else if (lesson.order >= 201 && lesson.order <= 245) {
+          moduleNum = '5'
+        } else if (lesson.order >= 246) {
+          moduleNum = '6'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -2030,6 +2080,8 @@ export async function GET(
         isUSCMAPart1 ? usCMAPart1ModuleNames[moduleNum] :
         isUSCMAPart2 ? usCMAPart2ModuleNames[moduleNum] :
         isUSCPA ? usCPAModuleNames[moduleNum] :
+        isACCALevel1 ? accaLevel1ModuleNames[moduleNum] :
+        isACCALevel2 ? accaLevel2ModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
