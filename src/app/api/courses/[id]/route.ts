@@ -144,6 +144,7 @@ export async function GET(
     const isCFALevel3 = course.id === 'cfa_level3'
     const isFRMPart1 = course.id === 'frm_part1'
     const isFRMPart2 = course.id === 'frm_part2'
+    const isUSCMAPart1 = course.id === 'us_cma_part1'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -748,6 +749,15 @@ export async function GET(
       '7': 'Integrated Risk Management & ERM',
       '8': 'Exam Practice & Mock Tests',
       '9': 'Final Revision & Exam Strategy',
+    }
+
+    const usCMAPart1ModuleNames: Record<string, string> = {
+      '1': 'External Financial Reporting Decisions',
+      '2': 'Planning, Budgeting, and Forecasting',
+      '3': 'Performance Management',
+      '4': 'Cost Management',
+      '5': 'Internal Controls',
+      '6': 'Technology and Analytics in Finance',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -1855,6 +1865,27 @@ export async function GET(
         } else if (lesson.order >= 800 && lesson.order <= 899) {
           moduleNum = '9'
         }
+      } else if (isUSCMAPart1) {
+        // US CMA Part 1 Complete Course: use order ranges (6 modules)
+        // Module 1: orders 1-15 (External Financial Reporting Decisions)
+        // Module 2: orders 16-41 (Planning, Budgeting, and Forecasting)
+        // Module 3: orders 42-65 (Performance Management)
+        // Module 4: orders 66-88 (Cost Management)
+        // Module 5: orders 89-108 (Internal Controls)
+        // Module 6: orders 109-123 (Technology and Analytics in Finance)
+        if (lesson.order >= 1 && lesson.order <= 15) {
+          moduleNum = '1'
+        } else if (lesson.order >= 16 && lesson.order <= 41) {
+          moduleNum = '2'
+        } else if (lesson.order >= 42 && lesson.order <= 65) {
+          moduleNum = '3'
+        } else if (lesson.order >= 66 && lesson.order <= 88) {
+          moduleNum = '4'
+        } else if (lesson.order >= 89 && lesson.order <= 108) {
+          moduleNum = '5'
+        } else if (lesson.order >= 109 && lesson.order <= 123) {
+          moduleNum = '6'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -1942,6 +1973,7 @@ export async function GET(
         isCFALevel3 ? cfaLevel3ModuleNames[moduleNum] :
         isFRMPart1 ? frmPart1ModuleNames[moduleNum] :
         isFRMPart2 ? frmPart2ModuleNames[moduleNum] :
+        isUSCMAPart1 ? usCMAPart1ModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
