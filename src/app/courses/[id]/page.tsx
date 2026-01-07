@@ -273,6 +273,7 @@ export default function CourseDetailPage() {
       'college_career_skills': '/assets/courses/college-career-skills.svg',
       'course-actuarial-science': '/assets/courses/actuarial-science.svg',
       'advanced-excel-pro': '/assets/courses/advanced-excel.svg',
+      'stock-market-basics': '/assets/courses/stock-market-basics.svg',
     }
     
     if (thumbnailMap[courseId]) {

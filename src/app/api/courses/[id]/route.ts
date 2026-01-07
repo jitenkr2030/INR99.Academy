@@ -175,6 +175,7 @@ export async function GET(
     const isCollegeCareerSkills = course.id === 'college_career_skills'
     const isActuarialScience = course.id === 'course-actuarial-science'
     const isAdvancedExcel = course.id === 'advanced-excel-pro'
+    const isStockMarketBasics = course.id === 'stock-market-basics'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -1058,6 +1059,15 @@ export async function GET(
       '4': 'Pivot Tables & Power Tools',
       '5': 'Automation & VBA Programming',
       '6': 'Practical Projects & Case Studies',
+    }
+
+    const stockMarketBasicsModuleNames: Record<string, string> = {
+      '1': 'Introduction to Stock Markets',
+      '2': 'Market Participants & Instruments',
+      '3': 'Trading Basics',
+      '4': 'Basics of Technical Analysis',
+      '5': 'Basics of Fundamental Analysis',
+      '6': 'Risk Management & Beginner Strategies',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -2783,6 +2793,27 @@ export async function GET(
         } else if (lesson.order >= 500) {
           moduleNum = '6'
         }
+      } else if (isStockMarketBasics) {
+        // Stock Market Basics: use order ranges (6 modules)
+        // Module 1: orders 1-99 (Introduction to Stock Markets)
+        // Module 2: orders 100-199 (Market Participants & Instruments)
+        // Module 3: orders 200-299 (Trading Basics)
+        // Module 4: orders 300-399 (Basics of Technical Analysis)
+        // Module 5: orders 400-499 (Basics of Fundamental Analysis)
+        // Module 6: orders 500-599 (Risk Management & Beginner Strategies)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500) {
+          moduleNum = '6'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -2901,6 +2932,7 @@ export async function GET(
         isCollegeCareerSkills ? collegeCareerSkillsModuleNames[moduleNum] :
         isActuarialScience ? actuarialScienceModuleNames[moduleNum] :
         isAdvancedExcel ? advancedExcelModuleNames[moduleNum] :
+        isStockMarketBasics ? stockMarketBasicsModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
