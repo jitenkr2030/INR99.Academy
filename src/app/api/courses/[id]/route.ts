@@ -187,6 +187,7 @@ export async function GET(
     const isUPSCinterviewPersonality = course.id === 'upsc_interview'
     const isAdvancedAnswerWriting = course.id === 'advanced-answer-writing-mastery'
     const isSSCCHSL = course.id === 'ssc_chsl'
+    const isSSCCGL = course.id === 'ssc_cgl'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -1199,6 +1200,14 @@ export async function GET(
       '3': 'English Language & Comprehension',
       '4': 'General Awareness & Current Affairs',
       '5': 'Mock Tests, Tips & Exam Strategy',
+    }
+
+    const sscCGLModuleNames: Record<string, string> = {
+      '1': 'Quantitative Aptitude',
+      '2': 'Reasoning & Logical Ability',
+      '3': 'English Language & Comprehension',
+      '4': 'General Awareness & Current Affairs',
+      '5': 'Mock Tests, Exam Strategy & Tips',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -3272,6 +3281,24 @@ export async function GET(
         } else if (lesson.order >= 77) {
           moduleNum = '5'
         }
+      } else if (isSSCCGL) {
+        // SSC CGL Complete Preparation: use order ranges (5 modules)
+        // Module 1: orders 1-40 (Quantitative Aptitude)
+        // Module 2: orders 41-76 (Reasoning & Logical Ability)
+        // Module 3: orders 77-106 (English Language & Comprehension)
+        // Module 4: orders 107-136 (General Awareness & Current Affairs)
+        // Module 5: orders 137-167 (Mock Tests, Exam Strategy & Tips)
+        if (lesson.order >= 1 && lesson.order <= 40) {
+          moduleNum = '1'
+        } else if (lesson.order >= 41 && lesson.order <= 76) {
+          moduleNum = '2'
+        } else if (lesson.order >= 77 && lesson.order <= 106) {
+          moduleNum = '3'
+        } else if (lesson.order >= 107 && lesson.order <= 136) {
+          moduleNum = '4'
+        } else if (lesson.order >= 137) {
+          moduleNum = '5'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -3403,6 +3430,7 @@ export async function GET(
         isUPSCinterviewPersonality ? upscInterviewPersonalityModuleNames[moduleNum] :
         isAdvancedAnswerWriting ? advancedAnswerWritingModuleNames[moduleNum] :
         isSSCCHSL ? sscCHSLModuleNames[moduleNum] :
+        isSSCCGL ? sscCGLModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
