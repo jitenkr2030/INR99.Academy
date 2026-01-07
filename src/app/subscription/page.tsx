@@ -224,39 +224,15 @@ export default function SubscriptionPage() {
                     </div>
                     {plan.id === 'yearly' && (
                       <div style={{ marginTop: '0.5rem' }}>
-                        <span style={{ fontSize: '1rem', color: '#9ca3af', textDecoration: 'line-through' }}>
-                          ₹1,188
-                        </span>
-                        <span style={{
-                          display: 'inline-block',
-                          marginLeft: '0.5rem',
-                          background: '#fee2e2',
-                          color: '#dc2626',
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '9999px',
-                          fontSize: '0.75rem',
-                          fontWeight: '600'
-                        }}>
-                          Save ₹189
+                        <span style={{ fontSize: '1rem', color: '#16a34a', fontWeight: '600' }}>
+                          Just ₹999/year - Best Value!
                         </span>
                       </div>
                     )}
                     {plan.id === 'quarterly' && (
                       <div style={{ marginTop: '0.5rem' }}>
-                        <span style={{ fontSize: '1rem', color: '#9ca3af', textDecoration: 'line-through' }}>
-                          ₹297
-                        </span>
-                        <span style={{
-                          display: 'inline-block',
-                          marginLeft: '0.5rem',
-                          background: '#fee2e2',
-                          color: '#dc2626',
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '9999px',
-                          fontSize: '0.75rem',
-                          fontWeight: '600'
-                        }}>
-                          Save ₹48
+                        <span style={{ fontSize: '1rem', color: '#16a34a', fontWeight: '600' }}>
+                          Just ₹249/quarter
                         </span>
                       </div>
                     )}
