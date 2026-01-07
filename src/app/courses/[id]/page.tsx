@@ -271,6 +271,8 @@ export default function CourseDetailPage() {
       'college_semester_support': '/assets/courses/college-semester-support.svg',
       'college_exam_prep': '/assets/courses/college-exam-prep.svg',
       'college_career_skills': '/assets/courses/college-career-skills.svg',
+      'course-actuarial-science': '/assets/courses/actuarial-science.svg',
+      'advanced-excel-pro': '/assets/courses/advanced-excel.svg',
     }
     
     if (thumbnailMap[courseId]) {

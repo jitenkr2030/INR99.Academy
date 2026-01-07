@@ -174,6 +174,7 @@ export async function GET(
     const isCollegeExamPrep = course.id === 'college_exam_prep'
     const isCollegeCareerSkills = course.id === 'college_career_skills'
     const isActuarialScience = course.id === 'course-actuarial-science'
+    const isAdvancedExcel = course.id === 'advanced-excel-pro'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -1048,6 +1049,15 @@ export async function GET(
       '6': 'Survival Models & Life Contingencies',
       '7': 'Stochastic Models',
       '8': 'Exam Preparation & Actuarial Practice',
+    }
+
+    const advancedExcelModuleNames: Record<string, string> = {
+      '1': 'Excel Fundamentals & Data Setup',
+      '2': 'Data Analysis & Visualization',
+      '3': 'Advanced Formulas & Functions',
+      '4': 'Pivot Tables & Power Tools',
+      '5': 'Automation & VBA Programming',
+      '6': 'Practical Projects & Case Studies',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -2752,6 +2762,27 @@ export async function GET(
         } else if (lesson.order >= 700) {
           moduleNum = '8'
         }
+      } else if (isAdvancedExcel) {
+        // Advanced Excel for Professionals: use order ranges (6 modules)
+        // Module 1: orders 1-99 (Excel Fundamentals & Data Setup)
+        // Module 2: orders 100-199 (Data Analysis & Visualization)
+        // Module 3: orders 200-299 (Advanced Formulas & Functions)
+        // Module 4: orders 300-399 (Pivot Tables & Power Tools)
+        // Module 5: orders 400-499 (Automation & VBA Programming)
+        // Module 6: orders 500-599 (Practical Projects & Case Studies)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500) {
+          moduleNum = '6'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -2869,6 +2900,7 @@ export async function GET(
         isCollegeExamPrep ? collegeExamPrepModuleNames[moduleNum] :
         isCollegeCareerSkills ? collegeCareerSkillsModuleNames[moduleNum] :
         isActuarialScience ? actuarialScienceModuleNames[moduleNum] :
+        isAdvancedExcel ? advancedExcelModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
