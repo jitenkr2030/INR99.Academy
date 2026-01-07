@@ -277,6 +277,7 @@ export default function CourseDetailPage() {
       'stock-market-advanced-trading': '/assets/courses/advanced-trading.svg',
       'options-trading-mastery': '/assets/courses/options-trading-mastery.svg',
       'technical-analysis-master': '/assets/courses/technical-analysis-master.svg',
+      'price-action-trading': '/assets/courses/price-action-trading.svg',
     }
     
     if (thumbnailMap[courseId]) {

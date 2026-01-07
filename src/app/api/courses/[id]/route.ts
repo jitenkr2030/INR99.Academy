@@ -178,6 +178,7 @@ export async function GET(
     const isStockMarketBasics = course.id === 'stock-market-basics'
     const isOptionsTradingMastery = course.id === 'options-trading-mastery'
     const isTechnicalAnalysisMaster = course.id === 'technical-analysis-master'
+    const isPriceActionTrading = course.id === 'price-action-trading'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -1096,6 +1097,17 @@ export async function GET(
       '8': 'Risk Management Using Technicals',
       '9': 'Trading Psychology & Discipline',
       '10': 'Build Your Technical Trading System',
+    }
+
+    const priceActionTradingModuleNames: Record<string, string> = {
+      '1': 'Price Action Philosophy & Mindset',
+      '2': 'Candlestick Psychology Deep Dive',
+      '3': 'Market Structure & Trend Analysis',
+      '4': 'Support, Resistance & Supply-Demand',
+      '5': 'High-Probability Price Action Setups',
+      '6': 'Risk Management Using Price Action',
+      '7': 'Multi-Timeframe Price Action',
+      '8': 'Build Your Price Action Trading System',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -2941,6 +2953,33 @@ export async function GET(
         } else if (lesson.order >= 900) {
           moduleNum = '10'
         }
+      } else if (isPriceActionTrading) {
+        // Price Action Trading Course: use order ranges (8 modules)
+        // Module 1: orders 1-99 (Price Action Philosophy & Mindset)
+        // Module 2: orders 100-199 (Candlestick Psychology Deep Dive)
+        // Module 3: orders 200-299 (Market Structure & Trend Analysis)
+        // Module 4: orders 300-399 (Support, Resistance & Supply-Demand)
+        // Module 5: orders 400-499 (High-Probability Price Action Setups)
+        // Module 6: orders 500-599 (Risk Management Using Price Action)
+        // Module 7: orders 600-699 (Multi-Timeframe Price Action)
+        // Module 8: orders 800-899 (Build Your Price Action Trading System)
+        if (lesson.order >= 1 && lesson.order <= 99) {
+          moduleNum = '1'
+        } else if (lesson.order >= 100 && lesson.order <= 199) {
+          moduleNum = '2'
+        } else if (lesson.order >= 200 && lesson.order <= 299) {
+          moduleNum = '3'
+        } else if (lesson.order >= 300 && lesson.order <= 399) {
+          moduleNum = '4'
+        } else if (lesson.order >= 400 && lesson.order <= 499) {
+          moduleNum = '5'
+        } else if (lesson.order >= 500 && lesson.order <= 599) {
+          moduleNum = '6'
+        } else if (lesson.order >= 600 && lesson.order <= 699) {
+          moduleNum = '7'
+        } else if (lesson.order >= 800) {
+          moduleNum = '8'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -3063,6 +3102,7 @@ export async function GET(
         isStockMarketAdvancedTrading ? stockMarketAdvancedTradingModuleNames[moduleNum] :
         isOptionsTradingMastery ? optionsTradingMasteryModuleNames[moduleNum] :
         isTechnicalAnalysisMaster ? technicalAnalysisMasterModuleNames[moduleNum] :
+        isPriceActionTrading ? priceActionTradingModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
