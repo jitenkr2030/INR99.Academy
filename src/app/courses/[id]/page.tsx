@@ -287,6 +287,7 @@ export default function CourseDetailPage() {
       'advanced-answer-writing-mastery': '/assets/courses/advanced-answer-writing-mastery.svg',
       'ssc_chsl': '/assets/courses/ssc_chsl.svg',
       'ssc_cgl': '/assets/courses/ssc_cgl.svg',
+      'ssc_mts': '/assets/courses/ssc_mts.svg',
     }
     
     if (thumbnailMap[courseId]) {

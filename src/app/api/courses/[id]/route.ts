@@ -188,6 +188,7 @@ export async function GET(
     const isAdvancedAnswerWriting = course.id === 'advanced-answer-writing-mastery'
     const isSSCCHSL = course.id === 'ssc_chsl'
     const isSSCCGL = course.id === 'ssc_cgl'
+    const isSSCMTS = course.id === 'ssc_mts'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -1203,6 +1204,14 @@ export async function GET(
     }
 
     const sscCGLModuleNames: Record<string, string> = {
+      '1': 'Quantitative Aptitude',
+      '2': 'Reasoning & Logical Ability',
+      '3': 'English Language & Comprehension',
+      '4': 'General Awareness & Current Affairs',
+      '5': 'Mock Tests, Exam Strategy & Tips',
+    }
+
+    const sscMTSModuleNames: Record<string, string> = {
       '1': 'Quantitative Aptitude',
       '2': 'Reasoning & Logical Ability',
       '3': 'English Language & Comprehension',
@@ -3299,6 +3308,24 @@ export async function GET(
         } else if (lesson.order >= 137) {
           moduleNum = '5'
         }
+      } else if (isSSCMTS) {
+        // SSC MTS (Multi-Tasking Staff) Preparation: use order ranges (5 modules)
+        // Module 1: orders 1-20 (Quantitative Aptitude)
+        // Module 2: orders 21-36 (Reasoning & Logical Ability)
+        // Module 3: orders 37-52 (English Language & Comprehension)
+        // Module 4: orders 53-66 (General Awareness & Current Affairs)
+        // Module 5: orders 67-83 (Mock Tests, Exam Strategy & Tips)
+        if (lesson.order >= 1 && lesson.order <= 20) {
+          moduleNum = '1'
+        } else if (lesson.order >= 21 && lesson.order <= 36) {
+          moduleNum = '2'
+        } else if (lesson.order >= 37 && lesson.order <= 52) {
+          moduleNum = '3'
+        } else if (lesson.order >= 53 && lesson.order <= 66) {
+          moduleNum = '4'
+        } else if (lesson.order >= 67) {
+          moduleNum = '5'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -3431,6 +3458,7 @@ export async function GET(
         isAdvancedAnswerWriting ? advancedAnswerWritingModuleNames[moduleNum] :
         isSSCCHSL ? sscCHSLModuleNames[moduleNum] :
         isSSCCGL ? sscCGLModuleNames[moduleNum] :
+        isSSCMTS ? sscMTSModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
