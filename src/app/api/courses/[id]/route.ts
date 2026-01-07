@@ -180,6 +180,7 @@ export async function GET(
     const isTechnicalAnalysisMaster = course.id === 'technical-analysis-master'
     const isPriceActionTrading = course.id === 'price-action-trading'
     const isRiskManagementMasterclass = course.id === 'risk-management-masterclass'
+    const isNoCodeAlgoTrading = course.id === 'no-code-algo-trading'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -1119,6 +1120,17 @@ export async function GET(
       '5': 'Drawdown & Capital Protection',
       '6': 'Psychological Risk & Discipline',
       '7': 'Build Your Risk Management Plan',
+    }
+
+    const noCodeAlgoTradingModuleNames: Record<string, string> = {
+      '1': 'Algo Trading Fundamentals',
+      '2': 'No-Code Algo Platforms Overview',
+      '3': 'Strategy Logic & Rule Design',
+      '4': 'Backtesting & Optimization',
+      '5': 'Risk Management for Algos',
+      '6': 'Live Deployment & Execution',
+      '7': 'Algo Monitoring & Improvement',
+      '8': 'Build Your No-Code Algo System',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -3015,6 +3027,33 @@ export async function GET(
         } else if (lesson.order >= 700) {
           moduleNum = '7'
         }
+      } else if (isNoCodeAlgoTrading) {
+        // No-Code Algo Trading Course: use order ranges (8 modules)
+        // Module 1: orders 1-8 (Algo Trading Fundamentals)
+        // Module 2: orders 9-16 (No-Code Algo Platforms Overview)
+        // Module 3: orders 17-26 (Strategy Logic & Rule Design)
+        // Module 4: orders 27-36 (Backtesting & Optimization)
+        // Module 5: orders 37-44 (Risk Management for Algos)
+        // Module 6: orders 45-52 (Live Deployment & Execution)
+        // Module 7: orders 53-56 (Algo Monitoring & Improvement)
+        // Module 8: orders 57-60 (Build Your No-Code Algo System)
+        if (lesson.order >= 1 && lesson.order <= 8) {
+          moduleNum = '1'
+        } else if (lesson.order >= 9 && lesson.order <= 16) {
+          moduleNum = '2'
+        } else if (lesson.order >= 17 && lesson.order <= 26) {
+          moduleNum = '3'
+        } else if (lesson.order >= 27 && lesson.order <= 36) {
+          moduleNum = '4'
+        } else if (lesson.order >= 37 && lesson.order <= 44) {
+          moduleNum = '5'
+        } else if (lesson.order >= 45 && lesson.order <= 52) {
+          moduleNum = '6'
+        } else if (lesson.order >= 53 && lesson.order <= 56) {
+          moduleNum = '7'
+        } else if (lesson.order >= 57 && lesson.order <= 60) {
+          moduleNum = '8'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -3139,6 +3178,7 @@ export async function GET(
         isTechnicalAnalysisMaster ? technicalAnalysisMasterModuleNames[moduleNum] :
         isPriceActionTrading ? priceActionTradingModuleNames[moduleNum] :
         isRiskManagementMasterclass ? riskManagementMasterclassModuleNames[moduleNum] :
+        isNoCodeAlgoTrading ? noCodeAlgoTradingModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
