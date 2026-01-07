@@ -281,6 +281,7 @@ export default function CourseDetailPage() {
       'risk-management-masterclass': '/assets/courses/risk-management-masterclass.svg',
       'no-code-algo-trading': '/assets/courses/no-code-algo-trading.svg',
       'mutual-funds-sip-mastery': '/assets/courses/mutual-funds-sip-mastery.svg',
+      'upsc_prelims': '/assets/courses/upsc_prelims.svg',
     }
     
     if (thumbnailMap[courseId]) {

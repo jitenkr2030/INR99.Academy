@@ -182,6 +182,7 @@ export async function GET(
     const isRiskManagementMasterclass = course.id === 'risk-management-masterclass'
     const isNoCodeAlgoTrading = course.id === 'no-code-algo-trading'
     const isMutualFundsSipMastery = course.id === 'mutual-funds-sip-mastery'
+    const isUPSCcivilServicesPrelims = course.id === 'upsc_prelims'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -1142,6 +1143,19 @@ export async function GET(
       '5': 'Risk Management & Asset Allocation',
       '6': 'Taxation, Regulations & Compliance',
       '7': 'Long-Term Wealth Creation Blueprint',
+    }
+
+    const upscCivilServicesPrelimsModuleNames: Record<string, string> = {
+      '1': 'UPSC Prelims Orientation & Strategy',
+      '2': 'History (Ancient, Medieval, Modern)',
+      '3': 'Indian & World Geography',
+      '4': 'Indian Polity & Governance',
+      '5': 'Indian Economy',
+      '6': 'Environment, Ecology & Biodiversity',
+      '7': 'Current Affairs (Integrated)',
+      '8': 'CSAT - Quantitative Aptitude',
+      '9': 'CSAT - Reasoning & Comprehension',
+      '10': 'Revision, Tests & Exam Readiness',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -3089,6 +3103,39 @@ export async function GET(
         } else if (lesson.order >= 39 && lesson.order <= 42) {
           moduleNum = '7'
         }
+      } else if (isUPSCcivilServicesPrelims) {
+        // UPSC Civil Services Prelims: use order ranges (10 modules)
+        // Module 1: orders 1-8 (Orientation & Strategy)
+        // Module 2: orders 9-22 (History)
+        // Module 3: orders 23-34 (Geography)
+        // Module 4: orders 35-48 (Polity)
+        // Module 5: orders 49-60 (Economy)
+        // Module 6: orders 61-70 (Environment)
+        // Module 7: orders 71-80 (Current Affairs)
+        // Module 8: orders 81-90 (CSAT Quantitative)
+        // Module 9: orders 91-100 (CSAT Reasoning)
+        // Module 10: orders 101-110 (Revision & Tests)
+        if (lesson.order >= 1 && lesson.order <= 8) {
+          moduleNum = '1'
+        } else if (lesson.order >= 9 && lesson.order <= 22) {
+          moduleNum = '2'
+        } else if (lesson.order >= 23 && lesson.order <= 34) {
+          moduleNum = '3'
+        } else if (lesson.order >= 35 && lesson.order <= 48) {
+          moduleNum = '4'
+        } else if (lesson.order >= 49 && lesson.order <= 60) {
+          moduleNum = '5'
+        } else if (lesson.order >= 61 && lesson.order <= 70) {
+          moduleNum = '6'
+        } else if (lesson.order >= 71 && lesson.order <= 80) {
+          moduleNum = '7'
+        } else if (lesson.order >= 81 && lesson.order <= 90) {
+          moduleNum = '8'
+        } else if (lesson.order >= 91 && lesson.order <= 100) {
+          moduleNum = '9'
+        } else if (lesson.order >= 101 && lesson.order <= 110) {
+          moduleNum = '10'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -3215,6 +3262,7 @@ export async function GET(
         isRiskManagementMasterclass ? riskManagementMasterclassModuleNames[moduleNum] :
         isNoCodeAlgoTrading ? noCodeAlgoTradingModuleNames[moduleNum] :
         isMutualFundsSipMastery ? mutualFundsSipMasteryModuleNames[moduleNum] :
+        isUPSCcivilServicesPrelims ? upscCivilServicesPrelimsModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
