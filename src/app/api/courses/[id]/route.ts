@@ -190,6 +190,7 @@ export async function GET(
     const isSSCCGL = course.id === 'ssc_cgl'
     const isSSCMTS = course.id === 'ssc_mts'
     const isStatePolice = course.id === 'state_police'
+    const isStateTET = course.id === 'state_tet'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -1227,6 +1228,16 @@ export async function GET(
       '4': 'General Science',
       '5': 'Physical Efficiency & Measurement',
       '6': 'Mock Tests & Previous Year Papers',
+    }
+
+    const stateTETModuleNames: Record<string, string> = {
+      '1': 'TET Exam Orientation & Strategy',
+      '2': 'Child Development & Pedagogy (CDP)',
+      '3': 'Language I (Hindi / Regional Language)',
+      '4': 'Language II (English)',
+      '5': 'Mathematics',
+      '6': 'Environmental Studies / Social Studies / Science',
+      '7': 'Mock Tests, Revision & Final Preparation',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -3357,6 +3368,30 @@ export async function GET(
         } else if (lesson.order >= 111) {
           moduleNum = '6'
         }
+      } else if (isStateTET) {
+        // TET Complete Preparation: use order ranges (7 modules)
+        // Module 1: orders 1-7 (TET Exam Orientation & Strategy)
+        // Module 2: orders 8-31 (Child Development & Pedagogy)
+        // Module 3: orders 32-48 (Language I - Hindi/Regional)
+        // Module 4: orders 49-65 (Language II - English)
+        // Module 5: orders 66-86 (Mathematics)
+        // Module 6: orders 87-107 (Environmental Studies/Social Studies/Science)
+        // Module 7: orders 108-115 (Mock Tests, Revision & Final Preparation)
+        if (lesson.order >= 1 && lesson.order <= 7) {
+          moduleNum = '1'
+        } else if (lesson.order >= 8 && lesson.order <= 31) {
+          moduleNum = '2'
+        } else if (lesson.order >= 32 && lesson.order <= 48) {
+          moduleNum = '3'
+        } else if (lesson.order >= 49 && lesson.order <= 65) {
+          moduleNum = '4'
+        } else if (lesson.order >= 66 && lesson.order <= 86) {
+          moduleNum = '5'
+        } else if (lesson.order >= 87 && lesson.order <= 107) {
+          moduleNum = '6'
+        } else if (lesson.order >= 108) {
+          moduleNum = '7'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -3491,6 +3526,7 @@ export async function GET(
         isSSCCGL ? sscCGLModuleNames[moduleNum] :
         isSSCMTS ? sscMTSModuleNames[moduleNum] :
         isStatePolice ? statePoliceModuleNames[moduleNum] :
+        isStateTET ? stateTETModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),
