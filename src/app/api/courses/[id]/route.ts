@@ -184,6 +184,7 @@ export async function GET(
     const isMutualFundsSipMastery = course.id === 'mutual-funds-sip-mastery'
     const isUPSCcivilServicesPrelims = course.id === 'upsc_prelims'
     const isUPSCcivilServicesMains = course.id === 'upsc_mains'
+    const isUPSCinterviewPersonality = course.id === 'upsc_interview'
     
     const englishModuleNames: Record<string, string> = {
       '1': 'Foundation Building',
@@ -1170,6 +1171,15 @@ export async function GET(
       '8': 'Answer Writing Techniques',
       '9': 'Current Affairs Integration & Case Studies',
       '10': 'Revision, Mock Tests & Pre-Exam Strategy',
+    }
+
+    const upscInterviewPersonalityModuleNames: Record<string, string> = {
+      '1': 'UPSC Interview Orientation & Strategy',
+      '2': 'DAF (Detailed Application Form) Analysis',
+      '3': 'Current Affairs Mastery',
+      '4': 'Communication & Personality Development',
+      '5': 'Mock Interviews & Feedback',
+      '6': 'Advanced Interview Strategies & Ethics',
     }
 
     const moduleLessons: Record<string, typeof course.lessons> = {}
@@ -3183,6 +3193,27 @@ export async function GET(
         } else if (lesson.order >= 128 && lesson.order <= 137) {
           moduleNum = '10'
         }
+      } else if (isUPSCinterviewPersonality) {
+        // UPSC Interview Personality Test: use order ranges (6 modules)
+        // Module 1: orders 1-8 (Orientation & Strategy)
+        // Module 2: orders 9-24 (DAF Analysis)
+        // Module 3: orders 25-42 (Current Affairs Mastery)
+        // Module 4: orders 43-58 (Communication & Personality)
+        // Module 5: orders 59-79 (Mock Interviews & Feedback)
+        // Module 6: orders 80-97 (Advanced Strategies & Ethics)
+        if (lesson.order >= 1 && lesson.order <= 8) {
+          moduleNum = '1'
+        } else if (lesson.order >= 9 && lesson.order <= 24) {
+          moduleNum = '2'
+        } else if (lesson.order >= 25 && lesson.order <= 42) {
+          moduleNum = '3'
+        } else if (lesson.order >= 43 && lesson.order <= 58) {
+          moduleNum = '4'
+        } else if (lesson.order >= 59 && lesson.order <= 79) {
+          moduleNum = '5'
+        } else if (lesson.order >= 80 && lesson.order <= 97) {
+          moduleNum = '6'
+        }
       }
       
       if (!moduleLessons[moduleNum]) {
@@ -3311,6 +3342,7 @@ export async function GET(
         isMutualFundsSipMastery ? mutualFundsSipMasteryModuleNames[moduleNum] :
         isUPSCcivilServicesPrelims ? upscCivilServicesPrelimsModuleNames[moduleNum] :
         isUPSCcivilServicesMains ? upscCivilServicesMainsModuleNames[moduleNum] :
+        isUPSCinterviewPersonality ? upscInterviewPersonalityModuleNames[moduleNum] :
         'Module ' + moduleNum
       }`,
       order: parseInt(moduleNum),

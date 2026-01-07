@@ -283,6 +283,7 @@ export default function CourseDetailPage() {
       'mutual-funds-sip-mastery': '/assets/courses/mutual-funds-sip-mastery.svg',
       'upsc_prelims': '/assets/courses/upsc_prelims.svg',
       'upsc_mains': '/assets/courses/upsc_mains.svg',
+      'upsc_interview': '/assets/courses/upsc_interview.svg',
     }
     
     if (thumbnailMap[courseId]) {
