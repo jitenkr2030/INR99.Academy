@@ -90,23 +90,20 @@ const INDIAN_UNIVERSITIES = [
   { id: 'other', name: 'Other University', state: 'Other' },
 ]
 
-// College course IDs for identification
-const COLLEGE_COURSE_IDS = [
-  'college_bsc_pcm', 'college_bsc_pcb', 'college_bsc_cs', 'college_bsc_bio', 'college_bsc_stats',
-  'college_bcom', 'college_bba', 'college_ba_history', 'college_ba_polsc', 'college_ba_psychology',
-  'college_btech_cs', 'college_llb', 'college_semester_support', 'college_exam_prep', 'college_career_skills'
+// School learning path IDs for identification
+const SCHOOL_LEARNING_PATH_IDS = [
+  'primary-school',
+  'middle-school',
+  'high-school',
+  'senior-secondary'
 ]
 
-// School course IDs for identification
-const SCHOOL_COURSE_IDS = [
-  'school_primary_1_5',
-  'school_primary_6_8',
-  'school_secondary_9_10',
-  'school_senior_science',
-  'school_senior_commerce',
-  'school_senior_arts',
-  'school_exam_prep',
-  'school_skills'
+// College learning path IDs for identification
+const COLLEGE_LEARNING_PATH_IDS = [
+  'engineering-foundation',
+  'medical-foundation',
+  'business-foundation',
+  'arts-foundation'
 ]
 
 export default function CoursesPage() {
@@ -170,19 +167,24 @@ export default function CoursesPage() {
 
     // Filter by college courses only
     if (showCollegeOnly) {
-      result = result.filter(course => COLLEGE_COURSE_IDS.includes(course.id))
+      result = result.filter(course => 
+        course.learningPath && COLLEGE_LEARNING_PATH_IDS.includes(course.learningPath.id)
+      )
     }
 
     // Filter by school courses only
     if (showSchoolOnly) {
-      result = result.filter(course => SCHOOL_COURSE_IDS.includes(course.id))
+      result = result.filter(course => 
+        course.learningPath && SCHOOL_LEARNING_PATH_IDS.includes(course.learningPath.id)
+      )
     }
 
     // Filter by university (for college courses)
     if (selectedUniversity) {
       // When a university is selected, highlight/show college courses
-      // that are most relevant for that university
-      result = result.filter(course => COLLEGE_COURSE_IDS.includes(course.id))
+      result = result.filter(course => 
+        course.learningPath && COLLEGE_LEARNING_PATH_IDS.includes(course.learningPath.id)
+      )
     }
 
     // Filter by search term (client-side search)
@@ -221,80 +223,148 @@ export default function CoursesPage() {
       return currentThumbnail
     }
     
-    // Map course IDs to their thumbnail files
+    // Map actual course IDs to their thumbnail files
     const thumbnailMap: Record<string, string> = {
-      // Confusion Removers courses
-      'cr_english_mastery': '/assets/courses/english-communication.svg',
-      'cr_indian_constitution': '/assets/courses/indian-constitution.svg',
-      'cr_upi': '/assets/courses/cr_upi.svg',
-      'cr_digital': '/assets/courses/cr_digital.svg',
-      'cr_fraud': '/assets/courses/cr_fraud.svg',
-      'cr_bulk': '/assets/courses/cr_bulk.svg',
-      'cr_community': '/assets/courses/cr_community.svg',
-      'cr_foodwork': '/assets/courses/cr_foodwork.svg',
-      'cr_money': '/assets/courses/cr_money.svg',
-      'cr_gov': '/assets/courses/cr_gov.svg',
-      'cr_english': '/assets/courses/cr_english.svg',
+      // School Education courses (Classes 1-5)
+      'school1': '/assets/courses/school-primary-math.svg',
+      'school2': '/assets/courses/school-primary-english.svg',
+      'school3': '/assets/courses/school-primary-math.svg',
+      'school4': '/assets/courses/school-primary-science.svg',
+      'school5': '/assets/courses/school-primary-math.svg',
+      'school6': '/assets/courses/school-primary-english.svg',
+      'school7': '/assets/courses/school-primary-math.svg',
+      'school8': '/assets/courses/school-primary-science.svg',
       
-      // Additional courses
-      'python-masterclass': '/assets/courses/python-masterclass.svg',
-      'data-science-python': '/assets/courses/data-science-python.svg',
-      'web-development-bootcamp': '/assets/courses/web-development-bootcamp.svg',
-      'ui-ux-design-masterclass': '/assets/courses/ui-ux-design-masterclass.svg',
-      'digital-marketing-complete': '/assets/courses/digital-marketing-complete.svg',
-      'personal-finance-mastery': '/assets/courses/personal-finance-mastery.svg',
-      'stock-market-fundamentals': '/assets/courses/stock-market-fundamentals.svg',
-      'indian-constitution-citizenship': '/assets/courses/indian-constitution-citizenship.svg',
-      'excel-mastery': '/assets/courses/excel-mastery.svg',
-      'cyber-safety-awareness': '/assets/courses/cyber-safety-awareness.svg',
-      'job-prep-complete': '/assets/courses/job-prep-complete.svg',
-      'startup-foundation': '/assets/courses/startup-foundation.svg',
-      'meditation-mindfulness': '/assets/courses/meditation-mindfulness.svg',
-      'bcom-financial-accounting': '/assets/courses/bcom-financial-accounting.svg',
-      'class10-mathematics': '/assets/courses/class10-mathematics.svg',
-      'course_public_speaking': '/assets/courses/public-speaking.svg',
+      // School Education courses (Classes 6-8)
+      'school9': '/assets/courses/school-middle-math.svg',
+      'school10': '/assets/courses/school-middle-science.svg',
+      'school11': '/assets/courses/school-middle-english.svg',
+      'school12': '/assets/courses/school-middle-math.svg',
+      'school13': '/assets/courses/school-middle-science.svg',
+      
+      // School Education courses (Classes 9-10)
+      'school14': '/assets/courses/school-secondary-math.svg',
+      'school15': '/assets/courses/school-secondary-physics.svg',
+      'school16': '/assets/courses/school-secondary-chemistry.svg',
+      'school17': '/assets/courses/school-secondary-biology.svg',
+      'school18': '/assets/courses/school-secondary-math.svg',
+      
+      // School Education courses (Classes 11-12)
+      'school19': '/assets/courses/school-senior-math.svg',
+      'school20': '/assets/courses/school-senior-physics.svg',
+      'school21': '/assets/courses/school-senior-chemistry.svg',
+      'school22': '/assets/courses/school-senior-biology.svg',
+      
+      // College Education courses - Engineering Foundation
+      'college1': '/assets/courses/college-engineering-math.svg',
+      'college2': '/assets/courses/college-programming.svg',
+      'college3': '/assets/courses/college-engineering-physics.svg',
+      'college4': '/assets/courses/college-digital-electronics.svg',
+      
+      // College Education courses - Medical Foundation
+      'college5': '/assets/courses/college-human-anatomy.svg',
+      'college6': '/assets/courses/college-biochemistry.svg',
+      'college7': '/assets/courses/college-physiology.svg',
+      'college8': '/assets/courses/college-medical-research.svg',
+      
+      // College Education courses - Business Foundation
+      'college9': '/assets/courses/college-business-economics.svg',
+      'college10': '/assets/courses/college-accounting.svg',
+      'college11': '/assets/courses/college-business-stats.svg',
+      'college12': '/assets/courses/college-marketing.svg',
+      
+      // College Education courses - Arts Foundation
+      'college13': '/assets/courses/college-world-literature.svg',
+      'college14': '/assets/courses/college-philosophy.svg',
+      'college15': '/assets/courses/college-art-history.svg',
+      'college16': '/assets/courses/college-communication.svg',
+      
+      // Career & Professional Skills - Technology & Programming
+      'career1': '/assets/courses/web-development-bootcamp.svg',
+      'career2': '/assets/courses/python-masterclass.svg',
+      'career3': '/assets/courses/data-science.svg',
+      'career4': '/assets/courses/mobile-app.svg',
+      
+      // Career & Professional Skills - Business & Entrepreneurship
+      'career5': '/assets/courses/business-strategy.svg',
+      'career6': '/assets/courses/entrepreneurship.svg',
+      'career7': '/assets/courses/financial-management.svg',
+      'career8': '/assets/courses/project-management.svg',
+      
+      // Career & Professional Skills - Creative & Design
+      'career9': '/assets/courses/ui-ux-design.svg',
+      'career10': '/assets/courses/graphic-design.svg',
+      'career11': '/assets/courses/video-editing.svg',
+      'career12': '/assets/courses/photography.svg',
+      
+      // Career & Professional Skills - Communication & Marketing
+      'career13': '/assets/courses/digital-marketing.svg',
       'career14': '/assets/courses/public-speaking.svg',
+      'career15': '/assets/courses/social-media.svg',
+      'career16': '/assets/courses/brand-strategy.svg',
       
-      // School Education courses
-      'school_primary_1_5': '/assets/courses/school-primary-1-5.svg',
-      'school_primary_6_8': '/assets/courses/school-primary-6-8.svg',
-      'school_secondary_9_10': '/assets/courses/school-secondary-9-10.svg',
-      'school_senior_science': '/assets/courses/school-senior-science.svg',
-      'school_senior_commerce': '/assets/courses/school-senior-commerce.svg',
-      'school_senior_arts': '/assets/courses/school-senior-arts.svg',
-      'school_exam_prep': '/assets/courses/school-exam-prep.svg',
-      'school_skills': '/assets/courses/school-skills.svg',
+      // Life Skills - Personal Finance
+      'life1': '/assets/courses/personal-finance.svg',
+      'life2': '/assets/courses/investment.svg',
+      'life3': '/assets/courses/tax-planning.svg',
       
-      // College Education courses
-      'college_bsc_pcm': '/assets/courses/college-bsc-pcm.svg',
-      'college_bsc_pcb': '/assets/courses/college-bsc-pcb.svg',
-      'college_bsc_cs': '/assets/courses/college-bsc-cs.svg',
-      'college_bsc_bio': '/assets/courses/college-bsc-biotech.svg',
-      'college_bsc_stats': '/assets/courses/college-bsc-stats.svg',
-      'college_bcom': '/assets/courses/college-bcom.svg',
-      'college_bba': '/assets/courses/college-bba.svg',
-      'college_ba_history': '/assets/courses/college-ba-history.svg',
-      'college_ba_polsc': '/assets/courses/college-ba-polsc.svg',
-      'college_ba_psychology': '/assets/courses/college-ba-psychology.svg',
-      'college_btech_cs': '/assets/courses/college-btech-cs.svg',
-      'college_llb': '/assets/courses/college-llb.svg',
-      'college_semester_support': '/assets/courses/college-semester-support.svg',
-      'college_exam_prep': '/assets/courses/college-exam-prep.svg',
-      'college_career_skills': '/assets/courses/college-career-skills.svg',
+      // Life Skills - Health & Wellness
+      'life4': '/assets/courses/nutrition.svg',
+      'life5': '/assets/courses/fitness.svg',
+      'life6': '/assets/courses/mental-health.svg',
+      
+      // Confusion Removers courses
+      'cr_digital': '/assets/courses/cr_digital.svg',
+      'cr_upi': '/assets/courses/cr_upi.svg',
+      'cr_gov': '/assets/courses/cr_gov.svg',
+      'cr_fraud': '/assets/courses/cr_fraud.svg',
+      'cr_money': '/assets/courses/cr_money.svg',
+      'cr_english': '/assets/courses/cr_english.svg',
+      'cr_bulk': '/assets/courses/cr_bulk.svg',
+      'cr_foodwork': '/assets/courses/cr_foodwork.svg',
+      'cr_community': '/assets/courses/cr_community.svg',
+      
+      // Government Exams
+      'upsc_prelims': '/assets/courses/upsc-prelims.svg',
+      'upsc_mains': '/assets/courses/upsc-mains.svg',
+      'upsc_interview': '/assets/courses/upsc-interview.svg',
+      'ssc_chsl': '/assets/courses/ssc-chsl.svg',
+      'ssc_cgl': '/assets/courses/ssc-cgl.svg',
+      'ssc_mts': '/assets/courses/ssc-mts.svg',
+      'state_police': '/assets/courses/state-police.svg',
+      'state_tet': '/assets/courses/tet.svg',
+      
+      // Stock Market & Trading
+      'stock-market-basics': '/assets/courses/stock-basics.svg',
+      'options-trading-mastery': '/assets/courses/options-trading.svg',
+      'technical-analysis-master': '/assets/courses/technical-analysis.svg',
+      'mutual-funds-sip-mastery': '/assets/courses/mutual-funds.svg',
+      
+      // Professional Certifications
+      'course-ca-foundation': '/assets/courses/ca-foundation.svg',
+      'course-ca-intermediate': '/assets/courses/ca-intermediate.svg',
+      'course-ca-final': '/assets/courses/ca-final.svg',
+      'cs_foundation': '/assets/courses/cs-foundation.svg',
+      'cs_executive': '/assets/courses/cs-executive.svg',
+      'cs_professional': '/assets/courses/cs-professional.svg',
+      'cma_foundation': '/assets/courses/cma-foundation.svg',
+      'cma_intermediate': '/assets/courses/cma-intermediate.svg',
+      'cma_final': '/assets/courses/cma-final.svg',
+      'cfa_level1': '/assets/courses/cfa-level1.svg',
+      'cfa_level2': '/assets/courses/cfa-level2.svg',
+      'cfa_level3': '/assets/courses/cfa-level3.svg',
+      'frm_part1': '/assets/courses/frm-part1.svg',
+      'frm_part2': '/assets/courses/frm-part2.svg',
+      'acca_level1': '/assets/courses/acca-level1.svg',
+      'acca_level2': '/assets/courses/acca-level2.svg',
+      'acca_level3': '/assets/courses/acca-level3.svg',
+      'course-actuarial-science': '/assets/courses/actuarial.svg',
+      'advanced-excel-pro': '/assets/courses/excel.svg',
     }
     
     // Check if we have a direct mapping
     if (thumbnailMap[courseId]) {
       return thumbnailMap[courseId]
-    }
-    
-    // Try to find a matching thumbnail based on partial ID match
-    const availableThumbnails = Object.values(thumbnailMap)
-    for (const thumb of availableThumbnails) {
-      const thumbName = thumb.split('/').pop()?.replace('.svg', '')
-      if (thumbName && courseId.includes(thumbName)) {
-        return thumb
-      }
     }
     
     // Return original thumbnail path if nothing matches
@@ -855,7 +925,7 @@ export default function CoursesPage() {
                     }}
                   >
                     {/* College Badge */}
-                    {COLLEGE_COURSE_IDS.includes(course.id) && (
+                    {course.learningPath && COLLEGE_LEARNING_PATH_IDS.includes(course.learningPath.id) && (
                       <div style={{
                         position: 'absolute',
                         top: '0.75rem',
@@ -874,7 +944,7 @@ export default function CoursesPage() {
                     )}
 
                     {/* School Badge */}
-                    {SCHOOL_COURSE_IDS.includes(course.id) && (
+                    {course.learningPath && SCHOOL_LEARNING_PATH_IDS.includes(course.learningPath.id) && (
                       <div style={{
                         position: 'absolute',
                         top: '0.75rem',
