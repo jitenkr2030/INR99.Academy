@@ -46,7 +46,7 @@ interface PaymentPlan {
 }
 
 export function PaymentProcessor({
-  amount = 99,
+  amount = 1188,
   type = 'SUBSCRIPTION',
   onSuccess,
   onCancel
@@ -58,7 +58,7 @@ export function PaymentProcessor({
 }) {
   const { data: session, status } = useSession()
   const [selectedMethod, setSelectedMethod] = useState<string>('')
-  const [selectedPlan, setSelectedPlan] = useState<string>('monthly')
+  const [selectedPlan, setSelectedPlan] = useState<string>('yearly')
   const [processing, setProcessing] = useState(false)
   const [paymentData, setPaymentData] = useState<Record<string, string>>({})
   const [upiId, setUpiId] = useState('inr99@upi')
@@ -106,30 +106,19 @@ export function PaymentProcessor({
 
   const paymentPlans: PaymentPlan[] = [
     {
-      id: 'monthly',
-      name: 'Monthly Plan',
-      price: 99,
-      duration: '1 month',
-      features: [
-        'Access to all courses',
-        'Mobile & desktop access',
-        'Progress tracking',
-        'Community access',
-        'Cancel anytime'
-      ]
-    },
-    {
       id: 'quarterly',
       name: 'Quarterly Plan',
       price: 297,
       duration: '3 months',
       features: [
-        'Everything in Monthly',
-        'Save ₹30',
+        'Access to all courses',
+        'Mobile & desktop access',
+        'Progress tracking',
+        'Community access',
         'Priority support',
         'Download certificates'
       ],
-      popular: true
+      popular: false
     },
     {
       id: 'yearly',
@@ -138,10 +127,13 @@ export function PaymentProcessor({
       duration: '1 year',
       features: [
         'Everything in Quarterly',
-        'Save ₹120',
+        'Save ₹207',
         'Exclusive content',
-        '1-on-1 mentoring'
-      ]
+        '1-on-1 mentoring',
+        'Offline access',
+        'Priority customer support'
+      ],
+      popular: true
     }
   ]
 
@@ -206,7 +198,7 @@ export function PaymentProcessor({
         },
         body: JSON.stringify({
           type,
-          amount: selectedPlan === 'monthly' ? 99 : selectedPlan === 'quarterly' ? 297 : 1188,
+          amount: selectedPlan === 'quarterly' ? 297 : 1188,
           paymentMethod: selectedMethod,
           paymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         })
@@ -283,7 +275,7 @@ export function PaymentProcessor({
           <CardDescription>Select the subscription plan that works best for you</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {paymentPlans.map((plan) => (
               <Card
                 key={plan.id}
@@ -296,7 +288,7 @@ export function PaymentProcessor({
               >
                 {plan.popular && (
                   <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-orange-500">Most Popular</Badge>
+                    <Badge className="bg-orange-500">⭐ Best Value</Badge>
                   </div>
                 )}
                 <CardHeader className="text-center pb-4">
