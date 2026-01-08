@@ -1,12 +1,81 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// Mapping between expected course IDs and actual seeded IDs
+const COURSE_ID_MAPPING: Record<string, string> = {
+  // Confusion Removers courses
+  'cr_english_mastery': 'cr_english',
+  
+  // Career courses mapping  
+  'python-masterclass': 'career2',
+  'web-development-bootcamp': 'career1',
+  'data-science-python': 'career3',
+  'digital-marketing-complete': 'career13',
+  'ui-ux-design-masterclass': 'career9',
+  
+  // Life skills courses
+  'personal-finance-mastery': 'life1',
+  'stock-market-fundamentals': 'life2',
+  
+  // Additional mappings for common variations
+  'excel-mastery': 'advanced-excel-pro',
+  'job-prep-complete': 'career_jobprep',
+  'meditation-mindfulness': 'life6',
+  'bcom-financial-accounting': 'college10',
+  'class10-mathematics': 'school18',
+  'course_public_speaking': 'career14',
+  
+  // Government exam mappings (if seeded with different IDs)
+  'upsc_prelims': 'upsc_prelims',
+  'upsc_mains': 'upsc_mains', 
+  'upsc_interview': 'upsc_interview',
+  'ssc_chsl': 'ssc_chsl',
+  'ssc_cgl': 'ssc_cgl',
+  'ssc_mts': 'ssc_mts',
+  'state_police': 'state_police',
+  'state_tet': 'state_tet',
+  
+  // Professional certification mappings
+  'course-ca-foundation': 'course-ca-foundation',
+  'course-ca-intermediate': 'course-ca-intermediate',
+  'course-ca-final': 'course-ca-final',
+  'cs_foundation': 'cs_foundation',
+  'cs_executive': 'cs_executive',
+  'cs_professional': 'cs_professional',
+  'cma_foundation': 'cma_foundation',
+  'cma_intermediate': 'cma_intermediate',
+  'cma_final': 'cma_final',
+  'cfa_level1': 'cfa_level1',
+  'cfa_level2': 'cfa_level2',
+  'cfa_level3': 'cfa_level3',
+  'frm_part1': 'frm_part1',
+  'frm_part2': 'frm_part2',
+  'acca_level1': 'acca_level1',
+  'acca_level2': 'acca_level2',
+  'acca_level3': 'acca_level3',
+  
+  // Stock market & trading courses
+  'stock-market-basics': 'stock-market-basics',
+  'options-trading-mastery': 'options-trading-mastery',
+  'technical-analysis-master': 'technical-analysis-master',
+  'mutual-funds-sip-mastery': 'mutual-funds-sip-mastery',
+  
+  // Additional courses
+  'course-actuarial-science': 'course-actuarial-science',
+  'advanced-excel-pro': 'advanced-excel-pro',
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const courseId = params.id
+    let courseId = params.id
+
+    // Check if we need to map the ID to the actual seeded ID
+    if (COURSE_ID_MAPPING[courseId]) {
+      courseId = COURSE_ID_MAPPING[courseId]
+    }
 
     // Fetch course from database with all related data
     const course = await db.course.findFirst({

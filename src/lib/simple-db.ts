@@ -948,6 +948,371 @@ const MOCK_COURSES: Course[] = [
     instructorId: 'inst6',
     learningPathId: 'community-systems',
     createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Government Exams - UPSC Civil Services
+  {
+    id: 'upsc_prelims',
+    title: 'UPSC Civil Services Prelims Complete Preparation',
+    description: 'Comprehensive preparation for UPSC Civil Services Preliminary Examination covering GS Paper I and CSAT',
+    difficulty: 'ADVANCED',
+    duration: 600,
+    isActive: true,
+    instructorId: 'inst3',
+    learningPathId: 'gov-exams',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'upsc_mains',
+    title: 'UPSC Civil Services Mains Complete Preparation',
+    description: 'Detailed preparation for UPSC Civil Services Mains Examination including all GS papers and Optional subject',
+    difficulty: 'ADVANCED',
+    duration: 800,
+    isActive: true,
+    instructorId: 'inst3',
+    learningPathId: 'gov-exams',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'upsc_interview',
+    title: 'UPSC Interview & Personality Test Preparation',
+    description: 'Preparation for the final stage of UPSC Civil Services - Interview and Personality Test',
+    difficulty: 'ADVANCED',
+    duration: 200,
+    isActive: true,
+    instructorId: 'inst3',
+    learningPathId: 'gov-exams',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Government Exams - SSC
+  {
+    id: 'ssc_chsl',
+    title: 'SSC CHSL (10+2) Complete Preparation',
+    description: 'Complete preparation for SSC Combined Higher Secondary Level Examination',
+    difficulty: 'INTERMEDIATE',
+    duration: 400,
+    isActive: true,
+    instructorId: 'inst1',
+    learningPathId: 'gov-exams',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'ssc_cgl',
+    title: 'SSC CGL Complete Preparation',
+    description: 'Comprehensive preparation for SSC Combined Graduate Level Examination',
+    difficulty: 'ADVANCED',
+    duration: 500,
+    isActive: true,
+    instructorId: 'inst1',
+    learningPathId: 'gov-exams',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'ssc_mts',
+    title: 'SSC MTS (Multi-Tasking Staff) Preparation',
+    description: 'Preparation for SSC Multi-Tasking Staff Examination',
+    difficulty: 'BEGINNER',
+    duration: 300,
+    isActive: true,
+    instructorId: 'inst1',
+    learningPathId: 'gov-exams',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Government Exams - State Police
+  {
+    id: 'state_police',
+    title: 'State Police Constable & SI Complete Preparation',
+    description: 'Complete preparation for State Police Constable and Sub-Inspector examinations',
+    difficulty: 'INTERMEDIATE',
+    duration: 450,
+    isActive: true,
+    instructorId: 'inst3',
+    learningPathId: 'gov-exams',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Government Exams - TET
+  {
+    id: 'state_tet',
+    title: 'TET (Teacher Eligibility Test) Complete Preparation',
+    description: 'Complete preparation for TET examinations for teaching positions',
+    difficulty: 'INTERMEDIATE',
+    duration: 400,
+    isActive: true,
+    instructorId: 'inst2',
+    learningPathId: 'gov-exams',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Stock Market & Trading Courses
+  {
+    id: 'stock-market-basics',
+    title: 'Stock Market Basics for Beginners',
+    description: 'Introduction to stock markets, trading basics, and investment fundamentals',
+    difficulty: 'BEGINNER',
+    duration: 300,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'stock-trading',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'options-trading-mastery',
+    title: 'Options Trading Mastery',
+    description: 'Advanced options trading strategies, pricing models, and risk management',
+    difficulty: 'ADVANCED',
+    duration: 500,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'stock-trading',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'technical-analysis-master',
+    title: 'Technical Analysis Master Course',
+    description: 'Master technical analysis, chart patterns, indicators, and trading strategies',
+    difficulty: 'ADVANCED',
+    duration: 450,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'stock-trading',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'mutual-funds-sip-mastery',
+    title: 'Mutual Funds & SIP Mastery',
+    description: 'Complete guide to mutual funds, SIP investments, and wealth creation',
+    difficulty: 'INTERMEDIATE',
+    duration: 350,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'stock-trading',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Professional Certification - CA
+  {
+    id: 'course-ca-foundation',
+    title: 'CA Foundation Complete Course',
+    description: 'Complete preparation for CA Foundation examination',
+    difficulty: 'INTERMEDIATE',
+    duration: 500,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'course-ca-intermediate',
+    title: 'CA Intermediate Complete Course',
+    description: 'Complete preparation for CA Intermediate examination',
+    difficulty: 'ADVANCED',
+    duration: 600,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'course-ca-final',
+    title: 'CA Final Complete Course',
+    description: 'Complete preparation for CA Final examination',
+    difficulty: 'ADVANCED',
+    duration: 800,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Professional Certification - CS
+  {
+    id: 'cs_foundation',
+    title: 'CS Foundation Complete Course',
+    description: 'Complete preparation for Company Secretary Foundation examination',
+    difficulty: 'INTERMEDIATE',
+    duration: 400,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cs_executive',
+    title: 'CS Executive Complete Course',
+    description: 'Complete preparation for Company Secretary Executive examination',
+    difficulty: 'ADVANCED',
+    duration: 500,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cs_professional',
+    title: 'CS Professional Complete Course',
+    description: 'Complete preparation for Company Secretary Professional examination',
+    difficulty: 'ADVANCED',
+    duration: 600,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Professional Certification - CMA
+  {
+    id: 'cma_foundation',
+    title: 'CMA Foundation Complete Course',
+    description: 'Complete preparation for CMA Foundation examination',
+    difficulty: 'INTERMEDIATE',
+    duration: 400,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cma_intermediate',
+    title: 'CMA Intermediate Complete Course',
+    description: 'Complete preparation for CMA Intermediate examination',
+    difficulty: 'ADVANCED',
+    duration: 500,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cma_final',
+    title: 'CMA Final Complete Course',
+    description: 'Complete preparation for CMA Final examination',
+    difficulty: 'ADVANCED',
+    duration: 700,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Professional Certification - CFA
+  {
+    id: 'cfa_level1',
+    title: 'CFA Level 1 Complete Course',
+    description: 'Complete preparation for CFA Level I examination',
+    difficulty: 'ADVANCED',
+    duration: 600,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cfa_level2',
+    title: 'CFA Level 2 Complete Course',
+    description: 'Complete preparation for CFA Level II examination',
+    difficulty: 'ADVANCED',
+    duration: 700,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'cfa_level3',
+    title: 'CFA Level 3 Complete Course',
+    description: 'Complete preparation for CFA Level III examination',
+    difficulty: 'ADVANCED',
+    duration: 800,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Professional Certification - FRM
+  {
+    id: 'frm_part1',
+    title: 'FRM Part 1 Complete Course',
+    description: 'Complete preparation for FRM Part I examination',
+    difficulty: 'ADVANCED',
+    duration: 500,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'frm_part2',
+    title: 'FRM Part 2 Complete Course',
+    description: 'Complete preparation for FRM Part II examination',
+    difficulty: 'ADVANCED',
+    duration: 600,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Professional Certification - ACCA
+  {
+    id: 'acca_level1',
+    title: 'ACCA (Papers AB, MA, FA)',
+    description: 'Complete preparation for ACCA Applied Knowledge level papers',
+    difficulty: 'INTERMEDIATE',
+    duration: 400,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'acca_level2',
+    title: 'ACCA (Papers LW, PM, TX, FR, AA, FM)',
+    description: 'Complete preparation for ACCA Applied Skills level papers',
+    difficulty: 'ADVANCED',
+    duration: 600,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'acca_level3',
+    title: 'ACCA (Strategic Professional Level)',
+    description: 'Complete preparation for ACCA Strategic Professional level',
+    difficulty: 'ADVANCED',
+    duration: 700,
+    isActive: true,
+    instructorId: 'inst6',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+
+  // Additional Courses
+  {
+    id: 'course-actuarial-science',
+    title: 'Actuarial Science Complete Course',
+    description: 'Complete preparation for Actuarial Science examinations',
+    difficulty: 'ADVANCED',
+    duration: 600,
+    isActive: true,
+    instructorId: 'inst1',
+    learningPathId: 'professional',
+    createdAt: '2025-01-01T00:00:00Z'
+  },
+  {
+    id: 'advanced-excel-pro',
+    title: 'Advanced Excel for Professionals',
+    description: 'Master advanced Excel features, formulas, VBA, and data analysis',
+    difficulty: 'INTERMEDIATE',
+    duration: 300,
+    isActive: true,
+    instructorId: 'inst4',
+    learningPathId: 'technology-programming',
+    createdAt: '2025-01-01T00:00:00Z'
   }
 ]
 
@@ -1301,6 +1666,39 @@ const MOCK_LEARNING_PATHS: LearningPath[] = [
     color: 'bg-violet-100',
     categoryId: 'community-understanding',
     isActive: true
+  },
+
+  // Government Exam Preparation Paths
+  {
+    id: 'gov-exams',
+    title: 'Government Exam Preparation',
+    description: 'UPSC, SSC, State Police, TET and other government exam preparation',
+    icon: 'Flag',
+    color: 'bg-orange-100',
+    categoryId: 'gov-exams',
+    isActive: true
+  },
+
+  // Stock Market & Trading Paths
+  {
+    id: 'stock-trading',
+    title: 'Stock Market & Trading',
+    description: 'Stock market basics, technical analysis, and trading strategies',
+    icon: 'TrendingUp',
+    color: 'bg-green-100',
+    categoryId: 'stock-trading',
+    isActive: true
+  },
+
+  // Professional Certification Paths
+  {
+    id: 'professional',
+    title: 'Professional Certifications',
+    description: 'CA, CS, CMA, CFA, FRM, ACCA and other professional courses',
+    icon: 'Certificate',
+    color: 'bg-blue-100',
+    categoryId: 'professional',
+    isActive: true
   }
 ]
 
@@ -1368,6 +1766,39 @@ const MOCK_LEARNING_PATH_CATEGORIES: LearningPathCategory[] = [
     icon: 'Users',
     color: 'bg-indigo-100',
     sortOrder: 6,
+    isActive: true,
+    isFeatured: true
+  },
+  {
+    id: 'gov-exams',
+    name: 'Government Exam Preparation',
+    slug: 'government-exams',
+    description: 'Comprehensive preparation for UPSC, SSC, State Police, TET and other government examinations',
+    icon: 'Flag',
+    color: 'bg-orange-100',
+    sortOrder: 7,
+    isActive: true,
+    isFeatured: true
+  },
+  {
+    id: 'stock-trading',
+    name: 'Stock Market & Trading',
+    slug: 'stock-market-trading',
+    description: 'Stock market fundamentals, technical analysis, options trading, and investment strategies',
+    icon: 'TrendingUp',
+    color: 'bg-green-100',
+    sortOrder: 8,
+    isActive: true,
+    isFeatured: true
+  },
+  {
+    id: 'professional',
+    name: 'Professional Certifications',
+    slug: 'professional-certifications',
+    description: 'CA, CS, CMA, CFA, FRM, ACCA, US CPA and other professional certification courses',
+    icon: 'Certificate',
+    color: 'bg-blue-100',
+    sortOrder: 9,
     isActive: true,
     isFeatured: true
   }
