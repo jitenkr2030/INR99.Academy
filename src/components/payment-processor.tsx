@@ -106,11 +106,28 @@ export function PaymentProcessor({
 
   const paymentPlans: PaymentPlan[] = [
     {
+      id: 'monthly',
+      name: 'Monthly Plan',
+      price: 99,
+      duration: '1 month',
+      features: [
+        'Access to all courses',
+        'Mobile & desktop access',
+        'Progress tracking',
+        'Community access',
+        'Priority support',
+        'Download certificates'
+      ],
+      popular: false
+    },
+    {
       id: 'quarterly',
       name: 'Quarterly Plan',
-      price: 297,
+      price: 249,
       duration: '3 months',
       features: [
+        'Everything in Monthly',
+        'Save ₹48',
         'Access to all courses',
         'Mobile & desktop access',
         'Progress tracking',
@@ -123,11 +140,11 @@ export function PaymentProcessor({
     {
       id: 'yearly',
       name: 'Yearly Plan',
-      price: 1188,
+      price: 999,
       duration: '1 year',
       features: [
         'Everything in Quarterly',
-        'Save ₹207',
+        'Save ₹252',
         'Exclusive content',
         '1-on-1 mentoring',
         'Offline access',
@@ -198,7 +215,7 @@ export function PaymentProcessor({
         },
         body: JSON.stringify({
           type,
-          amount: selectedPlan === 'quarterly' ? 297 : 1188,
+          amount: selectedPlan === 'monthly' ? 99 : selectedPlan === 'quarterly' ? 249 : 999,
           paymentMethod: selectedMethod,
           paymentId: `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         })

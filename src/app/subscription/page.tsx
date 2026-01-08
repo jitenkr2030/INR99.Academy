@@ -33,10 +33,10 @@ export default function SubscriptionPage() {
 
   const subscriptionPlans: SubscriptionPlan[] = [
     {
-      id: 'quarterly',
-      name: 'Quarterly Plan',
-      price: 297,
-      duration: 'quarter',
+      id: 'monthly',
+      name: 'Monthly Plan',
+      price: 99,
+      duration: 'month',
       features: [
         'Everything included - School + College + Career + Business',
         'All 18 learning categories',
@@ -48,13 +48,29 @@ export default function SubscriptionPage() {
       ]
     },
     {
+      id: 'quarterly',
+      name: 'Quarterly Plan',
+      price: 249,
+      duration: 'quarter',
+      features: [
+        'Everything in Monthly',
+        'Save ₹48 vs monthly',
+        'All 18 learning categories',
+        'Mobile & desktop access',
+        'Progress tracking',
+        'Community access',
+        'Priority support',
+        'Download certificates'
+      ]
+    },
+    {
       id: 'yearly',
       name: 'Yearly Plan',
-      price: 1188,
+      price: 999,
       duration: 'year',
       features: [
         'Everything in Quarterly',
-        'Save ₹207 vs quarterly',
+        'Save ₹252 vs quarterly',
         'Offline access',
         '1-on-1 mentoring',
         'Exclusive workshops',
@@ -167,12 +183,12 @@ export default function SubscriptionPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '1.5rem' }}>🎯</span>
               <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: '#92400e' }}>
-                Available Plans - Quarterly & Yearly
+                Available Plans - Monthly, Quarterly & Yearly
               </h3>
             </div>
             <p style={{ color: '#a16207', fontSize: '0.95rem' }}>
-              Choose <strong>₹297/quarter</strong> or <strong>₹1188/year</strong> for complete access to all 18 learning categories! 
-              Best value - Save ₹207 with yearly plan.
+              Choose <strong>₹99/month</strong>, <strong>₹249/quarter</strong>, or <strong>₹999/year</strong> for complete access to all 18 learning categories! 
+              Best value - Save ₹252 with yearly plan.
             </p>
           </div>
 
@@ -243,10 +259,17 @@ export default function SubscriptionPage() {
                     {plan.id === 'quarterly' && (
                       <div style={{ marginTop: '0.5rem' }}>
                         <span style={{ fontSize: '1rem', color: '#16a34a', fontWeight: '600' }}>
-                          Just ₹249/quarter
+                          Just ₹249/quarter - Save ₹48!
                         </span>
                       </div>
                     )}
+                    {plan.id === 'monthly' && (
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <span style={{ fontSize: '1rem', color: '#6b7280', fontWeight: '600' }}>
+                          Flexible monthly subscription
+                        </span>
+                      </div>
+                    )
                   </div>
                   
                   <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', textAlign: 'left' }}>
@@ -283,7 +306,9 @@ export default function SubscriptionPage() {
                       cursor: 'pointer',
                       background: plan.id === 'yearly'
                           ? '#ea580c'
-                          : '#16a34a',
+                          : plan.id === 'quarterly'
+                            ? '#16a34a'
+                            : '#6b7280',
                       color: 'white',
                       transition: 'background 0.2s',
                       display: 'flex',
@@ -294,20 +319,22 @@ export default function SubscriptionPage() {
                     onMouseEnter={(e) => {
                       if (plan.id === 'yearly') {
                         e.currentTarget.style.background = '#c2410c'
-                      } else {
+                      } else if (plan.id === 'quarterly') {
                         e.currentTarget.style.background = '#15803d'
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (plan.id === 'yearly') {
                         e.currentTarget.style.background = '#ea580c'
-                      } else {
+                      } else if (plan.id === 'quarterly') {
                         e.currentTarget.style.background = '#16a34a'
                       }
                     }}
                   >
                     {plan.id === 'yearly' ? (
                       '🔥 Get Started - Best Value'
+                    ) : plan.id === 'quarterly' ? (
+                      '✅ Get Started - Save ₹48!'
                     ) : (
                       '✅ Get Started'
                     )}
@@ -337,28 +364,30 @@ export default function SubscriptionPage() {
                 <thead>
                   <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
                     <th style={{ textAlign: 'left', padding: '1rem', color: '#6b7280', fontWeight: '500' }}>Feature</th>
+                    <th style={{ textAlign: 'center', padding: '1rem', color: '#111827', fontWeight: '600' }}>Monthly</th>
                     <th style={{ textAlign: 'center', padding: '1rem', color: '#111827', fontWeight: '600' }}>Quarterly</th>
                     <th style={{ textAlign: 'center', padding: '1rem', color: '#111827', fontWeight: '600' }}>Yearly</th>
                   </tr>
                 </thead>
                 <tbody style={{ borderBottom: '1px solid #e5e7eb' }}>
                   {[
-                    { feature: 'School Learning (Class 1-12)', quarterly: '✓ All Classes', yearly: '✓ All Classes' },
-                    { feature: 'College Foundation', quarterly: '✓ All Degrees', yearly: '✓ All Degrees' },
-                    { feature: 'Career & Skills', quarterly: '✓ All Categories', yearly: '✓ All Categories' },
-                    { feature: 'Money & Business', quarterly: '✓ All Topics', yearly: '✓ All Topics' },
-                    { feature: '18 Learning Categories', quarterly: '✓ Complete', yearly: '✓ Complete' },
-                    { feature: 'Mobile App Access', quarterly: '✓', yearly: '✓' },
-                    { feature: 'Progress Tracking', quarterly: '✓', yearly: '✓' },
-                    { feature: 'Community Access', quarterly: '✓', yearly: '✓' },
-                    { feature: 'Certificates', quarterly: 'Premium', yearly: 'Premium' },
-                    { feature: 'Priority Support', quarterly: '✓', yearly: '✓' },
-                    { feature: 'Offline Access', quarterly: '✗', yearly: '✓' },
-                    { feature: '1-on-1 Mentoring', quarterly: '✗', yearly: '✓' },
-                    { feature: 'Savings', quarterly: '₹30 saved', yearly: '₹207 saved' }
+                    { feature: 'School Learning (Class 1-12)', monthly: '✓ All Classes', quarterly: '✓ All Classes', yearly: '✓ All Classes' },
+                    { feature: 'College Foundation', monthly: '✓ All Degrees', quarterly: '✓ All Degrees', yearly: '✓ All Degrees' },
+                    { feature: 'Career & Skills', monthly: '✓ All Categories', quarterly: '✓ All Categories', yearly: '✓ All Categories' },
+                    { feature: 'Money & Business', monthly: '✓ All Topics', quarterly: '✓ All Topics', yearly: '✓ All Topics' },
+                    { feature: '18 Learning Categories', monthly: '✓ Complete', quarterly: '✓ Complete', yearly: '✓ Complete' },
+                    { feature: 'Mobile App Access', monthly: '✓', quarterly: '✓', yearly: '✓' },
+                    { feature: 'Progress Tracking', monthly: '✓', quarterly: '✓', yearly: '✓' },
+                    { feature: 'Community Access', monthly: '✓', quarterly: '✓', yearly: '✓' },
+                    { feature: 'Certificates', monthly: 'Premium', quarterly: 'Premium', yearly: 'Premium' },
+                    { feature: 'Priority Support', monthly: '✓', quarterly: '✓', yearly: '✓' },
+                    { feature: 'Offline Access', monthly: '✗', quarterly: '✗', yearly: '✓' },
+                    { feature: '1-on-1 Mentoring', monthly: '✗', quarterly: '✗', yearly: '✓' },
+                    { feature: 'Savings', monthly: '-', quarterly: '₹48 saved', yearly: '₹252 saved' }
                   ].map((row, index) => (
                     <tr key={index} style={{ borderBottom: '1px solid #f3f4f6' }}>
                       <td style={{ padding: '0.75rem 1rem', color: '#374151', fontSize: '0.875rem' }}>{row.feature}</td>
+                      <td style={{ padding: '0.75rem 1rem', textAlign: 'center', color: '#111827', fontSize: '0.875rem' }}>{row.monthly}</td>
                       <td style={{ padding: '0.75rem 1rem', textAlign: 'center', color: '#111827', fontSize: '0.875rem' }}>{row.quarterly}</td>
                       <td style={{ padding: '0.75rem 1rem', textAlign: 'center', color: '#111827', fontSize: '0.875rem' }}>{row.yearly}</td>
                     </tr>
