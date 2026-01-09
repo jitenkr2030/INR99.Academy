@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
   },
   // Enable SWC minification for faster builds
   swcMinify: true,
+  // Enable standalone output for optimized production deployment
+  output: 'standalone',
 };
 
 export default nextConfig;
