@@ -223,8 +223,10 @@ model Course {
   description      String
   thumbnail        String?
   difficulty       Difficulty       @default(BEGINNER)
-  duration         Int
+  duration         Int              @default(0)
+  price            Float            @default(0)
   isActive         Boolean          @default(true)
+  isPublished      Boolean          @default(false)
   instructorId     String
   categoryId       String?
   subCategoryId    String?
@@ -252,6 +254,7 @@ model Course {
   schoolSubject    SchoolSubject?   @relation(fields: [schoolSubjectId], references: [id])
   subCategory      SubCategory?     @relation(fields: [subCategoryId], references: [id])
   discussions      Discussion[]
+  modules          Module[]
   lessons          Lesson[]
   liveSessions     LiveSession[]
 
@@ -273,24 +276,66 @@ model Instructor {
   @@map("instructors")
 }
 
-model Lesson {
-  id          String           @id @default(cuid())
-  courseId    String
+model Module {
+  id          String   @id @default(cuid())
   title       String
-  content     String
-  videoUrl    String?
-  audioUrl    String?
-  pdfUrl      String?
-  duration    Int
-  order       Int              @default(0)
-  isActive    Boolean          @default(true)
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  assessments Assessment[]
-  progress    CourseProgress[]
-  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  description String?
+  order       Int      @default(0)
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("modules")
+}
+
+model Lesson {
+  id             String         @id @default(cuid())
+  courseId       String
+  moduleId       String?
+  title          String
+  content        String?
+  type           LessonType     @default(VIDEO)
+  videoUrl       String?
+  audioUrl       String?
+  pdfUrl         String?
+  thumbnailUrl   String?
+  duration       Int?
+  order          Int            @default(0)
+  isActive       Boolean        @default(true)
+  isFree         Boolean        @default(false)
+  isPublished    Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  assessments    Assessment[]
+  progress       CourseProgress[]
+  course         Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  module         Module?        @relation(fields: [moduleId], references: [id], onDelete: SetNull)
+  conversionJob  ConversionJob?
 
   @@map("lessons")
+}
+
+model ConversionJob {
+  id             String          @id @default(cuid())
+  lessonId       String          @unique
+  lesson         Lesson          @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  sourceFileUrl  String
+  sourceFileName String
+  targetFormat   ConversionTarget
+  status         JobStatus       @default(PENDING)
+  progress       Int             @default(0)
+  outputVideoUrl String?
+  outputAudioUrl String?
+  errorMessage   String?
+  cost           Float?
+  startedAt      DateTime        @default(now())
+  completedAt    DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@map("conversion_jobs")
 }
 
 model CourseProgress {
@@ -828,6 +873,28 @@ enum MessageStatus {
   PENDING
   REPLIED
   CLOSED
+}
+
+enum LessonType {
+  VIDEO
+  AUDIO
+  TEXT
+  QUIZ
+  PPTX
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ConversionTarget {
+  VIDEO
+  AUDIO
+  BOTH
 }
 
 model ContactMessage {
