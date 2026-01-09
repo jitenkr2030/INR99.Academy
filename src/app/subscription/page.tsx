@@ -269,7 +269,7 @@ export default function SubscriptionPage() {
                           Flexible monthly subscription
                         </span>
                       </div>
-                    )
+                    )}
                   </div>
                   
                   <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0', textAlign: 'left' }}>
