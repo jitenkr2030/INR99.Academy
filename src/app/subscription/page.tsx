@@ -183,11 +183,11 @@ export default function SubscriptionPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '1.5rem' }}>🎯</span>
               <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: '#92400e' }}>
-                Available Plans - Quarterly & Yearly
+                Available Plans - Monthly, Quarterly & Yearly
               </h3>
             </div>
             <p style={{ color: '#a16207', fontSize: '0.95rem' }}>
-              Choose <strong>₹249/quarter</strong> or <strong>₹999/year</strong> for complete access to all 18 learning categories! 
+              Choose <strong>₹99/month</strong>, <strong>₹249/quarter</strong>, or <strong>₹999/year</strong> for complete access to all 18 learning categories! 
               Best value - Save ₹252 with yearly plan.
             </p>
           </div>
@@ -233,21 +233,6 @@ export default function SubscriptionPage() {
                     fontWeight: '600'
                   }}>
                     ⭐ Most Popular
-                  </div>
-                )}
-                {plan.id === 'monthly' && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '1rem',
-                    left: '1rem',
-                    background: '#9ca3af',
-                    color: 'white',
-                    padding: '0.375rem 0.75rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.75rem',
-                    fontWeight: '600'
-                  }}>
-                    📊 For Comparison
                   </div>
                 )}
                 
@@ -309,67 +294,51 @@ export default function SubscriptionPage() {
                     ))}
                   </ul>
                   
-                  {plan.id === 'monthly' ? (
-                    <div style={{
+                  <button
+                    onClick={() => handleSubscribe(plan.id)}
+                    style={{
                       width: '100%',
                       padding: '0.875rem',
-                      border: '2px dashed #d1d5db',
+                      border: 'none',
                       borderRadius: '0.5rem',
                       fontSize: '1rem',
                       fontWeight: '600',
-                      cursor: 'not-allowed',
-                      background: '#f3f4f6',
-                      color: '#9ca3af',
+                      cursor: 'pointer',
+                      background: plan.id === 'yearly'
+                          ? '#ea580c'
+                          : plan.id === 'quarterly'
+                            ? '#16a34a'
+                            : '#6b7280',
+                      color: 'white',
+                      transition: 'background 0.2s',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '0.5rem'
-                    }}>
-                      <span>🚫</span> Currently Unavailable
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => handleSubscribe(plan.id)}
-                      style={{
-                        width: '100%',
-                        padding: '0.875rem',
-                        border: 'none',
-                        borderRadius: '0.5rem',
-                        fontSize: '1rem',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        background: plan.id === 'yearly'
-                            ? '#ea580c'
-                            : '#16a34a',
-                        color: 'white',
-                        transition: 'background 0.2s',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (plan.id === 'yearly') {
-                          e.currentTarget.style.background = '#c2410c'
-                        } else {
-                          e.currentTarget.style.background = '#15803d'
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (plan.id === 'yearly') {
-                          e.currentTarget.style.background = '#ea580c'
-                        } else {
-                          e.currentTarget.style.background = '#16a34a'
-                        }
-                      }}
-                    >
-                      {plan.id === 'yearly' ? (
-                        '🔥 Get Started - Best Value'
-                      ) : (
-                        '✅ Get Started - Save ₹48!'
-                      )}
-                    </button>
-                  )}
+                    }}
+                    onMouseEnter={(e) => {
+                      if (plan.id === 'yearly') {
+                        e.currentTarget.style.background = '#c2410c'
+                      } else if (plan.id === 'quarterly') {
+                        e.currentTarget.style.background = '#15803d'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (plan.id === 'yearly') {
+                        e.currentTarget.style.background = '#ea580c'
+                      } else if (plan.id === 'quarterly') {
+                        e.currentTarget.style.background = '#16a34a'
+                      }
+                    }}
+                  >
+                    {plan.id === 'yearly' ? (
+                      '🔥 Get Started - Best Value'
+                    ) : plan.id === 'quarterly' ? (
+                      '✅ Get Started - Save ₹48!'
+                    ) : (
+                      '✅ Get Started'
+                    )}
+                  </button>
                 </div>
               </div>
             ))}
