@@ -60,6 +60,9 @@ interface Course {
   vertical?: string
   category?: string
   tags?: string[]
+  classId?: string | null
+  className?: string | null
+  classLevel?: 'PRIMARY' | 'MIDDLE' | 'SECONDARY' | 'SENIOR_SECONDARY' | null
 }
 
 interface CoursesResponse {
@@ -256,7 +259,20 @@ export default function CoursesPage() {
     // Filter by sub-category if not 'all'
     if (activeSubFilter !== 'all') {
       result = result.filter(course => {
-        // Map sub-filters to course tags/categories
+        // For database courses, check classLevel
+        if (course.source === 'database' && course.classLevel) {
+          const classLevelMapping: Record<string, string[]> = {
+            primary: ['PRIMARY'],
+            middle: ['MIDDLE'],
+            secondary: ['SECONDARY'],
+            senior: ['SENIOR_SECONDARY'],
+          }
+          const allowedLevels = classLevelMapping[activeSubFilter] || []
+          if (allowedLevels.length === 0) return true
+          return allowedLevels.includes(course.classLevel)
+        }
+        
+        // For static courses, check tags (existing logic)
         const tagMapping: Record<string, string[]> = {
           // School sub-filters
           primary: ['primary-school', 'class1', 'class2', 'class3', 'class4', 'class5'],

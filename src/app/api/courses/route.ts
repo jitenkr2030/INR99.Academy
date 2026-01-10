@@ -56,6 +56,13 @@ export async function GET(request: NextRequest) {
               icon: true,
             },
           },
+          class: {
+            select: {
+              id: true,
+              name: true,
+              level: true,
+            },
+          },
           _count: {
             select: {
               lessons: true,
@@ -88,6 +95,9 @@ export async function GET(request: NextRequest) {
         description: 'Subscribe at INR 99/month to access all courses',
       },
       source: 'database' as const,
+      classId: course.classId,
+      className: course.class?.name || null,
+      classLevel: course.class?.level || null,
     }))
 
     // Get static courses from course-data.ts
