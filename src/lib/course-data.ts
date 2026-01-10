@@ -717,7 +717,7 @@ Course highlights:
     subcategory: "Investment Planning",
     vertical: "citizen",
     targetAudience: ["beginners", "working-professionals", "students"],
-    tags: ["stocks", "investing", "stock-market", "wealth", "trading", "Citizen & Life Systems", "Personal Finance", "Investment Planning"],,
+    tags: ["stocks", "investing", "stock-market", "wealth", "trading", "Citizen & Life Systems", "Personal Finance", "Investment Planning"],
     
     difficulty: "beginner",
     language: "Hindi-English",
