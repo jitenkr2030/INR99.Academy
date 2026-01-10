@@ -259,20 +259,52 @@ export default function CoursesPage() {
     // Filter by sub-category if not 'all'
     if (activeSubFilter !== 'all') {
       result = result.filter(course => {
-        // For database courses, check classLevel
-        if (course.source === 'database' && course.classLevel) {
-          const classLevelMapping: Record<string, string[]> = {
-            primary: ['PRIMARY'],
-            middle: ['MIDDLE'],
-            secondary: ['SECONDARY'],
-            senior: ['SENIOR_SECONDARY'],
+        // For ALL courses (database + static), check learningPath first
+        // This is what the UI uses to display badges like "Star Senior Secondary", "Award High School", etc.
+        if (course.learningPath && course.learningPath.id) {
+          const learningPathMapping: Record<string, string[]> = {
+            // School sub-filters
+            primary: ['primary-school'],
+            middle: ['middle-school'],
+            secondary: ['high-school'],
+            senior: ['senior-secondary'],
+            // College sub-filters
+            bsc: ['bsc', 'b.sc', 'bachelor-of-science'],
+            bcom: ['bcom', 'b.com', 'bachelor-of-commerce'],
+            bba: ['bba', 'b.ba', 'bachelor-of-business-administration'],
+            btech: ['btech', 'b.tech', 'b.tech-cs', 'engineering'],
+            llb: ['llb', 'l.l.b', 'law', 'bachelor-of-laws'],
+            // PG sub-filters
+            mba: ['mba', 'm.ba', 'master-of-business-administration', 'mba-finance', 'mba-marketing', 'mba-hr', 'mba-operations'],
+            mcom: ['mcom', 'm.com', 'master-of-commerce', 'mcom-accounting', 'mcom-finance', 'mcom-business'],
+            msc: ['msc', 'm.sc', 'master-of-science', 'pg-msc', 'pg_msc'],
+            mca: ['mca', 'm.c.a', 'master-of-computer-applications'],
+            ma: ['ma', 'm.a', 'master-of-arts', 'pg-ma', 'pg_ma', 'ma-economics', 'ma-history', 'ma-psychology', 'ma-english'],
+            llm: ['llm', 'l.l.m', 'master-of-laws', 'pg-llm', 'pg_llm', 'llm-corporate', 'llm-criminal', 'llm-constitutional'],
+            // Professional sub-filters
+            technology: ['technology', 'programming', 'web-development', 'python', 'javascript', 'react', 'nodejs', 'coding'],
+            design: ['design', 'ui', 'ux', 'figma', 'graphic-design', 'ui-ux'],
+            business: ['business', 'entrepreneurship', 'startup', 'strategy', 'management'],
+            marketing: ['marketing', 'digital-marketing', 'seo', 'social-media', 'advertising'],
+            'data-science': ['data-science', 'machine-learning', 'ai', 'analytics', 'data-science-python'],
+            career: ['career', 'resume', 'interview', 'job-prep', 'professional-development'],
+            // Competitive sub-filters
+            upsc: ['upsc', 'civil-services', 'ias', 'ips', 'prelims', 'mains', 'interview'],
+            ssc: ['ssc', 'chsl', 'cgl', 'mts', 'staff-selection-commission'],
+            banking: ['banking', 'bank-po', 'clerk', 'ibps', 'sbi', 'rrb'],
+            defense: ['defense', 'nda', 'cds', 'airforce', 'navy', 'army', 'ssb'],
+            teaching: ['teaching', 'tet', 'ctet', 'education', 'b-ed']
           }
-          const allowedLevels = classLevelMapping[activeSubFilter] || []
-          if (allowedLevels.length === 0) return true
-          return allowedLevels.includes(course.classLevel)
+          
+          const learningPathMappingValues = learningPathMapping[activeSubFilter] || []
+          if (learningPathMappingValues.length > 0) {
+            const learningPathId = course.learningPath.id.toLowerCase()
+            const matches = learningPathMappingValues.some(m => learningPathId.includes(m.toLowerCase()))
+            if (matches) return true
+          }
         }
         
-        // For static courses, check tags (existing logic)
+        // Fallback: check tags for static courses
         const tagMapping: Record<string, string[]> = {
           // School sub-filters
           primary: ['primary-school', 'class1', 'class2', 'class3', 'class4', 'class5'],
@@ -308,7 +340,7 @@ export default function CoursesPage() {
         }
         
         const mapping = tagMapping[activeSubFilter] || []
-        if (mapping.length === 0) return true
+        if (mapping.length === 0) return false
         
         return course.tags && course.tags.some(tag => 
           mapping.some(m => tag.toLowerCase().includes(m.toLowerCase()))
