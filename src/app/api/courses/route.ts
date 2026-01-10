@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { courses } from '@/lib/course-data'
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,8 +8,9 @@ export async function GET(request: NextRequest) {
     const learningPathId = searchParams.get('learningPathId')
     const difficulty = searchParams.get('difficulty')
     const categoryId = searchParams.get('categoryId')
+    const vertical = searchParams.get('vertical') // school, college, pg, professional
     const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '12')
+    const limit = parseInt(searchParams.get('limit') || '100')
     const offset = (page - 1) * limit
 
     // Build where clause for filtering
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch courses with Prisma including related data
-    const [courses, total] = await Promise.all([
+    const [dbCourses, total] = await Promise.all([
       db.course.findMany({
         where,
         skip: offset,
@@ -42,7 +44,6 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
-              // title field removed - not available in current Prisma schema
               avatar: true,
               expertise: true,
             },
@@ -66,8 +67,8 @@ export async function GET(request: NextRequest) {
       db.course.count({ where }),
     ])
 
-    // Map courses to include lessonCount and assessmentCount dynamically
-    const coursesWithDetails = courses.map(course => ({
+    // Map database courses to include lessonCount and assessmentCount dynamically
+    const dbCoursesWithDetails = dbCourses.map(course => ({
       id: course.id,
       title: course.title,
       description: course.description,
@@ -86,16 +87,67 @@ export async function GET(request: NextRequest) {
         period: 'month',
         description: 'Subscribe at INR 99/month to access all courses',
       },
+      source: 'database' as const,
     }))
+
+    // Get static courses from course-data.ts
+    let staticCourses = courses
+
+    // Filter by vertical if specified
+    if (vertical) {
+      staticCourses = staticCourses.filter(course => course.vertical === vertical)
+    }
+
+    // Add source property to static courses
+    const staticCoursesWithDetails = staticCourses.map(course => ({
+      id: course.id,
+      title: course.title,
+      description: course.description,
+      thumbnail: course.thumbnail,
+      difficulty: course.difficulty.toUpperCase(),
+      duration: course.totalDuration,
+      instructor: course.instructor,
+      learningPath: null, // Static courses don't have learning path in the same way
+      lessonCount: course.lessonCount,
+      assessmentCount: 0,
+      createdAt: course.createdAt,
+      pricing: {
+        type: course.price === 0 ? 'free' : 'paid',
+        price: course.price,
+        currency: course.currency,
+        period: 'one-time',
+        description: course.price === 0 ? 'Free course' : `Course available at INR ${course.price}`,
+      },
+      source: 'static' as const,
+      vertical: course.vertical,
+      category: course.category,
+      tags: course.tags,
+    }))
+
+    // Combine database and static courses
+    // If database has courses, prioritize those and append static ones
+    // If no database courses, return all static courses matching the filter
+    let allCourses = [...dbCoursesWithDetails]
+    
+    // Add static courses that don't already exist in database
+    const dbCourseIds = new Set(dbCoursesWithDetails.map(c => c.id))
+    const uniqueStaticCourses = staticCoursesWithDetails.filter(c => !dbCourseIds.has(c.id))
+    
+    allCourses = [...allCourses, ...uniqueStaticCourses]
+
+    // Apply difficulty filter to combined results
+    if (difficulty && ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'].includes(difficulty)) {
+      allCourses = allCourses.filter(course => course.difficulty === difficulty)
+    }
 
     return NextResponse.json({
       success: true,
-      courses: coursesWithDetails,
+      courses: allCourses,
       pagination: {
         page,
         limit,
-        total,
-        totalPages: Math.ceil(total / limit),
+        total: allCourses.length,
+        totalPages: Math.ceil(allCourses.length / limit),
       },
     })
 

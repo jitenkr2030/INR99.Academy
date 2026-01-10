@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { NewNavigation } from '@/components/new-navigation'
 
 interface Category {
@@ -55,6 +56,10 @@ interface Course {
   assessmentCount: number
   createdAt: string
   pricing: Pricing
+  source?: 'database' | 'static'
+  vertical?: string
+  category?: string
+  tags?: string[]
 }
 
 interface CoursesResponse {
@@ -106,17 +111,36 @@ const COLLEGE_LEARNING_PATH_IDS = [
   'arts-foundation'
 ]
 
+// Vertical identifiers for static courses
+const SCHOOL_VERTICALS = ['school']
+const COLLEGE_VERTICALS = ['college']
+const PG_VERTICALS = ['pg']
+
 export default function CoursesPage() {
+  const searchParams = useSearchParams()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedUniversity, setSelectedUniversity] = useState('')
   const [showCollegeOnly, setShowCollegeOnly] = useState(false)
   const [showSchoolOnly, setShowSchoolOnly] = useState(false)
+  const [showPGOnly, setShowPGOnly] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Check URL params for initial filter state
+  useEffect(() => {
+    const filter = searchParams.get('filter')
+    if (filter === 'college') {
+      setShowCollegeOnly(true)
+    } else if (filter === 'school') {
+      setShowSchoolOnly(true)
+    } else if (filter === 'pg') {
+      setShowPGOnly(true)
+    }
+  }, [searchParams])
 
   // Fetch categories
   useEffect(() => {
@@ -143,7 +167,10 @@ export default function CoursesPage() {
         const params = new URLSearchParams()
         if (selectedCategory) params.set('categoryId', selectedCategory)
         if (selectedDifficulty) params.set('difficulty', selectedDifficulty)
-        params.set('limit', '100')
+        if (showCollegeOnly) params.set('vertical', 'college')
+        if (showSchoolOnly) params.set('vertical', 'school')
+        if (showPGOnly) params.set('vertical', 'pg')
+        params.set('limit', '200')
 
         const response = await fetch(`/api/courses?${params.toString()}`)
         if (response.ok) {
@@ -160,32 +187,10 @@ export default function CoursesPage() {
       }
     }
     fetchCourses()
-  }, [selectedCategory, selectedDifficulty])
+  }, [selectedCategory, selectedDifficulty, showCollegeOnly, showSchoolOnly, showPGOnly])
 
   const filteredCourses = useMemo(() => {
     let result = courses
-
-    // Filter by college courses only
-    if (showCollegeOnly) {
-      result = result.filter(course => 
-        course.learningPath && COLLEGE_LEARNING_PATH_IDS.includes(course.learningPath.id)
-      )
-    }
-
-    // Filter by school courses only
-    if (showSchoolOnly) {
-      result = result.filter(course => 
-        course.learningPath && SCHOOL_LEARNING_PATH_IDS.includes(course.learningPath.id)
-      )
-    }
-
-    // Filter by university (for college courses)
-    if (selectedUniversity) {
-      // When a university is selected, highlight/show college courses
-      result = result.filter(course => 
-        course.learningPath && COLLEGE_LEARNING_PATH_IDS.includes(course.learningPath.id)
-      )
-    }
 
     // Filter by search term (client-side search)
     if (searchTerm) {
@@ -193,12 +198,13 @@ export default function CoursesPage() {
       result = result.filter(course =>
         course.title.toLowerCase().includes(term) ||
         course.description.toLowerCase().includes(term) ||
-        (course.instructor.name && course.instructor.name.toLowerCase().includes(term))
+        (course.instructor.name && course.instructor.name.toLowerCase().includes(term)) ||
+        (course.tags && course.tags.some(tag => tag.toLowerCase().includes(term)))
       )
     }
 
     return result
-  }, [courses, searchTerm, selectedUniversity, showCollegeOnly, showSchoolOnly])
+  }, [courses, searchTerm])
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toUpperCase()) {
@@ -216,16 +222,35 @@ export default function CoursesPage() {
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`
   }
 
-  // Get thumbnail path - maps course ID to thumbnail file
+  // Check if a course is from a specific vertical
+  const isSchoolCourse = (course: Course) => {
+    return (
+      (course.learningPath && SCHOOL_LEARNING_PATH_IDS.includes(course.learningPath.id)) ||
+      (course.source === 'static' && course.vertical && SCHOOL_VERTICALS.includes(course.vertical))
+    )
+  }
+
+  const isCollegeCourse = (course: Course) => {
+    return (
+      (course.learningPath && COLLEGE_LEARNING_PATH_IDS.includes(course.learningPath.id)) ||
+      (course.source === 'static' && course.vertical && COLLEGE_VERTICALS.includes(course.vertical))
+    )
+  }
+
+  const isPGCourse = (course: Course) => {
+    return (
+      course.source === 'static' && course.vertical && PG_VERTICALS.includes(course.vertical)
+    )
+  }
+
+  // Get thumbnail path
   const getThumbnailPath = (courseId: string, currentThumbnail: string | null) => {
-    // If thumbnail already has full path and file exists, use it
     if (currentThumbnail && (currentThumbnail.startsWith('/assets/') || currentThumbnail.startsWith('/images/'))) {
       return currentThumbnail
     }
     
-    // Map actual course IDs to their thumbnail files
     const thumbnailMap: Record<string, string> = {
-      // School Education courses (Classes 1-5)
+      // School courses
       'school1': '/assets/courses/school-primary-math.svg',
       'school2': '/assets/courses/school-primary-english.svg',
       'school3': '/assets/courses/school-primary-math.svg',
@@ -234,86 +259,106 @@ export default function CoursesPage() {
       'school6': '/assets/courses/school-primary-english.svg',
       'school7': '/assets/courses/school-primary-math.svg',
       'school8': '/assets/courses/school-primary-science.svg',
-      
-      // School Education courses (Classes 6-8)
       'school9': '/assets/courses/school-middle-math.svg',
       'school10': '/assets/courses/school-middle-science.svg',
       'school11': '/assets/courses/school-middle-english.svg',
       'school12': '/assets/courses/school-middle-math.svg',
       'school13': '/assets/courses/school-middle-science.svg',
-      
-      // School Education courses (Classes 9-10)
       'school14': '/assets/courses/school-secondary-math.svg',
       'school15': '/assets/courses/school-secondary-physics.svg',
       'school16': '/assets/courses/school-secondary-chemistry.svg',
       'school17': '/assets/courses/school-secondary-biology.svg',
       'school18': '/assets/courses/school-secondary-math.svg',
-      
-      // School Education courses (Classes 11-12)
       'school19': '/assets/courses/school-senior-math.svg',
       'school20': '/assets/courses/school-senior-physics.svg',
       'school21': '/assets/courses/school-senior-chemistry.svg',
       'school22': '/assets/courses/school-senior-biology.svg',
       
-      // College Education courses - Engineering Foundation
+      // College courses
       'college1': '/assets/courses/college-engineering-math.svg',
       'college2': '/assets/courses/college-programming.svg',
       'college3': '/assets/courses/college-engineering-physics.svg',
       'college4': '/assets/courses/college-digital-electronics.svg',
-      
-      // College Education courses - Medical Foundation
       'college5': '/assets/courses/college-human-anatomy.svg',
       'college6': '/assets/courses/college-biochemistry.svg',
       'college7': '/assets/courses/college-physiology.svg',
       'college8': '/assets/courses/college-medical-research.svg',
-      
-      // College Education courses - Business Foundation
       'college9': '/assets/courses/college-business-economics.svg',
       'college10': '/assets/courses/college-accounting.svg',
       'college11': '/assets/courses/college-business-stats.svg',
       'college12': '/assets/courses/college-marketing.svg',
-      
-      // College Education courses - Arts Foundation
       'college13': '/assets/courses/college-world-literature.svg',
       'college14': '/assets/courses/college-philosophy.svg',
       'college15': '/assets/courses/college-art-history.svg',
       'college16': '/assets/courses/college-communication.svg',
+      'college_bsc_pcm': '/assets/courses/college-bsc-pcm.svg',
+      'college_bsc_pcb': '/assets/courses/college-bsc-pcb.svg',
+      'college_bsc_cs': '/assets/courses/college-bsc-cs.svg',
+      'college_bsc_bio': '/assets/courses/college-bsc-biotech.svg',
+      'college_bsc_stats': '/assets/courses/college-bsc-stats.svg',
+      'college_bcom': '/assets/courses/college-bcom.svg',
+      'college_bba': '/assets/courses/college-bba.svg',
+      'college_ba_history': '/assets/courses/college-ba-history.svg',
+      'college_ba_polsc': '/assets/courses/college-ba-polsc.svg',
+      'college_ba_psychology': '/assets/courses/college-ba-psychology.svg',
+      'college_btech_cs': '/assets/courses/college-btech-cs.svg',
+      'college_llb': '/assets/courses/college-llb.svg',
+      'college_semester_support': '/assets/courses/college-semester-support.svg',
+      'college_exam_prep': '/assets/courses/college-exam-prep.svg',
+      'college_career_skills': '/assets/courses/college-career-skills.svg',
       
-      // Career & Professional Skills - Technology & Programming
+      // PG courses
+      'pg_mba_finance': '/assets/courses/pg-mba-finance.svg',
+      'pg_mba_marketing': '/assets/courses/pg-mba-marketing.svg',
+      'pg_mba_hr': '/assets/courses/pg-mba-hr.svg',
+      'pg_mba_operations': '/assets/courses/pg-mba-operations.svg',
+      'pg_mcom_accounting': '/assets/courses/pg-mcom-accounting.svg',
+      'pg_mcom_finance': '/assets/courses/pg-mcom-finance.svg',
+      'pg_mcom_business': '/assets/courses/pg-mcom-business.svg',
+      'pg_msc_maths': '/assets/courses/pg-msc-maths.svg',
+      'pg_msc_physics': '/assets/courses/pg-msc-physics.svg',
+      'pg_msc_chemistry': '/assets/courses/pg-msc-chemistry.svg',
+      'pg_msc_cs': '/assets/courses/pg-msc-cs.svg',
+      'pg_msc_data_science': '/assets/courses/pg-msc-data-science.svg',
+      'pg_mca': '/assets/courses/pg-mca.svg',
+      'pg_ma_economics': '/assets/courses/pg-ma-economics.svg',
+      'pg_ma_history': '/assets/courses/pg-ma-history.svg',
+      'pg_ma_psychology': '/assets/courses/pg-ma-psychology.svg',
+      'pg_ma_english': '/assets/courses/pg-ma-english.svg',
+      'pg_llm_corporate': '/assets/courses/pg-llm-corporate.svg',
+      'pg_llm_criminal': '/assets/courses/pg-llm-criminal.svg',
+      'pg_llm_constitutional': '/assets/courses/pg-llm-constitutional.svg',
+      'pg_net_prep': '/assets/courses/pg-net-prep.svg',
+      'pg_gate_prep': '/assets/courses/pg-gate-prep.svg',
+      'pg_career_guidance': '/assets/courses/pg-career-guidance.svg',
+      
+      // Career courses
       'career1': '/assets/courses/web-development-bootcamp.svg',
       'career2': '/assets/courses/python-masterclass.svg',
       'career3': '/assets/courses/data-science.svg',
       'career4': '/assets/courses/mobile-app.svg',
-      
-      // Career & Professional Skills - Business & Entrepreneurship
       'career5': '/assets/courses/business-strategy.svg',
       'career6': '/assets/courses/entrepreneurship.svg',
       'career7': '/assets/courses/financial-management.svg',
       'career8': '/assets/courses/project-management.svg',
-      
-      // Career & Professional Skills - Creative & Design
       'career9': '/assets/courses/ui-ux-design.svg',
       'career10': '/assets/courses/graphic-design.svg',
       'career11': '/assets/courses/video-editing.svg',
       'career12': '/assets/courses/photography.svg',
-      
-      // Career & Professional Skills - Communication & Marketing
       'career13': '/assets/courses/digital-marketing.svg',
       'career14': '/assets/courses/public-speaking.svg',
       'career15': '/assets/courses/social-media.svg',
       'career16': '/assets/courses/brand-strategy.svg',
       
-      // Life Skills - Personal Finance
+      // Life skills
       'life1': '/assets/courses/personal-finance.svg',
       'life2': '/assets/courses/investment.svg',
       'life3': '/assets/courses/tax-planning.svg',
-      
-      // Life Skills - Health & Wellness
       'life4': '/assets/courses/nutrition.svg',
       'life5': '/assets/courses/fitness.svg',
       'life6': '/assets/courses/mental-health.svg',
       
-      // Confusion Removers courses
+      // Confusion Removers
       'cr_digital': '/assets/courses/cr_digital.svg',
       'cr_upi': '/assets/courses/cr_upi.svg',
       'cr_gov': '/assets/courses/cr_gov.svg',
@@ -324,7 +369,7 @@ export default function CoursesPage() {
       'cr_foodwork': '/assets/courses/cr_foodwork.svg',
       'cr_community': '/assets/courses/cr_community.svg',
       
-      // Government Exams
+      // Government exams
       'upsc_prelims': '/assets/courses/upsc-prelims.svg',
       'upsc_mains': '/assets/courses/upsc-mains.svg',
       'upsc_interview': '/assets/courses/upsc-interview.svg',
@@ -334,13 +379,13 @@ export default function CoursesPage() {
       'state_police': '/assets/courses/state-police.svg',
       'state_tet': '/assets/courses/tet.svg',
       
-      // Stock Market & Trading
+      // Stock market
       'stock-market-basics': '/assets/courses/stock-basics.svg',
       'options-trading-mastery': '/assets/courses/options-trading.svg',
       'technical-analysis-master': '/assets/courses/technical-analysis.svg',
       'mutual-funds-sip-mastery': '/assets/courses/mutual-funds.svg',
       
-      // Professional Certifications
+      // Professional certifications
       'course-ca-foundation': '/assets/courses/ca-foundation.svg',
       'course-ca-intermediate': '/assets/courses/ca-intermediate.svg',
       'course-ca-final': '/assets/courses/ca-final.svg',
@@ -362,19 +407,25 @@ export default function CoursesPage() {
       'advanced-excel-pro': '/assets/courses/excel.svg',
     }
     
-    // Check if we have a direct mapping
     if (thumbnailMap[courseId]) {
       return thumbnailMap[courseId]
     }
     
-    // Return original thumbnail path if nothing matches
     return currentThumbnail
   }
 
-  // Calculate stats from actual data
-  const totalCourses = courses.length
-  const totalLessons = courses.reduce((sum, c) => sum + c.lessonCount, 0)
-  const uniqueInstructors = new Set(courses.map(c => c.instructor.id)).size
+  // Calculate stats
+  const totalCourses = filteredCourses.length
+  const totalLessons = filteredCourses.reduce((sum, c) => sum + c.lessonCount, 0)
+  const uniqueInstructors = new Set(filteredCourses.map(c => c.instructor.id)).size
+
+  // Get current active filter for display
+  const getActiveFilter = () => {
+    if (showPGOnly) return 'Post-Graduate'
+    if (showCollegeOnly) return 'College (UG)'
+    if (showSchoolOnly) return 'School'
+    return 'All'
+  }
 
   return (
     <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -394,12 +445,12 @@ export default function CoursesPage() {
               <div style={{ 
                 marginTop: '1rem', 
                 padding: '0.75rem 1.5rem', 
-                background: '#fef3c7', 
+                background: '#ede9fe', 
                 borderRadius: '0.5rem',
                 display: 'inline-block'
               }}>
-                <p style={{ color: '#92400e', fontSize: '0.9rem' }}>
-                  🎓 <strong>New:</strong> College Education courses with University-specific curriculum support!
+                <p style={{ color: '#5b21b6', fontSize: '0.9rem' }}>
+                  🎓 <strong>New:</strong> Post-Graduate courses now available - MBA, M.Sc, M.Com, MCA, M.A., LL.M.!
                 </p>
               </div>
             </div>
@@ -433,9 +484,14 @@ export default function CoursesPage() {
               </div>
             </div>
 
-            {/* Tabs */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+            {/* Level Tabs */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button
+                onClick={() => {
+                  setShowSchoolOnly(false)
+                  setShowCollegeOnly(false)
+                  setShowPGOnly(false)
+                }}
                 style={{
                   padding: '0.625rem 1.5rem',
                   borderRadius: '0.375rem',
@@ -443,16 +499,20 @@ export default function CoursesPage() {
                   fontWeight: '500',
                   cursor: 'pointer',
                   border: 'none',
-                  background: 'white',
-                  color: '#111827',
+                  background: !showSchoolOnly && !showCollegeOnly && !showPGOnly ? '#111827' : 'white',
+                  color: !showSchoolOnly && !showCollegeOnly && !showPGOnly ? 'white' : '#111827',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                   transition: 'all 0.2s'
                 }}
               >
                 All Courses
               </button>
-              <Link
-                href="/courses/college"
+              <button
+                onClick={() => {
+                  setShowSchoolOnly(true)
+                  setShowCollegeOnly(false)
+                  setShowPGOnly(false)
+                }}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -463,16 +523,20 @@ export default function CoursesPage() {
                   fontWeight: '500',
                   cursor: 'pointer',
                   border: 'none',
-                  background: '#fef3c7',
-                  color: '#92400e',
-                  textDecoration: 'none',
+                  background: showSchoolOnly ? '#2563eb' : 'white',
+                  color: showSchoolOnly ? 'white' : '#1e40af',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                   transition: 'all 0.2s'
                 }}
               >
-                🎓 College Education
-              </Link>
-              <Link
-                href="/learning-paths"
+                🏫 School
+              </button>
+              <button
+                onClick={() => {
+                  setShowSchoolOnly(false)
+                  setShowCollegeOnly(true)
+                  setShowPGOnly(false)
+                }}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -483,130 +547,221 @@ export default function CoursesPage() {
                   fontWeight: '500',
                   cursor: 'pointer',
                   border: 'none',
-                  background: 'transparent',
-                  color: '#6b7280',
-                  textDecoration: 'none',
+                  background: showCollegeOnly ? '#ea580c' : 'white',
+                  color: showCollegeOnly ? 'white' : '#92400e',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                   transition: 'all 0.2s'
                 }}
               >
-                Learning Paths
-              </Link>
+                🎓 College (UG)
+              </button>
+              <button
+                onClick={() => {
+                  setShowSchoolOnly(false)
+                  setShowCollegeOnly(false)
+                  setShowPGOnly(true)
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.625rem 1.5rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: showPGOnly ? '#7c3aed' : 'white',
+                  color: showPGOnly ? 'white' : '#5b21b6',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🎓 Post-Graduate (PG)
+              </button>
             </div>
           </div>
         </div>
 
         {/* Filters & Content */}
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
-          {/* College Education University Filter */}
-          <div style={{
-            background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-            borderRadius: '0.75rem',
-            padding: '1.5rem',
-            marginBottom: '1.5rem',
-            border: '1px solid #f59e0b'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>🎓</span>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#92400e' }}>
-                College Education - Find Your University Courses
-              </h3>
+          
+          {/* PG Education Filter Section */}
+          {showPGOnly && (
+            <div style={{
+              background: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)',
+              borderRadius: '0.75rem',
+              padding: '1.5rem',
+              marginBottom: '1.5rem',
+              border: '1px solid #7c3aed'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '1.5rem' }}>🎓</span>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#5b21b6' }}>
+                  Post-Graduate Education - Master&apos;s Degree Courses
+                </h3>
+              </div>
+              
+              <p style={{ color: '#6d28d9', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                Select your specialization to find advanced courses tailored to your career goals
+              </p>
+              
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #7c3aed',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#5b21b6',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  📊 All PG Courses
+                </button>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #7c3aed',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#5b21b6',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  💼 MBA
+                </button>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #7c3aed',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#5b21b6',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  📈 M.Com
+                </button>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #7c3aed',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#5b21b6',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  🔬 M.Sc
+                </button>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #7c3aed',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#5b21b6',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  💻 MCA
+                </button>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #7c3aed',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#5b21b6',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  📚 M.A.
+                </button>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #7c3aed',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#5b21b6',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  ⚖️ LL.M.
+                </button>
+              </div>
             </div>
-            
-            <p style={{ color: '#a16207', fontSize: '0.875rem', marginBottom: '1rem' }}>
-              Select your university to see degree-specific courses tailored to your curriculum
-            </p>
-            
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <select
-                value={selectedUniversity}
-                onChange={(e) => {
-                  setSelectedUniversity(e.target.value)
-                  if (e.target.value) {
-                    setShowCollegeOnly(true)
-                    setShowSchoolOnly(false)
-                  }
-                }}
-                style={{
-                  padding: '0.75rem 1rem',
-                  fontSize: '0.875rem',
-                  border: '1px solid #d97706',
-                  borderRadius: '0.5rem',
-                  background: 'white',
-                  cursor: 'pointer',
-                  minWidth: '280px',
-                  maxWidth: '400px'
-                }}
-              >
-                <option value="">Select Your University...</option>
-                {INDIAN_UNIVERSITIES.map(uni => (
-                  <option key={uni.id} value={uni.id}>
-                    {uni.name} ({uni.state})
-                  </option>
-                ))}
-              </select>
+          )}
 
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                cursor: 'pointer',
-                padding: '0.5rem 1rem',
-                background: showCollegeOnly ? '#ea580c' : 'white',
-                color: showCollegeOnly ? 'white' : '#92400e',
-                borderRadius: '0.5rem',
-                border: showCollegeOnly ? 'none' : '1px solid #d97706',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                transition: 'all 0.2s'
-              }}>
-                <input
-                  type="checkbox"
-                  checked={showCollegeOnly}
-                  onChange={(e) => {
-                    setShowCollegeOnly(e.target.checked)
-                    if (e.target.checked) {
-                      setShowSchoolOnly(false)
-                    }
+          {/* College Education University Filter */}
+          {showCollegeOnly && (
+            <div style={{
+              background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+              borderRadius: '0.75rem',
+              padding: '1.5rem',
+              marginBottom: '1.5rem',
+              border: '1px solid #f59e0b'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '1.5rem' }}>🎓</span>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#92400e' }}>
+                  College Education - Find Your University Courses
+                </h3>
+              </div>
+              
+              <p style={{ color: '#a16207', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                Select your university to see degree-specific courses tailored to your curriculum
+              </p>
+              
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <select
+                  value={selectedUniversity}
+                  onChange={(e) => setSelectedUniversity(e.target.value)}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #d97706',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    cursor: 'pointer',
+                    minWidth: '280px',
+                    maxWidth: '400px'
                   }}
-                  style={{ width: '18px', height: '18px', accentColor: '#ea580c' }}
-                />
-                Show College Courses Only
-              </label>
+                >
+                  <option value="">Select Your University...</option>
+                  {INDIAN_UNIVERSITIES.map(uni => (
+                    <option key={uni.id} value={uni.id}>
+                      {uni.name} ({uni.state})
+                    </option>
+                  ))}
+                </select>
 
-              <label style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                cursor: 'pointer',
-                padding: '0.5rem 1rem',
-                background: showSchoolOnly ? '#2563eb' : 'white',
-                color: showSchoolOnly ? 'white' : '#1e40af',
-                borderRadius: '0.5rem',
-                border: showSchoolOnly ? 'none' : '1px solid #2563eb',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-                transition: 'all 0.2s'
-              }}>
-                <input
-                  type="checkbox"
-                  checked={showSchoolOnly}
-                  onChange={(e) => {
-                    setShowSchoolOnly(e.target.checked)
-                    if (e.target.checked) {
-                      setShowCollegeOnly(false)
-                    }
-                  }}
-                  style={{ width: '18px', height: '18px', accentColor: '#2563eb' }}
-                />
-                Show School Courses Only
-              </label>
-
-              {(selectedUniversity || showCollegeOnly || showSchoolOnly) && (
                 <button
                   onClick={() => {
                     setSelectedUniversity('')
-                    setShowCollegeOnly(false)
-                    setShowSchoolOnly(false)
                   }}
                   style={{
                     padding: '0.5rem 1rem',
@@ -620,172 +775,126 @@ export default function CoursesPage() {
                 >
                   Clear Selection
                 </button>
+              </div>
+
+              {selectedUniversity && (
+                <div style={{ 
+                  marginTop: '1rem', 
+                  padding: '0.75rem', 
+                  background: 'rgba(255,255,255,0.7)', 
+                  borderRadius: '0.5rem',
+                  fontSize: '0.875rem',
+                  color: '#92400e'
+                }}>
+                  <strong>Showing courses for:</strong> {INDIAN_UNIVERSITIES.find(u => u.id === selectedUniversity)?.name}
+                  <p style={{ marginTop: '0.25rem', fontSize: '0.8rem', color: '#a16207' }}>
+                    These degree courses are designed to align with common university curricula across India.
+                    Check your specific university syllabus for any variations.
+                  </p>
+                </div>
               )}
             </div>
-
-            {selectedUniversity && (
-              <div style={{ 
-                marginTop: '1rem', 
-                padding: '0.75rem', 
-                background: 'rgba(255,255,255,0.7)', 
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                color: '#92400e'
-              }}>
-                <strong>Showing courses for:</strong> {INDIAN_UNIVERSITIES.find(u => u.id === selectedUniversity)?.name}
-                <p style={{ marginTop: '0.25rem', fontSize: '0.8rem', color: '#a16207' }}>
-                  These degree courses are designed to align with common university curricula across India.
-                  Check your specific university syllabus for any variations.
-                </p>
-              </div>
-            )}
-          </div>
+          )}
 
           {/* School Education Quick Filter */}
-          <div style={{
-            background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-            borderRadius: '0.75rem',
-            padding: '1.5rem',
-            marginBottom: '2rem',
-            border: '1px solid #3b82f6'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>🏫</span>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1e40af' }}>
-                School Education - Classes 1-12
-              </h3>
-            </div>
-            
-            <p style={{ color: '#1e40af', fontSize: '0.875rem', marginBottom: '1rem' }}>
-              Select your class level to find courses aligned with your curriculum
-            </p>
-            
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <button
-                onClick={() => {
-                  setShowSchoolOnly(true)
-                  setShowCollegeOnly(false)
-                  setSelectedUniversity('')
-                }}
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  fontSize: '0.875rem',
-                  border: '1px solid #3b82f6',
-                  borderRadius: '0.5rem',
-                  background: showSchoolOnly ? '#2563eb' : 'white',
-                  color: showSchoolOnly ? 'white' : '#1e40af',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  transition: 'all 0.2s'
-                }}
-              >
-                📚 All School Courses
-              </button>
+          {showSchoolOnly && (
+            <div style={{
+              background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
+              borderRadius: '0.75rem',
+              padding: '1.5rem',
+              marginBottom: '1.5rem',
+              border: '1px solid #3b82f6'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                <span style={{ fontSize: '1.5rem' }}>🏫</span>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1e40af' }}>
+                  School Education - Classes 1-12
+                </h3>
+              </div>
               
-              <button
-                onClick={() => {
-                  setShowSchoolOnly(true)
-                  setShowCollegeOnly(false)
-                  setSelectedUniversity('')
-                }}
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  fontSize: '0.875rem',
-                  border: '1px solid #3b82f6',
-                  borderRadius: '0.5rem',
-                  background: 'white',
-                  color: '#1e40af',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  transition: 'all 0.2s'
-                }}
-              >
-                Primary (Classes 1-5)
-              </button>
+              <p style={{ color: '#1e40af', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                Select your class level to find courses aligned with your curriculum
+              </p>
               
-              <button
-                onClick={() => {
-                  setShowSchoolOnly(true)
-                  setShowCollegeOnly(false)
-                  setSelectedUniversity('')
-                }}
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  fontSize: '0.875rem',
-                  border: '1px solid #3b82f6',
-                  borderRadius: '0.5rem',
-                  background: 'white',
-                  color: '#1e40af',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  transition: 'all 0.2s'
-                }}
-              >
-                Middle (Classes 6-8)
-              </button>
-              
-              <button
-                onClick={() => {
-                  setShowSchoolOnly(true)
-                  setShowCollegeOnly(false)
-                  setSelectedUniversity('')
-                }}
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  fontSize: '0.875rem',
-                  border: '1px solid #3b82f6',
-                  borderRadius: '0.5rem',
-                  background: 'white',
-                  color: '#1e40af',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  transition: 'all 0.2s'
-                }}
-              >
-                Secondary (Classes 9-10)
-              </button>
-              
-              <button
-                onClick={() => {
-                  setShowSchoolOnly(true)
-                  setShowCollegeOnly(false)
-                  setSelectedUniversity('')
-                }}
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  fontSize: '0.875rem',
-                  border: '1px solid #3b82f6',
-                  borderRadius: '0.5rem',
-                  background: 'white',
-                  color: '#1e40af',
-                  cursor: 'pointer',
-                  fontWeight: '500',
-                  transition: 'all 0.2s'
-                }}
-              >
-                Senior Secondary
-              </button>
-
-              {(showSchoolOnly) && (
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
                 <button
-                  onClick={() => {
-                    setShowSchoolOnly(false)
-                  }}
                   style={{
-                    padding: '0.5rem 1rem',
+                    padding: '0.625rem 1.25rem',
                     fontSize: '0.875rem',
                     border: '1px solid #3b82f6',
                     borderRadius: '0.5rem',
                     background: 'white',
                     color: '#1e40af',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
                   }}
                 >
-                  Clear School Filter
+                  📚 All School Courses
                 </button>
-              )}
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #3b82f6',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#1e40af',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Primary (Classes 1-5)
+                </button>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #3b82f6',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#1e40af',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Middle (Classes 6-8)
+                </button>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #3b82f6',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#1e40af',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Secondary (Classes 9-10)
+                </button>
+                <button
+                  style={{
+                    padding: '0.625rem 1.25rem',
+                    fontSize: '0.875rem',
+                    border: '1px solid #3b82f6',
+                    borderRadius: '0.5rem',
+                    background: 'white',
+                    color: '#1e40af',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Senior Secondary
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* General Filters */}
           <div style={{
@@ -838,15 +947,13 @@ export default function CoursesPage() {
               <option value="ADVANCED">Advanced</option>
             </select>
 
-            {(selectedDifficulty || searchTerm || selectedCategory || showCollegeOnly || showSchoolOnly) && (
+            {(selectedDifficulty || searchTerm || selectedCategory) && (
               <button
                 onClick={() => {
                   setSelectedDifficulty('')
                   setSearchTerm('')
                   setSelectedCategory('')
                   setSelectedUniversity('')
-                  setShowCollegeOnly(false)
-                  setShowSchoolOnly(false)
                 }}
                 style={{
                   padding: '0.5rem 1rem',
@@ -895,192 +1002,217 @@ export default function CoursesPage() {
               <p style={{ color: '#9ca3af', marginTop: '0.5rem' }}>Try adjusting your search or filters.</p>
             </div>
           ) : (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: '1.5rem'
-            }}>
-              {filteredCourses.map((course) => {
-                const diffColors = getDifficultyColor(course.difficulty)
-                const learningPathInfo = course.learningPath
+            <>
+              <div style={{ marginBottom: '1rem' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827' }}>
+                  {getActiveFilter()} Courses
+                </h2>
+              </div>
+              
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                gap: '1.5rem'
+              }}>
+                {filteredCourses.map((course) => {
+                  const diffColors = getDifficultyColor(course.difficulty)
+                  const learningPathInfo = course.learningPath
+                  const isSchool = isSchoolCourse(course)
+                  const isCollege = isCollegeCourse(course)
+                  const isPG = isPGCourse(course)
 
-                return (
-                  <div
-                    key={course.id}
-                    style={{
-                      background: 'white',
-                      borderRadius: '0.75rem',
-                      overflow: 'hidden',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                      transition: 'transform 0.2s, box-shadow 0.2s',
-                      position: 'relative'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-4px)'
-                      e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)'
-                      e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-                    }}
-                  >
-                    {/* College Badge */}
-                    {course.learningPath && COLLEGE_LEARNING_PATH_IDS.includes(course.learningPath.id) && (
+                  return (
+                    <div
+                      key={course.id}
+                      style={{
+                        background: 'white',
+                        borderRadius: '0.75rem',
+                        overflow: 'hidden',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                        position: 'relative'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-4px)'
+                        e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0, 0, 0, 0.1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+                      }}
+                    >
+                      {/* Badge */}
                       <div style={{
                         position: 'absolute',
                         top: '0.75rem',
                         right: '0.75rem',
-                        background: '#f59e0b',
-                        color: 'white',
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
                         zIndex: 10,
                         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                       }}>
-                        🎓 College
-                      </div>
-                    )}
-
-                    {/* School Badge */}
-                    {course.learningPath && SCHOOL_LEARNING_PATH_IDS.includes(course.learningPath.id) && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '0.75rem',
-                        right: '0.75rem',
-                        background: '#2563eb',
-                        color: 'white',
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem',
-                        fontWeight: '600',
-                        zIndex: 10,
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                      }}>
-                        🏫 School
-                      </div>
-                    )}
-
-                    {/* Thumbnail */}
-                    <div style={{
-                      aspectRatio: '16/9',
-                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '3rem',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}>
-                      {(() => {
-                        const thumbnailPath = getThumbnailPath(course.id, course.thumbnail)
-                        if (thumbnailPath) {
-                          return (
-                            <img 
-                              src={thumbnailPath} 
-                              alt={course.title}
-                              style={{ 
-                                width: '100%', 
-                                height: '100%', 
-                                objectFit: 'cover',
-                                opacity: 0.9
-                              }}
-                              onError={(e) => {
-                                // If image fails, show emoji
-                                e.currentTarget.style.display = 'none'
-                                e.currentTarget.parentElement!.innerHTML = '<span style="font-size: 4rem;">📚</span>'
-                              }}
-                            />
-                          )
-                        }
-                        return <span style={{ fontSize: '4rem' }}>📚</span>
-                      })()}
-                    </div>
-
-                    {/* Content */}
-                    <div style={{ padding: '1.25rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-                        {learningPathInfo && (
+                        {isPG && (
                           <span style={{
-                            background: '#e0e7ff',
-                            color: '#4f46e5',
+                            background: '#7c3aed',
+                            color: 'white',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '9999px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            display: 'inline-block'
+                          }}>
+                            🎓 PG
+                          </span>
+                        )}
+                        {isCollege && !isPG && (
+                          <span style={{
+                            background: '#f59e0b',
+                            color: 'white',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '9999px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            display: 'inline-block'
+                          }}>
+                            🎓 College
+                          </span>
+                        )}
+                        {isSchool && !isCollege && !isPG && (
+                          <span style={{
+                            background: '#2563eb',
+                            color: 'white',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '9999px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            display: 'inline-block'
+                          }}>
+                            🏫 School
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Thumbnail */}
+                      <div style={{
+                        aspectRatio: '16/9',
+                        background: isPG 
+                          ? 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)'
+                          : isCollege 
+                          ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
+                          : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '3rem',
+                        position: 'relative',
+                        overflow: 'hidden'
+                      }}>
+                        {(() => {
+                          const thumbnailPath = getThumbnailPath(course.id, course.thumbnail)
+                          if (thumbnailPath) {
+                            return (
+                              <img 
+                                src={thumbnailPath} 
+                                alt={course.title}
+                                style={{ 
+                                  width: '100%', 
+                                  height: '100%', 
+                                  objectFit: 'cover',
+                                  opacity: 0.9
+                                }}
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none'
+                                  e.currentTarget.parentElement!.innerHTML = '<span style="font-size: 4rem;">📚</span>'
+                                }}
+                              />
+                            )
+                          }
+                          return <span style={{ fontSize: '4rem' }}>📚</span>
+                        })()}
+                      </div>
+
+                      {/* Content */}
+                      <div style={{ padding: '1.25rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                          {learningPathInfo && (
+                            <span style={{
+                              background: '#e0e7ff',
+                              color: '#4f46e5',
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '9999px',
+                              fontSize: '0.75rem',
+                              fontWeight: '500'
+                            }}>
+                              {learningPathInfo.icon} {learningPathInfo.title}
+                            </span>
+                          )}
+                          <span style={{
+                            background: diffColors.bg,
+                            color: diffColors.text,
                             padding: '0.25rem 0.5rem',
                             borderRadius: '9999px',
                             fontSize: '0.75rem',
                             fontWeight: '500'
                           }}>
-                            {learningPathInfo.icon} {learningPathInfo.title}
+                            {course.difficulty.charAt(0).toUpperCase() + course.difficulty.slice(1)}
                           </span>
-                        )}
-                        <span style={{
-                          background: diffColors.bg,
-                          color: diffColors.text,
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '9999px',
-                          fontSize: '0.75rem',
-                          fontWeight: '500'
-                        }}>
-                          {course.difficulty.charAt(0).toUpperCase() + course.difficulty.slice(1)}
-                        </span>
-                      </div>
-
-                      <h3 style={{
-                        fontSize: '1.125rem',
-                        fontWeight: '600',
-                        color: '#111827',
-                        marginBottom: '0.5rem'
-                      }}>
-                        {course.title}
-                      </h3>
-
-                      <p style={{
-                        color: '#6b7280',
-                        fontSize: '0.875rem',
-                        marginBottom: '1rem',
-                        lineHeight: '1.5',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical'
-                      }}>
-                        {course.description}
-                      </p>
-
-                      <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        paddingTop: '1rem',
-                        borderTop: '1px solid #f3f4f6'
-                      }}>
-                        <div>
-                          <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                            By {course.instructor.name}
-                          </p>
-                          <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
-                            {formatDuration(course.duration)} • {course.lessonCount} lessons
-                          </p>
                         </div>
-                        <Link href={`/courses/${course.id}`} style={{
-                          display: 'inline-block',
-                          background: '#ea580c',
-                          color: 'white',
-                          padding: '0.5rem 1rem',
-                          borderRadius: '0.375rem',
-                          textDecoration: 'none',
+
+                        <h3 style={{
+                          fontSize: '1.125rem',
                           fontWeight: '600',
-                          fontSize: '0.875rem'
+                          color: '#111827',
+                          marginBottom: '0.5rem'
                         }}>
-                          View Course
-                        </Link>
+                          {course.title}
+                        </h3>
+
+                        <p style={{
+                          color: '#6b7280',
+                          fontSize: '0.875rem',
+                          marginBottom: '1rem',
+                          lineHeight: '1.5',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical'
+                        }}>
+                          {course.description}
+                        </p>
+
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          paddingTop: '1rem',
+                          borderTop: '1px solid #f3f4f6'
+                        }}>
+                          <div>
+                            <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                              By {course.instructor.name}
+                            </p>
+                            <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+                              {formatDuration(course.duration)} • {course.lessonCount} lessons
+                            </p>
+                          </div>
+                          <Link href={`/courses/${course.id}`} style={{
+                            display: 'inline-block',
+                            background: isPG ? '#7c3aed' : isCollege ? '#ea580c' : '#ea580c',
+                            color: 'white',
+                            padding: '0.5rem 1rem',
+                            borderRadius: '0.375rem',
+                            textDecoration: 'none',
+                            fontWeight: '600',
+                            fontSize: '0.875rem'
+                          }}>
+                            View Course
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
+            </>
           )}
         </div>
 
@@ -1094,10 +1226,10 @@ export default function CoursesPage() {
               textAlign: 'center'
             }}>
               {[
-                { icon: 'Book', number: totalCourses.toString(), label: 'Expert Courses', color: '#ea580c' },
-                { icon: 'Target', number: '10+', label: 'Learning Categories', color: '#16a34a' },
-                { icon: 'Clock', number: `${totalLessons}+`, label: 'Video Lessons', color: '#2563eb' },
-                { icon: 'Teacher', number: uniqueInstructors.toString(), label: 'Expert Instructors', color: '#9333ea' }
+                { icon: '📚', number: filteredCourses.length.toString(), label: 'Expert Courses', color: '#ea580c' },
+                { icon: '📂', number: '15+', label: 'Learning Categories', color: '#16a34a' },
+                { icon: '⏱️', number: `${totalLessons}+`, label: 'Video Lessons', color: '#2563eb' },
+                { icon: '👨‍🏫', number: uniqueInstructors.toString(), label: 'Expert Instructors', color: '#9333ea' }
               ].map((stat, index) => (
                 <div key={index}>
                   <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>{stat.icon}</div>
@@ -1121,7 +1253,7 @@ export default function CoursesPage() {
       }}>
         <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <p style={{ color: '#9ca3af', fontSize: '0.875rem' }}>
-            © 2026 INR99.Academy - India's Learning Infrastructure
+            © 2026 INR99.Academy - India&apos;s Learning Infrastructure
           </p>
         </div>
       </footer>
