@@ -46,7 +46,7 @@ export interface Course {
   // Categorization
   category: string;
   subcategory: string;
-  vertical: 'school' | 'college' | 'professional' | 'general';
+  vertical: 'school' | 'college' | 'pg' | 'professional' | 'general';
   targetAudience: string[];
   tags: string[];
   
@@ -178,7 +178,8 @@ export const CATEGORIES = [
 
 export const VERTICALS = [
   { id: "school", name: "School Learning (Class 1-12)", description: "CBSE, ICSE, and State Board curriculum coverage" },
-  { id: "college", name: "College Learning", description: "Degree programs and professional courses" },
+  { id: "college", name: "College Learning", description: "Degree programs and professional courses (UG)" },
+  { id: "pg", name: "Postgraduate Learning", description: "Master's degrees and professional PG programs (MBA, M.Com, M.Sc, MCA, MA, LL.M)" },
   { id: "professional", name: "Professional Development", description: "Career skills and upskilling" },
   { id: "general", name: "General Learning", description: "Skills for everyone" }
 ];
@@ -2541,7 +2542,956 @@ What you'll learn:
     
     createdAt: "2025-01-01",
     updatedAt: "2025-01-01"
+  },
+
+  // ==================== POSTGRADUATE COURSES (PG) ====================
+  
+  // ==================== MBA COURSES ====================
+  {
+    id: "pg_mba_finance",
+    slug: "pg-mba-finance",
+    title: "MBA in Finance - Advanced Program",
+    tagline: "Master Financial Management & Investment Strategies",
+    description: "Advanced MBA program focusing on financial management, investment analysis, and corporate finance strategies for career advancement.",
+    longDescription: `Advance your career with our comprehensive MBA in Finance program. This course covers advanced financial concepts, investment strategies, and corporate finance practices that are essential for managerial roles.
+
+What you'll learn:
+- Advanced Financial Analysis & Modeling
+- Investment Portfolio Management
+- Corporate Finance Strategies
+- Risk Management & Derivatives
+- Financial Markets & Institutions`,
+    thumbnail: "/assets/courses/pg-mba-finance.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 499,
+    originalPrice: 9999,
+    currency: "INR",
+    
+    category: "business",
+    subcategory: "MBA Finance",
+    vertical: "pg",
+    targetAudience: ["bba-graduates", "bcom-graduates", "working-professionals"],
+    tags: ["mba", "finance", "investment", "corporate-finance", "management"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 3000,
+    lessonCount: 150,
+    moduleCount: 12,
+    rating: 4.9,
+    reviewCount: 850,
+    enrollmentCount: 5000,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-mba-fin-1",
+        title: "Advanced Financial Analysis",
+        order: 1,
+        lessons: [
+          { id: "les-mba-fin-1", title: "Financial Statement Analysis Deep Dive", type: "video", duration: 45, content: "", isFree: true, order: 1 },
+          { id: "les-mba-fin-2", title: "Ratio Analysis & Interpretation", type: "video", duration: 40, content: "", isFree: false, order: 2 },
+          { id: "les-mba-fin-3", title: "Cash Flow Analysis", type: "video", duration: 35, content: "", isFree: false, order: 3 },
+          { id: "les-mba-fin-4", title: "Working Capital Management", type: "video", duration: 40, content: "", isFree: false, order: 4 },
+          { id: "les-mba-fin-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-mba-fin-2",
+        title: "Investment Analysis & Portfolio Management",
+        order: 2,
+        lessons: [
+          { id: "les-mba-fin-6", title: "Equity Analysis Frameworks", type: "video", duration: 50, content: "", isFree: false, order: 1 },
+          { id: "les-mba-fin-7", title: "Valuation Methods (DCF, Comparable)", type: "video", duration: 55, content: "", isFree: false, order: 2 },
+          { id: "les-mba-fin-8", title: "Portfolio Theory & Asset Allocation", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-mba-fin-9", title: "Modern Portfolio Management", type: "video", duration: 40, content: "", isFree: false, order: 4 },
+          { id: "les-mba-fin-10", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-mba-fin-3",
+        title: "Corporate Finance Strategies",
+        order: 3,
+        lessons: [
+          { id: "les-mba-fin-11", title: "Capital Structure Decisions", type: "video", duration: 45, content: "", isFree: false, order: 1 },
+          { id: "les-mba-fin-12", title: "Dividend Policy & Payout", type: "video", duration: 35, content: "", isFree: false, order: 2 },
+          { id: "les-mba-fin-13", title: "Merger & Acquisition Basics", type: "video", duration: 50, content: "", isFree: false, order: 3 },
+          { id: "les-mba-fin-14", title: "Corporate Restructuring", type: "video", duration: 40, content: "", isFree: false, order: 4 },
+          { id: "les-mba-fin-15", title: "Final Project", type: "assignment", duration: 120, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[1],
+    
+    outcomes: [
+      "Analyze complex financial statements",
+      "Build and manage investment portfolios",
+      "Make strategic corporate finance decisions",
+      "Understand financial markets and instruments"
+    ],
+    requirements: [
+      "Bachelor's degree in any discipline",
+      "Basic understanding of accounting and finance",
+      "Willingness to learn advanced concepts"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  
+  {
+    id: "pg_mba_marketing",
+    slug: "pg-mba-marketing",
+    title: "MBA in Marketing Management",
+    tagline: "Digital Marketing & Brand Strategy Mastery",
+    description: "Comprehensive MBA program covering digital marketing strategies, brand management, and consumer behavior analysis.",
+    longDescription: `Transform your marketing career with our advanced MBA in Marketing program. Learn cutting-edge digital marketing techniques, brand strategies, and consumer insights that drive business growth.
+
+What you'll learn:
+- Digital Marketing Strategy & Execution
+- Brand Management & Positioning
+- Consumer Behavior Analysis
+- Marketing Analytics & ROI
+- Omnichannel Marketing`,
+    thumbnail: "/assets/courses/pg-mba-marketing.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 499,
+    originalPrice: 9999,
+    currency: "INR",
+    
+    category: "marketing",
+    subcategory: "MBA Marketing",
+    vertical: "pg",
+    targetAudience: ["bba-graduates", "communications-graduates", "working-professionals"],
+    tags: ["mba", "marketing", "digital-marketing", "brand-management", "strategy"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 2800,
+    lessonCount: 140,
+    moduleCount: 10,
+    rating: 4.8,
+    reviewCount: 720,
+    enrollmentCount: 4500,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-mba-mkt-1",
+        title: "Digital Marketing Foundation",
+        order: 1,
+        lessons: [
+          { id: "les-mba-mkt-1", title: "Digital Marketing Landscape", type: "video", duration: 40, content: "", isFree: true, order: 1 },
+          { id: "les-mba-mkt-2", title: "SEO & Content Strategy", type: "video", duration: 45, content: "", isFree: false, order: 2 },
+          { id: "les-mba-mkt-3", title: "Social Media Marketing", type: "video", duration: 50, content: "", isFree: false, order: 3 },
+          { id: "les-mba-mkt-4", title: "PPC & Performance Marketing", type: "video", duration: 45, content: "", isFree: false, order: 4 },
+          { id: "les-mba-mkt-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-mba-mkt-2",
+        title: "Brand Strategy",
+        order: 2,
+        lessons: [
+          { id: "les-mba-mkt-6", title: "Brand Positioning & Identity", type: "video", duration: 45, content: "", isFree: false, order: 1 },
+          { id: "les-mba-mkt-7", title: "Brand Architecture", type: "video", duration: 35, content: "", isFree: false, order: 2 },
+          { id: "les-mba-mkt-8", title: "Consumer Decision Journey", type: "video", duration: 40, content: "", isFree: false, order: 3 },
+          { id: "les-mba-mkt-9", title: "Marketing Analytics", type: "video", duration: 45, content: "", isFree: false, order: 4 },
+          { id: "les-mba-mkt-10", title: "Capstone Project", type: "assignment", duration: 120, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[2],
+    
+    outcomes: [
+      "Create comprehensive digital marketing strategies",
+      "Build and manage strong brands",
+      "Analyze consumer behavior patterns",
+      "Measure and optimize marketing ROI"
+    ],
+    requirements: [
+      "Bachelor's degree in any discipline",
+      "Basic understanding of marketing concepts",
+      "Interest in digital marketing"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  
+  {
+    id: "pg_mba_hr",
+    slug: "pg-mba-hr",
+    title: "MBA in Human Resources Management",
+    tagline: "People Strategy & Organizational Development",
+    description: "Advanced HR management program covering talent acquisition, organizational behavior, and HR analytics.",
+    longDescription: `Build expertise in human resources with our comprehensive MBA in HR program. Learn strategic HR practices, talent management, and organizational development that drive business success.
+
+What you'll learn:
+- Strategic Talent Management
+- Organizational Development
+- HR Analytics & Metrics
+- Employee Relations & Engagement
+- Labor Laws & Compliance`,
+    thumbnail: "/assets/courses/pg-mba-hr.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 499,
+    originalPrice: 9999,
+    currency: "INR",
+    
+    category: "business",
+    subcategory: "MBA HR",
+    vertical: "pg",
+    targetAudience: ["bba-graduates", "psychology-graduates", "working-professionals"],
+    tags: ["mba", "human-resources", "talent-management", "organizational-behavior", "hr-analytics"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 2600,
+    lessonCount: 130,
+    moduleCount: 10,
+    rating: 4.7,
+    reviewCount: 580,
+    enrollmentCount: 3800,
+    isActive: true,
+    isFeatured: false,
+    
+    modules: [
+      {
+        id: "mod-mba-hr-1",
+        title: "Strategic HR Management",
+        order: 1,
+        lessons: [
+          { id: "les-mba-hr-1", title: "HR Strategy & Business Alignment", type: "video", duration: 40, content: "", isFree: true, order: 1 },
+          { id: "les-mba-hr-2", title: "Talent Acquisition Strategy", type: "video", duration: 45, content: "", isFree: false, order: 2 },
+          { id: "les-mba-hr-3", title: "Performance Management Systems", type: "video", duration: 40, content: "", isFree: false, order: 3 },
+          { id: "les-mba-hr-4", title: "Learning & Development", type: "video", duration: 35, content: "", isFree: false, order: 4 },
+          { id: "les-mba-hr-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-mba-hr-2",
+        title: "Organizational Development",
+        order: 2,
+        lessons: [
+          { id: "les-mba-hr-6", title: "Organizational Behavior", type: "video", duration: 45, content: "", isFree: false, order: 1 },
+          { id: "les-mba-hr-7", title: "Change Management", type: "video", duration: 40, content: "", isFree: false, order: 2 },
+          { id: "les-mba-hr-8", title: "HR Analytics", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-mba-hr-9", title: "Employee Engagement", type: "video", duration: 35, content: "", isFree: false, order: 4 },
+          { id: "les-mba-hr-10", title: "Final Project", type: "assignment", duration: 120, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[4],
+    
+    outcomes: [
+      "Develop strategic HR practices",
+      "Manage talent acquisition and development",
+      "Analyze HR metrics and analytics",
+      "Lead organizational change initiatives"
+    ],
+    requirements: [
+      "Bachelor's degree in any discipline",
+      "Interest in people management",
+      "Basic understanding of business operations"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+
+  // ==================== M.COM COURSES ====================
+  {
+    id: "pg_mcom_accounting",
+    slug: "pg-mcom-accounting",
+    title: "M.Com Advanced Accounting",
+    tagline: "Master Corporate Accounting & Financial Reporting",
+    description: "Advanced accounting program covering corporate accounting, accounting standards, and financial reporting for M.Com students.",
+    longDescription: `Enhance your accounting expertise with our M.Com in Advanced Accounting program. Learn sophisticated accounting techniques, corporate reporting standards, and financial analysis methods used in modern businesses.
+
+What you'll learn:
+- Advanced Financial Accounting
+- Accounting Standards (Indian & International)
+- Corporate Accounting Practices
+- Advanced Cost Accounting
+- Auditing & Assurance`,
+    thumbnail: "/assets/courses/pg-mcom-accounting.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 349,
+    originalPrice: 7999,
+    currency: "INR",
+    
+    category: "finance",
+    subcategory: "M.Com Accounting",
+    vertical: "pg",
+    targetAudience: ["bcom-graduates", "ca-foundation", "working-accountants"],
+    tags: ["mcom", "accounting", "financial-reporting", "auditing", "corporate-finance"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 2400,
+    lessonCount: 120,
+    moduleCount: 10,
+    rating: 4.8,
+    reviewCount: 650,
+    enrollmentCount: 4200,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-mcom-acc-1",
+        title: "Advanced Financial Accounting",
+        order: 1,
+        lessons: [
+          { id: "les-mcom-acc-1", title: "Advanced Account Concepts", type: "video", duration: 45, content: "", isFree: true, order: 1 },
+          { id: "les-mcom-acc-2", title: "Partnership Accounting", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-mcom-acc-3", title: "Company Accounts - Issue of Shares", type: "video", duration: 55, content: "", isFree: false, order: 3 },
+          { id: "les-mcom-acc-4", title: "Company Accounts - Debentures", type: "video", duration: 45, content: "", isFree: false, order: 4 },
+          { id: "les-mcom-acc-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-mcom-acc-2",
+        title: "Accounting Standards & Practices",
+        order: 2,
+        lessons: [
+          { id: "les-mcom-acc-6", title: "Indian Accounting Standards", type: "video", duration: 50, content: "", isFree: false, order: 1 },
+          { id: "les-mcom-acc-7", title: "IFRS Overview", type: "video", duration: 45, content: "", isFree: false, order: 2 },
+          { id: "les-mcom-acc-8", title: "Consolidated Financial Statements", type: "video", duration: 55, content: "", isFree: false, order: 3 },
+          { id: "les-mcom-acc-9", title: "Advanced Cost Accounting", type: "video", duration: 50, content: "", isFree: false, order: 4 },
+          { id: "les-mcom-acc-10", title: "Final Project", type: "assignment", duration: 120, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[1],
+    
+    outcomes: [
+      "Master advanced accounting concepts",
+      "Apply accounting standards professionally",
+      "Prepare corporate financial statements",
+      "Conduct cost analysis and auditing"
+    ],
+    requirements: [
+      "B.Com degree or equivalent",
+      "Basic accounting knowledge",
+      "Understanding of financial statements"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+  
+  {
+    id: "pg_mcom_taxation",
+    slug: "pg-mcom-taxation",
+    title: "M.Com Taxation & Tax Planning",
+    tagline: "Comprehensive Tax Management & Planning",
+    description: "Advanced taxation program covering direct tax, GST, and tax planning strategies for financial professionals.",
+    longDescription: `Master Indian taxation with our comprehensive M.Com in Taxation program. Learn income tax laws, GST implementation, and strategic tax planning that saves money for individuals and corporations.
+
+What you'll learn:
+- Income Tax Law & Planning
+- GST (Goods & Services Tax)
+- International Taxation
+- Tax Compliance & Filing
+- Tax Planning Strategies`,
+    thumbnail: "/assets/courses/pg-mcom-taxation.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 349,
+    originalPrice: 7999,
+    currency: "INR",
+    
+    category: "finance",
+    subcategory: "M.Com Taxation",
+    vertical: "pg",
+    targetAudience: ["bcom-graduates", "tax-professionals", "ca-foundation"],
+    tags: ["mcom", "taxation", "income-tax", "gst", "tax-planning"],
+    
+    difficulty: "advanced",
+    language: "Hindi",
+    totalDuration: 2200,
+    lessonCount: 110,
+    moduleCount: 9,
+    rating: 4.9,
+    reviewCount: 780,
+    enrollmentCount: 5100,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-mcom-tax-1",
+        title: "Direct Taxation",
+        order: 1,
+        lessons: [
+          { id: "les-mcom-tax-1", title: "Income Tax Fundamentals", type: "video", duration: 45, content: "", isFree: true, order: 1 },
+          { id: "les-mcom-tax-2", title: "Heads of Income", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-mcom-tax-3", title: "Deductions & Exemptions", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-mcom-tax-4", title: "Tax Filing Procedures", type: "video", duration: 40, content: "", isFree: false, order: 4 },
+          { id: "les-mcom-tax-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-mcom-tax-2",
+        title: "Indirect Taxation (GST)",
+        order: 2,
+        lessons: [
+          { id: "les-mcom-tax-6", title: "GST Framework in India", type: "video", duration: 50, content: "", isFree: false, order: 1 },
+          { id: "les-mcom-tax-7", title: "GST Registration & Compliance", type: "video", duration: 45, content: "", isFree: false, order: 2 },
+          { id: "les-mcom-tax-8", title: "Input Tax Credit", type: "video", duration: 50, content: "", isFree: false, order: 3 },
+          { id: "les-mcom-tax-9", title: "Tax Planning Strategies", type: "video", duration: 45, content: "", isFree: false, order: 4 },
+          { id: "les-mcom-tax-10", title: "Final Project", type: "assignment", duration: 120, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[1],
+    
+    outcomes: [
+      "Understand comprehensive tax laws",
+      "File tax returns accurately",
+      "Implement GST compliance",
+      "Create effective tax planning strategies"
+    ],
+    requirements: [
+      "B.Com degree or equivalent",
+      "Basic tax knowledge",
+      "Interest in taxation profession"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+
+  // ==================== M.SC DATA SCIENCE ====================
+  {
+    id: "pg_msc_data_science",
+    slug: "pg-msc-data-science",
+    title: "M.Sc Data Science & Analytics",
+    tagline: "Master Data Science, Machine Learning & AI",
+    description: "Comprehensive data science program covering Python, machine learning, deep learning, and AI for advanced career opportunities.",
+    longDescription: `Launch your career in data science with our advanced M.Sc program. Learn Python, machine learning algorithms, deep learning, and AI techniques that are in high demand across industries.
+
+What you'll learn:
+- Python Programming for Data Science
+- Statistics & Probability
+- Machine Learning Algorithms
+- Deep Learning & Neural Networks
+- Data Visualization & Big Data`,
+    thumbnail: "/assets/courses/pg-msc-data-science.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 599,
+    originalPrice: 14999,
+    currency: "INR",
+    
+    category: "science",
+    subcategory: "Data Science",
+    vertical: "pg",
+    targetAudience: ["bsc-graduates", "engineering-graduates", "working-professionals"],
+    tags: ["data-science", "machine-learning", "python", "ai", "analytics"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 3600,
+    lessonCount: 180,
+    moduleCount: 15,
+    rating: 4.9,
+    reviewCount: 1200,
+    enrollmentCount: 8500,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-ds-1",
+        title: "Python for Data Science",
+        order: 1,
+        lessons: [
+          { id: "les-ds-1", title: "Python Fundamentals Refresher", type: "video", duration: 40, content: "", isFree: true, order: 1 },
+          { id: "les-ds-2", title: "NumPy for Numerical Computing", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-ds-3", title: "Pandas for Data Analysis", type: "video", duration: 55, content: "", isFree: false, order: 3 },
+          { id: "les-ds-4", title: "Data Visualization with Matplotlib", type: "video", duration: 45, content: "", isFree: false, order: 4 },
+          { id: "les-ds-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-ds-2",
+        title: "Statistics & Machine Learning",
+        order: 2,
+        lessons: [
+          { id: "les-ds-6", title: "Descriptive & Inferential Statistics", type: "video", duration: 55, content: "", isFree: false, order: 1 },
+          { id: "les-ds-7", title: "Supervised Learning Algorithms", type: "video", duration: 60, content: "", isFree: false, order: 2 },
+          { id: "les-ds-8", title: "Unsupervised Learning", type: "video", duration: 50, content: "", isFree: false, order: 3 },
+          { id: "les-ds-9", title: "Model Evaluation & Tuning", type: "video", duration: 45, content: "", isFree: false, order: 4 },
+          { id: "les-ds-10", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-ds-3",
+        title: "Deep Learning & AI",
+        order: 3,
+        lessons: [
+          { id: "les-ds-11", title: "Neural Networks Fundamentals", type: "video", duration: 55, content: "", isFree: false, order: 1 },
+          { id: "les-ds-12", title: "TensorFlow/Keras Deep Learning", type: "video", duration: 60, content: "", isFree: false, order: 2 },
+          { id: "les-ds-13", title: "Computer Vision Applications", type: "video", duration: 50, content: "", isFree: false, order: 3 },
+          { id: "les-ds-14", title: "NLP & Text Analytics", type: "video", duration: 55, content: "", isFree: false, order: 4 },
+          { id: "les-ds-15", title: "Capstone Project", type: "assignment", duration: 180, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[5],
+    
+    outcomes: [
+      "Master Python for data science",
+      "Build machine learning models",
+      "Develop deep learning applications",
+      "Analyze large datasets effectively"
+    ],
+    requirements: [
+      "Bachelor's degree in any science stream",
+      "Basic programming knowledge",
+      "Mathematics fundamentals"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+
+  // ==================== M.SC CYBER SECURITY ====================
+  {
+    id: "pg_msc_cyber_security",
+    slug: "pg-msc-cyber-security",
+    title: "M.Sc Cyber Security & Digital Forensics",
+    tagline: "Advanced Security, Ethical Hacking & Forensics",
+    description: "Comprehensive cyber security program covering network security, ethical hacking, and digital forensics for IT professionals.",
+    longDescription: `Protect digital assets and advance your career in cyber security with our advanced M.Sc program. Learn network security, ethical hacking techniques, and digital forensics that organizations need.
+
+What you'll learn:
+- Network Security Fundamentals
+- Ethical Hacking & Penetration Testing
+- Cyber Threat Intelligence
+- Digital Forensics & Investigation
+- Security Compliance & Governance`,
+    thumbnail: "/assets/courses/pg-msc-cyber-security.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 599,
+    originalPrice: 14999,
+    currency: "INR",
+    
+    category: "technology",
+    subcategory: "Cyber Security",
+    vertical: "pg",
+    targetAudience: ["bsc-graduates", "engineering-graduates", "it-professionals"],
+    tags: ["cyber-security", "ethical-hacking", "forensics", "network-security", "information-security"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 3400,
+    lessonCount: 170,
+    moduleCount: 14,
+    rating: 4.8,
+    reviewCount: 920,
+    enrollmentCount: 6200,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-cyber-1",
+        title: "Security Fundamentals",
+        order: 1,
+        lessons: [
+          { id: "les-cyber-1", title: "Cyber Security Overview", type: "video", duration: 40, content: "", isFree: true, order: 1 },
+          { id: "les-cyber-2", title: "Network Security Essentials", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-cyber-3", title: "Operating System Security", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-cyber-4", title: "Cryptography Basics", type: "video", duration: 50, content: "", isFree: false, order: 4 },
+          { id: "les-cyber-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-cyber-2",
+        title: "Ethical Hacking",
+        order: 2,
+        lessons: [
+          { id: "les-cyber-6", title: "Penetration Testing Methodologies", type: "video", duration: 55, content: "", isFree: false, order: 1 },
+          { id: "les-cyber-7", title: "Vulnerability Assessment", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-cyber-8", title: "Web Application Security", type: "video", duration: 55, content: "", isFree: false, order: 3 },
+          { id: "les-cyber-9", title: "Social Engineering Attacks", type: "video", duration: 40, content: "", isFree: false, order: 4 },
+          { id: "les-cyber-10", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-cyber-3",
+        title: "Digital Forensics",
+        order: 3,
+        lessons: [
+          { id: "les-cyber-11", title: "Forensics Fundamentals", type: "video", duration: 45, content: "", isFree: false, order: 1 },
+          { id: "les-cyber-12", title: "Evidence Collection & Preservation", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-cyber-13", title: "Incident Response", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-cyber-14", title: "Security Compliance (ISO 27001)", type: "video", duration: 40, content: "", isFree: false, order: 4 },
+          { id: "les-cyber-15", title: "Capstone Project", type: "assignment", duration: 180, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[0],
+    
+    outcomes: [
+      "Understand cyber security fundamentals",
+      "Perform ethical hacking and penetration testing",
+      "Conduct digital investigations",
+      "Implement security compliance frameworks"
+    ],
+    requirements: [
+      "Bachelor's degree in any stream",
+      "Basic IT/networking knowledge",
+      "Interest in security domain"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+
+  // ==================== MCA COURSES ====================
+  {
+    id: "pg_mca_cloud",
+    slug: "pg-mca-cloud-computing",
+    title: "MCA Cloud Computing & DevOps",
+    tagline: "Master Cloud Platforms & DevOps Practices",
+    description: "Advanced MCA program covering AWS, Azure, cloud architecture, and DevOps practices for IT professionals.",
+    longDescription: `Build expertise in cloud computing with our comprehensive MCA program. Learn AWS, Azure, cloud architecture design, and DevOps practices that modern enterprises need.
+
+What you'll learn:
+- Cloud Computing Fundamentals
+- AWS & Azure Platforms
+- Cloud Architecture Design
+- DevOps & CI/CD Pipelines
+- Containerization (Docker/Kubernetes)`,
+    thumbnail: "/assets/courses/pg-mca-cloud.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 549,
+    originalPrice: 12999,
+    currency: "INR",
+    
+    category: "technology",
+    subcategory: "MCA Cloud",
+    vertical: "pg",
+    targetAudience: ["bcsc-graduates", "engineering-graduates", "it-professionals"],
+    tags: ["mca", "cloud-computing", "aws", "devops", "docker"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 3200,
+    lessonCount: 160,
+    moduleCount: 13,
+    rating: 4.8,
+    reviewCount: 780,
+    enrollmentCount: 5500,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-mca-cloud-1",
+        title: "Cloud Fundamentals",
+        order: 1,
+        lessons: [
+          { id: "les-mca-cloud-1", title: "Cloud Computing Models", type: "video", duration: 45, content: "", isFree: true, order: 1 },
+          { id: "les-mca-cloud-2", title: "Cloud Service Models (IaaS, PaaS, SaaS)", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-mca-cloud-3", title: "AWS Core Services", type: "video", duration: 55, content: "", isFree: false, order: 3 },
+          { id: "les-mca-cloud-4", title: "Azure Fundamentals", type: "video", duration: 50, content: "", isFree: false, order: 4 },
+          { id: "les-mca-cloud-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-mca-cloud-2",
+        title: "Cloud Architecture & DevOps",
+        order: 2,
+        lessons: [
+          { id: "les-mca-cloud-6", title: "Cloud Architecture Design", type: "video", duration: 55, content: "", isFree: false, order: 1 },
+          { id: "les-mca-cloud-7", title: "Introduction to DevOps", type: "video", duration: 45, content: "", isFree: false, order: 2 },
+          { id: "les-mca-cloud-8", title: "CI/CD Pipelines", type: "video", duration: 50, content: "", isFree: false, order: 3 },
+          { id: "les-mca-cloud-9", title: "Docker Containerization", type: "video", duration: 55, content: "", isFree: false, order: 4 },
+          { id: "les-mca-cloud-10", title: "Kubernetes Orchestration", type: "video", duration: 50, content: "", isFree: false, order: 5 },
+          { id: "les-mca-cloud-11", title: "Capstone Project", type: "assignment", duration: 150, content: "", isFree: false, order: 6 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[0],
+    
+    outcomes: [
+      "Master cloud platforms (AWS, Azure)",
+      "Design cloud architectures",
+      "Implement DevOps practices",
+      "Deploy containerized applications"
+    ],
+    requirements: [
+      "BCS/BCA/B.Tech degree or equivalent",
+      "Basic programming knowledge",
+      "Understanding of IT infrastructure"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+
+  // ==================== M.A. COURSES ====================
+  {
+    id: "pg_ma_economics",
+    slug: "pg-ma-economics",
+    title: "M.A. Economics & Data Analysis",
+    tagline: "Advanced Economics & Econometrics",
+    description: "Comprehensive economics program covering microeconomics, macroeconomics, and econometrics for analytical careers.",
+    longDescription: `Deepen your understanding of economic theories and develop analytical skills with our M.A. in Economics program. Learn advanced economic concepts and data analysis techniques.
+
+What you'll learn:
+- Advanced Microeconomic Theory
+- Macroeconomic Policy Analysis
+- Econometrics & Statistical Methods
+- Financial Economics
+- Public Policy Evaluation`,
+    thumbnail: "/assets/courses/pg-ma-economics.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 299,
+    originalPrice: 6999,
+    currency: "INR",
+    
+    category: "science",
+    subcategory: "M.A. Economics",
+    vertical: "pg",
+    targetAudience: ["ba-economics-graduates", "commerce-graduates", "research-aspirants"],
+    tags: ["economics", "econometrics", "data-analysis", "policy", "research"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 2000,
+    lessonCount: 100,
+    moduleCount: 8,
+    rating: 4.7,
+    reviewCount: 420,
+    enrollmentCount: 2800,
+    isActive: true,
+    isFeatured: false,
+    
+    modules: [
+      {
+        id: "mod-ma-eco-1",
+        title: "Advanced Economic Theory",
+        order: 1,
+        lessons: [
+          { id: "les-ma-eco-1", title: "Advanced Microeconomics", type: "video", duration: 50, content: "", isFree: true, order: 1 },
+          { id: "les-ma-eco-2", title: "Macroeconomic Frameworks", type: "video", duration: 55, content: "", isFree: false, order: 2 },
+          { id: "les-ma-eco-3", title: "International Trade Theory", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-ma-eco-4", title: "Economic Growth Models", type: "video", duration: 50, content: "", isFree: false, order: 4 },
+          { id: "les-ma-eco-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-ma-eco-2",
+        title: "Econometrics & Data Analysis",
+        order: 2,
+        lessons: [
+          { id: "les-ma-eco-6", title: "Statistical Methods for Economics", type: "video", duration: 55, content: "", isFree: false, order: 1 },
+          { id: "les-ma-eco-7", title: "Regression Analysis", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-ma-eco-8", title: "Time Series Analysis", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-ma-eco-9", title: "Policy Impact Evaluation", type: "video", duration: 40, content: "", isFree: false, order: 4 },
+          { id: "les-ma-eco-10", title: "Research Project", type: "assignment", duration: 120, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[1],
+    
+    outcomes: [
+      "Analyze complex economic problems",
+      "Apply econometric methods",
+      "Evaluate policy impacts",
+      "Conduct economic research"
+    ],
+    requirements: [
+      "B.A. Economics or related degree",
+      "Basic statistics knowledge",
+      "Interest in economic research"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+
+  // ==================== LL.M COURSES ====================
+  {
+    id: "pg_llm_corporate",
+    slug: "pg-llm-corporate-law",
+    title: "LL.M Corporate Law & Governance",
+    tagline: "Master Corporate Law & Business Regulations",
+    description: "Advanced law program covering corporate law, mergers & acquisitions, and business governance for legal professionals.",
+    longDescription: `Advance your legal career with our comprehensive LL.M in Corporate Law program. Learn corporate governance, M&A regulations, and business laws that shape modern enterprises.
+
+What you'll learn:
+- Corporate Law Fundamentals
+- Mergers & Acquisitions
+- Corporate Governance
+- Securities & Capital Markets Law
+- Business Restructuring`,
+    thumbnail: "/assets/courses/pg-llm-corporate.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 449,
+    originalPrice: 9999,
+    currency: "INR",
+    
+    category: "civics",
+    subcategory: "LL.M Corporate",
+    vertical: "pg",
+    targetAudience: ["llb-graduates", "law-professionals", "company-secretaries"],
+    tags: ["llm", "corporate-law", "mergers", "governance", "legal-compliance"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 2400,
+    lessonCount: 120,
+    moduleCount: 10,
+    rating: 4.8,
+    reviewCount: 380,
+    enrollmentCount: 2500,
+    isActive: true,
+    isFeatured: true,
+    
+    modules: [
+      {
+        id: "mod-llm-corp-1",
+        title: "Corporate Law Framework",
+        order: 1,
+        lessons: [
+          { id: "les-llm-corp-1", title: "Companies Act 2013 - Advanced", type: "video", duration: 50, content: "", isFree: true, order: 1 },
+          { id: "les-llm-corp-2", title: "Corporate Governance Principles", type: "video", duration: 45, content: "", isFree: false, order: 2 },
+          { id: "les-llm-corp-3", title: "Board Structures & Responsibilities", type: "video", duration: 50, content: "", isFree: false, order: 3 },
+          { id: "les-llm-corp-4", title: "Shareholders & Rights", type: "video", duration: 40, content: "", isFree: false, order: 4 },
+          { id: "les-llm-corp-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-llm-corp-2",
+        title: "M&A and Business Laws",
+        order: 2,
+        lessons: [
+          { id: "les-llm-corp-6", title: "M&A Legal Framework", type: "video", duration: 55, content: "", isFree: false, order: 1 },
+          { id: "les-llm-corp-7", title: "Due Diligence Processes", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-llm-corp-8", title: "SEBI Regulations", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-llm-corp-9", title: "Corporate Restructuring", type: "video", duration: 50, content: "", isFree: false, order: 4 },
+          { id: "les-llm-corp-10", title: "Case Study Project", type: "assignment", duration: 120, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[6],
+    
+    outcomes: [
+      "Understand corporate legal frameworks",
+      "Handle M&A transactions",
+      "Advise on corporate governance",
+      "Navigate SEBI regulations"
+    ],
+    requirements: [
+      "LL.B. degree from recognized university",
+      "Basic corporate law knowledge",
+      "Interest in corporate legal practice"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
+  },
+
+  {
+    id: "pg_llm_ip",
+    slug: "pg-llm-intellectual-property",
+    title: "LL.M Intellectual Property Rights",
+    tagline: "Master Patents, Trademarks & Copyright Law",
+    description: "Specialized law program covering intellectual property rights, patent law, and IP litigation for legal professionals.",
+    longDescription: `Specialize in intellectual property law with our advanced LL.M program. Learn patent filing, trademark registration, copyright protection, and IP litigation strategies.
+
+What you'll learn:
+- IP Law Fundamentals
+- Patent Filing & Prosecution
+- Trademark Registration & Protection
+- Copyright & Trade Secrets
+- IP Litigation & Enforcement`,
+    thumbnail: "/assets/courses/pg-llm-ip.svg",
+    previewVideo: "https://www.youtube.com/embed/UxTPtQ8c80c",
+    price: 449,
+    originalPrice: 9999,
+    currency: "INR",
+    
+    category: "civics",
+    subcategory: "LL.M IP Law",
+    vertical: "pg",
+    targetAudience: ["llb-graduates", "patent-agents", "legal-professionals"],
+    tags: ["llm", "intellectual-property", "patents", "trademarks", "copyright"],
+    
+    difficulty: "advanced",
+    language: "Hindi-English",
+    totalDuration: 2200,
+    lessonCount: 110,
+    moduleCount: 9,
+    rating: 4.7,
+    reviewCount: 340,
+    enrollmentCount: 2200,
+    isActive: true,
+    isFeatured: false,
+    
+    modules: [
+      {
+        id: "mod-llm-ip-1",
+        title: "IP Law Foundations",
+        order: 1,
+        lessons: [
+          { id: "les-llm-ip-1", title: "Introduction to Intellectual Property", type: "video", duration: 45, content: "", isFree: true, order: 1 },
+          { id: "les-llm-ip-2", title: "Indian IP Regime", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-llm-ip-3", title: "International IP Treaties", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-llm-ip-4", title: "IP Registration Processes", type: "video", duration: 50, content: "", isFree: false, order: 4 },
+          { id: "les-llm-ip-5", title: "Module Assessment", type: "quiz", duration: 30, content: "", isFree: false, order: 5 }
+        ]
+      },
+      {
+        id: "mod-llm-ip-2",
+        title: "Advanced IP Specializations",
+        order: 2,
+        lessons: [
+          { id: "les-llm-ip-6", title: "Patent Law & Filing", type: "video", duration: 55, content: "", isFree: false, order: 1 },
+          { id: "les-llm-ip-7", title: "Trademark Practice", type: "video", duration: 50, content: "", isFree: false, order: 2 },
+          { id: "les-llm-ip-8", title: "Copyright & Digital IP", type: "video", duration: 45, content: "", isFree: false, order: 3 },
+          { id: "les-llm-ip-9", title: "IP Enforcement & Litigation", type: "video", duration: 50, content: "", isFree: false, order: 4 },
+          { id: "les-llm-ip-10", title: "Final Project", type: "assignment", duration: 120, content: "", isFree: false, order: 5 }
+        ]
+      }
+    ],
+    
+    instructor: instructors[6],
+    
+    outcomes: [
+      "Understand IP legal frameworks",
+      "File patents and trademarks",
+      "Protect copyrights and trade secrets",
+      "Handle IP litigation matters"
+    ],
+    requirements: [
+      "LL.B. degree from recognized university",
+      "Basic understanding of law",
+      "Interest in IP practice"
+    ],
+    
+    createdAt: "2025-01-01",
+    updatedAt: "2025-01-01"
   }
+
 ];
 
 // ============================================
