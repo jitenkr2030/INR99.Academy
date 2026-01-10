@@ -149,6 +149,7 @@ const SUB_FILTERS = {
   ],
   professional: [
     { id: 'all', name: 'All Professional', icon: '💼' },
+    { id: 'certification', name: 'Certifications', icon: '📜' },
     { id: 'technology', name: 'Technology', icon: '💻' },
     { id: 'design', name: 'Design', icon: '🎨' },
     { id: 'business', name: 'Business', icon: '📊' },
