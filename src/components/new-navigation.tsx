@@ -60,8 +60,6 @@ export function NewNavigation() {
   const navLinks = [
     { href: '/courses', label: 'Courses' },
     { href: '/courses?filter=school', label: 'School' },
-    { href: '/courses?filter=college', label: 'College (UG)' },
-    { href: '/courses?filter=pg', label: 'PG Courses' },
     { href: '/learning-paths', label: 'Learning Paths' },
     { href: '/instructors', label: 'Instructors' },
     { href: '/community', label: 'Community' },
