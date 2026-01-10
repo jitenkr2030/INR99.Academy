@@ -20,8 +20,6 @@ const nextConfig: NextConfig = {
     // Remove console logs in production
     removeConsole: process.env.NODE_ENV === "production",
   },
-  // Enable SWC minification for faster builds
-  swcMinify: true,
   // Enable standalone output for optimized production deployment
   output: 'standalone',
 };

@@ -12,6 +12,9 @@ import {
   TrendingUp,
   Clock,
   Award,
+  CreditCard,
+  Crown,
+  Zap,
 } from 'lucide-react'
 import { getInstructorStats, type InstructorStats } from '@/lib/instructor-api'
 
@@ -85,6 +88,7 @@ export default function InstructorDashboard() {
   const [stats, setStats] = useState<InstructorStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [subscriptionData, setSubscriptionData] = useState<any>(null)
 
   useEffect(() => {
     async function fetchStats() {
@@ -107,7 +111,20 @@ export default function InstructorDashboard() {
     }
 
     fetchStats()
+    fetchSubscriptionStatus()
   }, [])
+
+  const fetchSubscriptionStatus = async () => {
+    try {
+      const response = await fetch('/api/instructor/subscription/status?userId=instructor1')
+      const data = await response.json()
+      if (data.success) {
+        setSubscriptionData(data.data)
+      }
+    } catch (err) {
+      console.error('Failed to fetch subscription status:', err)
+    }
+  }
 
   const statsData = stats || mockStats
 
@@ -121,13 +138,27 @@ export default function InstructorDashboard() {
               <h1 className="text-2xl font-bold text-gray-900">Instructor Dashboard</h1>
               <p className="text-sm text-gray-500">Welcome back! Here&apos;s your teaching overview.</p>
             </div>
-            <Link
-              href="/dashboard/instructor/courses/new"
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Create Course
-            </Link>
+            <div className="flex items-center gap-3">
+              {/* Subscription Status */}
+              {subscriptionData?.currentPlan && subscriptionData.currentPlan.id !== 'PRO' && (
+                <Link
+                  href="/instructor/pricing"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors border border-amber-300"
+                >
+                  <Crown className="w-4 h-4" />
+                  <span className="font-medium">{subscriptionData.currentPlan.name} Plan</span>
+                  <Zap className="w-4 h-4" />
+                  <span className="text-xs font-semibold">Upgrade</span>
+                </Link>
+              )}
+              <Link
+                href="/dashboard/instructor/courses/new"
+                className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Create Course
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -181,6 +212,33 @@ export default function InstructorDashboard() {
             ))}
           </div>
         </div>
+
+        {/* Subscription Banner */}
+        {subscriptionData?.currentPlan && subscriptionData.currentPlan.id !== 'PRO' && (
+          <div className="mb-8 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl p-6 text-white">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                <div className="bg-white/20 rounded-full p-3">
+                  <Crown className="w-8 h-8" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">{subscriptionData.currentPlan.name} Plan</h3>
+                  <p className="text-purple-100">
+                    {subscriptionData.usage ? `${subscriptionData.usage.courseCount} courses created` : '1 course created'} •
+                    {subscriptionData.usage ? ` ${subscriptionData.usage.liveSessionCount} live sessions` : ' 0 live sessions'}
+                  </p>
+                </div>
+              </div>
+              <Link
+                href="/instructor/pricing"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-purple-50 transition-colors"
+              >
+                <CreditCard className="w-5 h-5" />
+                Upgrade to Pro
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Earnings Card */}
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 mb-8 text-white">
