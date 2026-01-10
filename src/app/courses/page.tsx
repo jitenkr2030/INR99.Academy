@@ -1002,8 +1002,117 @@ export default function CoursesPage() {
 
           {/* Content */}
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
-              <div style={{ color: '#6b7280', fontSize: '1.125rem' }}>Loading courses...</div>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              alignItems: 'center', 
+              justifyContent: 'center',
+              padding: '4rem 2rem',
+              background: 'white', 
+              borderRadius: '0.75rem',
+              minHeight: '400px'
+            }}>
+              {/* Book Preloader Animation */}
+              <div style={{ 
+                position: 'relative',
+                width: '80px',
+                height: '100px',
+                perspective: '200px',
+                marginBottom: '1.5rem'
+              }}>
+                {/* Book Cover */}
+                <div style={{
+                  position: 'absolute',
+                  width: '70px',
+                  height: '100px',
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  borderRadius: '4px 8px 8px 4px',
+                  boxShadow: '2px 2px 10px rgba(0,0,0,0.2)',
+                  animation: 'flipBook 1.5s ease-in-out infinite',
+                  transformStyle: 'preserve-3d',
+                  transformOrigin: 'left center'
+                }}>
+                  {/* Book spine effect */}
+                  <div style={{
+                    position: 'absolute',
+                    left: '0',
+                    top: '0',
+                    bottom: '0',
+                    width: '8px',
+                    background: 'rgba(255,255,255,0.2)',
+                    borderRadius: '4px 0 0 4px'
+                  }} />
+                  {/* Book icon on cover */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    color: 'white',
+                    fontSize: '24px'
+                  }}>
+                    📚
+                  </div>
+                </div>
+                
+                {/* Pages effect */}
+                <div style={{
+                  position: 'absolute',
+                  right: '-10px',
+                  top: '5px',
+                  width: '15px',
+                  height: '90px',
+                  background: 'linear-gradient(to right, #f5f5f5 0%, #e0e0e0 50%, #f5f5f5 100%)',
+                  borderRadius: '0 4px 4px 0',
+                  opacity: 0.8
+                }} />
+              </div>
+              
+              {/* Loading Text */}
+              <p style={{ 
+                color: '#6b7280', 
+                fontSize: '1.125rem',
+                fontWeight: '500',
+                marginBottom: '0.5rem'
+              }}>
+                Loading Courses...
+              </p>
+              <p style={{ 
+                color: '#9ca3af', 
+                fontSize: '0.875rem'
+              }}>
+                Preparing your learning journey
+              </p>
+              
+              {/* Progress Dots */}
+              <div style={{ 
+                display: 'flex', 
+                gap: '8px', 
+                marginTop: '1.5rem' 
+              }}>
+                {[0, 1, 2].map((i) => (
+                  <div key={i} style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: '#667eea',
+                    animation: `pulse 1.4s ease-in-out ${i * 0.2}s infinite`,
+                    animationFillMode: 'both'
+                  }} />
+                ))}
+              </div>
+              
+              {/* Keyframe Animations */}
+              <style>{`
+                @keyframes flipBook {
+                  0%, 100% { transform: rotateY(0deg); }
+                  50% { transform: rotateY(-30deg); }
+                }
+                @keyframes pulse {
+                  0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+                  40% { transform: scale(1); opacity: 1; }
+                }
+              `}</style>
             </div>
           ) : error ? (
             <div style={{ textAlign: 'center', padding: '3rem', background: 'white', borderRadius: '0.75rem' }}>
