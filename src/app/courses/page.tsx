@@ -263,11 +263,11 @@ export default function CoursesPage() {
         // This is what the UI uses to display badges like "Star Senior Secondary", "Award High School", etc.
         if (course.learningPath && course.learningPath.id) {
           const learningPathMapping: Record<string, string[]> = {
-            // School sub-filters
-            primary: ['primary-school'],
-            middle: ['middle-school'],
-            secondary: ['high-school'],
-            senior: ['senior-secondary'],
+            // School sub-filters (using actual button IDs as keys)
+            'primary': ['primary', 'primary-school'],
+            'middle': ['middle', 'middle-school'],
+            'secondary': ['secondary', 'secondary-school', 'high-school'],
+            'senior': ['senior', 'senior-secondary'],
             // College sub-filters
             bsc: ['bsc', 'b.sc', 'bachelor-of-science'],
             bcom: ['bcom', 'b.com', 'bachelor-of-commerce'],
@@ -306,11 +306,11 @@ export default function CoursesPage() {
         
         // Fallback: check tags for static courses
         const tagMapping: Record<string, string[]> = {
-          // School sub-filters
-          primary: ['primary-school', 'class1', 'class2', 'class3', 'class4', 'class5'],
-          middle: ['middle-school', 'class6', 'class7', 'class8'],
-          secondary: ['high-school', 'class9', 'class10'],
-          senior: ['senior-secondary', 'class11', 'class12'],
+          // School sub-filters (using actual button IDs as keys)
+          'primary': ['primary', 'primary-school', 'class1', 'class2', 'class3', 'class4', 'class5'],
+          'middle': ['middle', 'middle-school', 'class6', 'class7', 'class8'],
+          'secondary': ['secondary', 'secondary-school', 'high-school', 'class9', 'class10'],
+          'senior': ['senior', 'senior-secondary', 'class11', 'class12'],
           // College sub-filters
           bsc: ['bsc', 'b.sc', 'bachelor-of-science'],
           bcom: ['bcom', 'b.com', 'bachelor-of-commerce'],
@@ -335,7 +335,7 @@ export default function CoursesPage() {
           upsc: ['upsc', 'civil-services', 'ias', 'ips', 'prelims', 'mains', 'interview'],
           ssc: ['ssc', 'chsl', 'cgl', 'mts', 'staff-selection-commission'],
           banking: ['banking', 'bank-po', 'clerk', 'ibps', 'sbi', 'rrb'],
-          defense: ['defense', 'nda', ' CDS', 'airforce', 'navy', 'army', 'ssb'],
+          defense: ['defense', 'nda', 'cds', 'airforce', 'navy', 'army', 'ssb'],
           teaching: ['teaching', 'tet', 'ctet', 'education', 'b-ed']
         }
         
