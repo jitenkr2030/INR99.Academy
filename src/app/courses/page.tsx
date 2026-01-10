@@ -115,6 +115,63 @@ const COLLEGE_LEARNING_PATH_IDS = [
 const SCHOOL_VERTICALS = ['school']
 const COLLEGE_VERTICALS = ['college']
 const PG_VERTICALS = ['pg']
+const PROFESSIONAL_VERTICALS = ['professional']
+const COMPETITIVE_VERTICALS = ['competitive']
+
+// Sub-filters for each vertical
+const SUB_FILTERS = {
+  school: [
+    { id: 'all', name: 'All School', icon: '📚' },
+    { id: 'primary', name: 'Primary (1-5)', icon: '🧒' },
+    { id: 'middle', name: 'Middle (6-8)', icon: '📖' },
+    { id: 'secondary', name: 'Secondary (9-10)', icon: '📐' },
+    { id: 'senior', name: 'Senior Secondary (11-12)', icon: '🎯' }
+  ],
+  college: [
+    { id: 'all', name: 'All College', icon: '🎓' },
+    { id: 'bsc', name: 'B.Sc', icon: '🔬' },
+    { id: 'bcom', name: 'B.Com', icon: '📊' },
+    { id: 'bba', name: 'BBA', icon: '💼' },
+    { id: 'btech', name: 'B.Tech', icon: '⚙️' },
+    { id: 'llb', name: 'LL.B', icon: '⚖️' }
+  ],
+  pg: [
+    { id: 'all', name: 'All PG', icon: '🎓' },
+    { id: 'mba', name: 'MBA', icon: '💼' },
+    { id: 'mcom', name: 'M.Com', icon: '📈' },
+    { id: 'msc', name: 'M.Sc', icon: '🔬' },
+    { id: 'mca', name: 'MCA', icon: '💻' },
+    { id: 'ma', name: 'M.A.', icon: '📚' },
+    { id: 'llm', name: 'LL.M', icon: '⚖️' }
+  ],
+  professional: [
+    { id: 'all', name: 'All Professional', icon: '💼' },
+    { id: 'technology', name: 'Technology', icon: '💻' },
+    { id: 'design', name: 'Design', icon: '🎨' },
+    { id: 'business', name: 'Business', icon: '📊' },
+    { id: 'marketing', name: 'Marketing', icon: '📢' },
+    { id: 'data-science', name: 'Data Science', icon: '📉' },
+    { id: 'career', name: 'Career Skills', icon: '👔' }
+  ],
+  competitive: [
+    { id: 'all', name: 'All Exams', icon: '📋' },
+    { id: 'upsc', name: 'UPSC', icon: '🏛️' },
+    { id: 'ssc', name: 'SSC', icon: '📝' },
+    { id: 'banking', name: 'Banking', icon: '🏦' },
+    { id: 'defense', name: 'Defense', icon: '🛡️' },
+    { id: 'teaching', name: 'Teaching (TET)', icon: '👨‍🏫' }
+  ]
+}
+
+// Vertical display configuration
+const VERTICAL_CONFIG = {
+  all: { name: 'All Courses', icon: '', color: '#111827', bg: 'white' },
+  school: { name: 'School', icon: '🏫', color: '#1e40af', bg: '#dbeafe' },
+  college: { name: 'College (UG)', icon: '🎓', color: '#92400e', bg: '#fef3c7' },
+  pg: { name: 'Post-Graduate (PG)', icon: '🎓', color: '#5b21b6', bg: '#ede9fe' },
+  professional: { name: 'Professional', icon: '💼', color: '#15803d', bg: '#dcfce7' },
+  competitive: { name: 'Competitive Exams', icon: '📋', color: '#b91c1c', bg: '#fee2e2' }
+}
 
 export default function CoursesPage() {
   const searchParams = useSearchParams()
@@ -122,9 +179,8 @@ export default function CoursesPage() {
   const [selectedDifficulty, setSelectedDifficulty] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedUniversity, setSelectedUniversity] = useState('')
-  const [showCollegeOnly, setShowCollegeOnly] = useState(false)
-  const [showSchoolOnly, setShowSchoolOnly] = useState(false)
-  const [showPGOnly, setShowPGOnly] = useState(false)
+  const [activeVertical, setActiveVertical] = useState('all')
+  const [activeSubFilter, setActiveSubFilter] = useState('all')
   const [categories, setCategories] = useState<Category[]>([])
   const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
@@ -133,12 +189,8 @@ export default function CoursesPage() {
   // Check URL params for initial filter state
   useEffect(() => {
     const filter = searchParams.get('filter')
-    if (filter === 'college') {
-      setShowCollegeOnly(true)
-    } else if (filter === 'school') {
-      setShowSchoolOnly(true)
-    } else if (filter === 'pg') {
-      setShowPGOnly(true)
+    if (['school', 'college', 'pg', 'professional', 'competitive'].includes(filter || '')) {
+      setActiveVertical(filter || 'all')
     }
   }, [searchParams])
 
@@ -167,10 +219,8 @@ export default function CoursesPage() {
         const params = new URLSearchParams()
         if (selectedCategory) params.set('categoryId', selectedCategory)
         if (selectedDifficulty) params.set('difficulty', selectedDifficulty)
-        if (showCollegeOnly) params.set('vertical', 'college')
-        if (showSchoolOnly) params.set('vertical', 'school')
-        if (showPGOnly) params.set('vertical', 'pg')
-        params.set('limit', '200')
+        if (activeVertical !== 'all') params.set('vertical', activeVertical)
+        params.set('limit', '500')
 
         const response = await fetch(`/api/courses?${params.toString()}`)
         if (response.ok) {
@@ -187,7 +237,7 @@ export default function CoursesPage() {
       }
     }
     fetchCourses()
-  }, [selectedCategory, selectedDifficulty, showCollegeOnly, showSchoolOnly, showPGOnly])
+  }, [activeVertical, selectedCategory, selectedDifficulty])
 
   const filteredCourses = useMemo(() => {
     let result = courses
@@ -203,8 +253,55 @@ export default function CoursesPage() {
       )
     }
 
+    // Filter by sub-category if not 'all'
+    if (activeSubFilter !== 'all') {
+      result = result.filter(course => {
+        // Map sub-filters to course tags/categories
+        const tagMapping: Record<string, string[]> = {
+          // School sub-filters
+          primary: ['primary-school', 'class1', 'class2', 'class3', 'class4', 'class5'],
+          middle: ['middle-school', 'class6', 'class7', 'class8'],
+          secondary: ['high-school', 'class9', 'class10'],
+          senior: ['senior-secondary', 'class11', 'class12'],
+          // College sub-filters
+          bsc: ['bsc', 'b.sc', 'bachelor-of-science'],
+          bcom: ['bcom', 'b.com', 'bachelor-of-commerce'],
+          bba: ['bba', 'b.ba', 'bachelor-of-business-administration'],
+          btech: ['btech', 'b.tech', 'b.tech-cs', 'engineering'],
+          llb: ['llb', 'l.l.b', 'law', 'bachelor-of-laws'],
+          // PG sub-filters
+          mba: ['mba', 'm.ba', 'master-of-business-administration', 'mba-finance', 'mba-marketing', 'mba-hr', 'mba-operations'],
+          mcom: ['mcom', 'm.com', 'master-of-commerce', 'mcom-accounting', 'mcom-finance', 'mcom-business'],
+          msc: ['msc', 'm.sc', 'master-of-science', 'pg-msc', 'pg_msc', 'mca'],
+          mca: ['mca', 'm.c.a', 'master-of-computer-applications'],
+          ma: ['ma', 'm.a', 'master-of-arts', 'pg-ma', 'pg_ma', 'ma-economics', 'ma-history', 'ma-psychology', 'ma-english'],
+          llm: ['llm', 'l.l.m', 'master-of-laws', 'pg-llm', 'pg_llm', 'llm-corporate', 'llm-criminal', 'llm-constitutional'],
+          // Professional sub-filters
+          technology: ['technology', 'programming', 'web-development', 'python', 'javascript', 'react', 'nodejs', 'coding'],
+          design: ['design', 'ui', 'ux', 'figma', 'graphic-design', 'ui-ux'],
+          business: ['business', 'entrepreneurship', 'startup', 'strategy', 'management'],
+          marketing: ['marketing', 'digital-marketing', 'seo', 'social-media', 'advertising'],
+          'data-science': ['data-science', 'machine-learning', 'ai', 'analytics', 'data-science-python'],
+          career: ['career', 'resume', 'interview', 'job-prep', 'professional-development'],
+          // Competitive sub-filters
+          upsc: ['upsc', 'civil-services', 'ias', 'ips', 'prelims', 'mains', 'interview'],
+          ssc: ['ssc', 'chsl', 'cgl', 'mts', 'staff-selection-commission'],
+          banking: ['banking', 'bank-po', 'clerk', 'ibps', 'sbi', 'rrb'],
+          defense: ['defense', 'nda', ' CDS', 'airforce', 'navy', 'army', 'ssb'],
+          teaching: ['teaching', 'tet', 'ctet', 'education', 'b-ed']
+        }
+        
+        const mapping = tagMapping[activeSubFilter] || []
+        if (mapping.length === 0) return true
+        
+        return course.tags && course.tags.some(tag => 
+          mapping.some(m => tag.toLowerCase().includes(m.toLowerCase()))
+        )
+      })
+    }
+
     return result
-  }, [courses, searchTerm])
+  }, [courses, searchTerm, activeSubFilter])
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty.toUpperCase()) {
@@ -241,6 +338,33 @@ export default function CoursesPage() {
     return (
       course.source === 'static' && course.vertical && PG_VERTICALS.includes(course.vertical)
     )
+  }
+
+  const isProfessionalCourse = (course: Course) => {
+    return (
+      course.source === 'static' && course.vertical && PROFESSIONAL_VERTICALS.includes(course.vertical)
+    )
+  }
+
+  const isCompetitiveCourse = (course: Course) => {
+    return (
+      course.source === 'static' && course.vertical && COMPETITIVE_VERTICALS.includes(course.vertical)
+    )
+  }
+
+  // Get current sub-filters based on active vertical
+  const getCurrentSubFilters = () => {
+    return SUB_FILTERS[activeVertical as keyof typeof SUB_FILTERS] || []
+  }
+
+  // Get vertical badge info
+  const getVerticalBadge = (course: Course) => {
+    if (isPGCourse(course)) return { text: '🎓 PG', bg: '#7c3aed' }
+    if (isCollegeCourse(course)) return { text: '🎓 College', bg: '#f59e0b' }
+    if (isSchoolCourse(course)) return { text: '🏫 School', bg: '#2563eb' }
+    if (isProfessionalCourse(course)) return { text: '💼 Professional', bg: '#15803d' }
+    if (isCompetitiveCourse(course)) return { text: '📋 Competitive', bg: '#b91c1c' }
+    return null
   }
 
   // Get thumbnail path
@@ -421,10 +545,7 @@ export default function CoursesPage() {
 
   // Get current active filter for display
   const getActiveFilter = () => {
-    if (showPGOnly) return 'Post-Graduate'
-    if (showCollegeOnly) return 'College (UG)'
-    if (showSchoolOnly) return 'School'
-    return 'All'
+    return VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.name || 'All Courses'
   }
 
   return (
@@ -488,9 +609,8 @@ export default function CoursesPage() {
             <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button
                 onClick={() => {
-                  setShowSchoolOnly(false)
-                  setShowCollegeOnly(false)
-                  setShowPGOnly(false)
+                  setActiveVertical('all')
+                  setActiveSubFilter('all')
                 }}
                 style={{
                   padding: '0.625rem 1.5rem',
@@ -499,8 +619,8 @@ export default function CoursesPage() {
                   fontWeight: '500',
                   cursor: 'pointer',
                   border: 'none',
-                  background: !showSchoolOnly && !showCollegeOnly && !showPGOnly ? '#111827' : 'white',
-                  color: !showSchoolOnly && !showCollegeOnly && !showPGOnly ? 'white' : '#111827',
+                  background: activeVertical === 'all' ? '#111827' : 'white',
+                  color: activeVertical === 'all' ? 'white' : '#111827',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                   transition: 'all 0.2s'
                 }}
@@ -509,9 +629,8 @@ export default function CoursesPage() {
               </button>
               <button
                 onClick={() => {
-                  setShowSchoolOnly(true)
-                  setShowCollegeOnly(false)
-                  setShowPGOnly(false)
+                  setActiveVertical('school')
+                  setActiveSubFilter('all')
                 }}
                 style={{
                   display: 'inline-flex',
@@ -523,8 +642,8 @@ export default function CoursesPage() {
                   fontWeight: '500',
                   cursor: 'pointer',
                   border: 'none',
-                  background: showSchoolOnly ? '#2563eb' : 'white',
-                  color: showSchoolOnly ? 'white' : '#1e40af',
+                  background: activeVertical === 'school' ? '#2563eb' : 'white',
+                  color: activeVertical === 'school' ? 'white' : '#1e40af',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                   transition: 'all 0.2s'
                 }}
@@ -533,9 +652,8 @@ export default function CoursesPage() {
               </button>
               <button
                 onClick={() => {
-                  setShowSchoolOnly(false)
-                  setShowCollegeOnly(true)
-                  setShowPGOnly(false)
+                  setActiveVertical('college')
+                  setActiveSubFilter('all')
                 }}
                 style={{
                   display: 'inline-flex',
@@ -547,8 +665,8 @@ export default function CoursesPage() {
                   fontWeight: '500',
                   cursor: 'pointer',
                   border: 'none',
-                  background: showCollegeOnly ? '#ea580c' : 'white',
-                  color: showCollegeOnly ? 'white' : '#92400e',
+                  background: activeVertical === 'college' ? '#ea580c' : 'white',
+                  color: activeVertical === 'college' ? 'white' : '#92400e',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                   transition: 'all 0.2s'
                 }}
@@ -557,9 +675,8 @@ export default function CoursesPage() {
               </button>
               <button
                 onClick={() => {
-                  setShowSchoolOnly(false)
-                  setShowCollegeOnly(false)
-                  setShowPGOnly(true)
+                  setActiveVertical('pg')
+                  setActiveSubFilter('all')
                 }}
                 style={{
                   display: 'inline-flex',
@@ -571,13 +688,59 @@ export default function CoursesPage() {
                   fontWeight: '500',
                   cursor: 'pointer',
                   border: 'none',
-                  background: showPGOnly ? '#7c3aed' : 'white',
-                  color: showPGOnly ? 'white' : '#5b21b6',
+                  background: activeVertical === 'pg' ? '#7c3aed' : 'white',
+                  color: activeVertical === 'pg' ? 'white' : '#5b21b6',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                   transition: 'all 0.2s'
                 }}
               >
                 🎓 Post-Graduate (PG)
+              </button>
+              <button
+                onClick={() => {
+                  setActiveVertical('professional')
+                  setActiveSubFilter('all')
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.625rem 1.5rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: activeVertical === 'professional' ? '#15803d' : 'white',
+                  color: activeVertical === 'professional' ? 'white' : '#166534',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                💼 Professional
+              </button>
+              <button
+                onClick={() => {
+                  setActiveVertical('competitive')
+                  setActiveSubFilter('all')
+                }}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.625rem 1.5rem',
+                  borderRadius: '0.375rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: activeVertical === 'competitive' ? '#b91c1c' : 'white',
+                  color: activeVertical === 'competitive' ? 'white' : '#991b1b',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                  transition: 'all 0.2s'
+                }}
+              >
+                📋 Competitive Exams
               </button>
             </div>
           </div>
@@ -586,138 +749,52 @@ export default function CoursesPage() {
         {/* Filters & Content */}
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem 1rem' }}>
           
-          {/* PG Education Filter Section */}
-          {showPGOnly && (
+          {/* Dynamic Sub-Filter Section */}
+          {activeVertical !== 'all' && (
             <div style={{
-              background: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)',
+              background: `linear-gradient(135deg, ${VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.bg} 0%, ${VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.bg} 100%)`,
               borderRadius: '0.75rem',
               padding: '1.5rem',
               marginBottom: '1.5rem',
-              border: '1px solid #7c3aed'
+              border: `1px solid ${VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.color}`
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '1.5rem' }}>🎓</span>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#5b21b6' }}>
-                  Post-Graduate Education - Master&apos;s Degree Courses
+                <span style={{ fontSize: '1.5rem' }}>{VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.icon}</span>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.color }}>
+                  {VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.name} Courses
                 </h3>
               </div>
               
-              <p style={{ color: '#6d28d9', fontSize: '0.875rem', marginBottom: '1rem' }}>
-                Select your specialization to find advanced courses tailored to your career goals
+              <p style={{ color: VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.color, fontSize: '0.875rem', marginBottom: '1rem' }}>
+                Select a category to find relevant courses tailored to your goals
               </p>
               
               <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #7c3aed',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#5b21b6',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  📊 All PG Courses
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #7c3aed',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#5b21b6',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  💼 MBA
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #7c3aed',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#5b21b6',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  📈 M.Com
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #7c3aed',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#5b21b6',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  🔬 M.Sc
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #7c3aed',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#5b21b6',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  💻 MCA
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #7c3aed',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#5b21b6',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  📚 M.A.
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #7c3aed',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#5b21b6',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  ⚖️ LL.M.
-                </button>
+                {getCurrentSubFilters().map((filter) => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setActiveSubFilter(filter.id)}
+                    style={{
+                      padding: '0.625rem 1.25rem',
+                      fontSize: '0.875rem',
+                      border: `1px solid ${VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.color}`,
+                      borderRadius: '0.5rem',
+                      background: activeSubFilter === filter.id ? VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.color : 'white',
+                      color: activeSubFilter === filter.id ? 'white' : VERTICAL_CONFIG[activeVertical as keyof typeof VERTICAL_CONFIG]?.color,
+                      cursor: 'pointer',
+                      fontWeight: '500',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {filter.icon} {filter.name}
+                  </button>
+                ))}
               </div>
             </div>
           )}
 
-          {/* College Education University Filter */}
-          {showCollegeOnly && (
+          {/* College Education University Filter (when college is active) */}
+          {activeVertical === 'college' && (
             <div style={{
               background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
               borderRadius: '0.75rem',
@@ -795,107 +872,7 @@ export default function CoursesPage() {
               )}
             </div>
           )}
-
-          {/* School Education Quick Filter */}
-          {showSchoolOnly && (
-            <div style={{
-              background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-              borderRadius: '0.75rem',
-              padding: '1.5rem',
-              marginBottom: '1.5rem',
-              border: '1px solid #3b82f6'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                <span style={{ fontSize: '1.5rem' }}>🏫</span>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1e40af' }}>
-                  School Education - Classes 1-12
-                </h3>
-              </div>
               
-              <p style={{ color: '#1e40af', fontSize: '0.875rem', marginBottom: '1rem' }}>
-                Select your class level to find courses aligned with your curriculum
-              </p>
-              
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #3b82f6',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#1e40af',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  📚 All School Courses
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #3b82f6',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#1e40af',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Primary (Classes 1-5)
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #3b82f6',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#1e40af',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Middle (Classes 6-8)
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #3b82f6',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#1e40af',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Secondary (Classes 9-10)
-                </button>
-                <button
-                  style={{
-                    padding: '0.625rem 1.25rem',
-                    fontSize: '0.875rem',
-                    border: '1px solid #3b82f6',
-                    borderRadius: '0.5rem',
-                    background: 'white',
-                    color: '#1e40af',
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  Senior Secondary
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* General Filters */}
           <div style={{
             display: 'flex',
@@ -1088,6 +1065,32 @@ export default function CoursesPage() {
                             🏫 School
                           </span>
                         )}
+                        {isProfessionalCourse(course) && !isCompetitiveCourse(course) && (
+                          <span style={{
+                            background: '#15803d',
+                            color: 'white',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '9999px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            display: 'inline-block'
+                          }}>
+                            💼 Professional
+                          </span>
+                        )}
+                        {isCompetitiveCourse(course) && (
+                          <span style={{
+                            background: '#b91c1c',
+                            color: 'white',
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '9999px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            display: 'inline-block'
+                          }}>
+                            📋 Competitive
+                          </span>
+                        )}
                       </div>
 
                       {/* Thumbnail */}
@@ -1196,7 +1199,7 @@ export default function CoursesPage() {
                           </div>
                           <Link href={`/courses/${course.id}`} style={{
                             display: 'inline-block',
-                            background: isPG ? '#7c3aed' : isCollege ? '#ea580c' : '#ea580c',
+                            background: isPG ? '#7c3aed' : isCollege ? '#ea580c' : isSchool ? '#2563eb' : isProfessionalCourse(course) ? '#15803d' : '#b91c1c',
                             color: 'white',
                             padding: '0.5rem 1rem',
                             borderRadius: '0.375rem',
