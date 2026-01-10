@@ -30,49 +30,61 @@ export async function GET(request: NextRequest) {
       where.categoryId = categoryId
     }
 
-    // Fetch courses with Prisma including related data
-    const [dbCourses, total] = await Promise.all([
-      db.course.findMany({
-        where,
-        skip: offset,
-        take: limit,
-        orderBy: {
-          createdAt: 'desc',
-        },
-        include: {
-          instructor: {
-            select: {
-              id: true,
-              name: true,
-              avatar: true,
-              expertise: true,
+    // Try to fetch from database, but fallback gracefully if it fails
+    let dbCourses: typeof courses = []
+    let total = 0
+    
+    try {
+      // Fetch courses with Prisma including related data
+      const [dbCoursesResult, totalResult] = await Promise.all([
+        db.course.findMany({
+          where,
+          skip: offset,
+          take: limit,
+          orderBy: {
+            createdAt: 'desc',
+          },
+          include: {
+            instructor: {
+              select: {
+                id: true,
+                name: true,
+                avatar: true,
+                expertise: true,
+              },
+            },
+            learningPath: {
+              select: {
+                id: true,
+                title: true,
+                color: true,
+                icon: true,
+              },
+            },
+            class: {
+              select: {
+                id: true,
+                name: true,
+                level: true,
+              },
+            },
+            _count: {
+              select: {
+                lessons: true,
+                assessments: true,
+              },
             },
           },
-          learningPath: {
-            select: {
-              id: true,
-              title: true,
-              color: true,
-              icon: true,
-            },
-          },
-          class: {
-            select: {
-              id: true,
-              name: true,
-              level: true,
-            },
-          },
-          _count: {
-            select: {
-              lessons: true,
-              assessments: true,
-            },
-          },
-        },
-      }),
-      db.course.count({ where }),
-    ])
+        }),
+        db.course.count({ where }),
+      ])
+      
+      dbCourses = dbCoursesResult
+      total = totalResult
+    } catch (dbError) {
+      console.warn('Database connection failed, using static courses only:', dbError)
+      // Continue with empty dbCourses - will use only static courses
+    }
 
     // Map database courses to include lessonCount and assessmentCount dynamically
     const dbCoursesWithDetails = dbCourses.map(course => ({
