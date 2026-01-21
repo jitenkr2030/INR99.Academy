@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { go2rtc } from '@/lib/go2rtc';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 import { getServerSession } from 'next-auth';
 
 interface SignalRequest {

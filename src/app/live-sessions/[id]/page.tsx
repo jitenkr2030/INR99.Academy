@@ -116,6 +116,20 @@ export default function LiveSessionPage() {
   }
 
   const joinSession = async () => {
+    // Allow demo sessions to be viewed without authentication
+    if (sessionId.startsWith('demo')) {
+      setIsJoined(true)
+      setChatMessages([{
+        id: 'system-1',
+        userId: 'system',
+        userName: 'System',
+        userAvatar: null,
+        message: 'Welcome to the live session! Please be respectful and follow the guidelines.',
+        timestamp: new Date().toISOString()
+      }])
+      return
+    }
+    
     if (!session?.user) {
       router.push('/auth/login?callbackUrl=/live-sessions/' + sessionId)
       return

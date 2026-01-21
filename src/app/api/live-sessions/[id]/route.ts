@@ -2,6 +2,94 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { auth } from '@/auth'
 
+// Demo session data for testing
+const demoSessions: Record<string, any> = {
+  'demo-1': {
+    id: 'demo-1',
+    title: 'Introduction to React Hooks',
+    description: 'Learn the fundamentals of React Hooks including useState, useEffect, and custom hooks. This session covers practical examples and best practices.',
+    scheduledAt: new Date().toISOString(),
+    duration: 60,
+    status: 'LIVE',
+    roomId: 'room_demo_1',
+    roomUrl: 'http://localhost:1984/api/whep?src=session_demo_1',
+    maxParticipants: 100,
+    isRecorded: true,
+    host: {
+      id: 'demo-host-1',
+      name: 'Sarah Chen',
+      avatar: null,
+      bio: 'Senior React Developer with 8 years of experience'
+    },
+    course: {
+      id: 'demo-course-1',
+      title: 'Advanced React Development',
+      thumbnail: '/images/courses/react-advanced.jpg',
+      instructor: {
+        id: 'demo-host-1',
+        name: 'Sarah Chen'
+      }
+    },
+    currentAttendees: 42
+  },
+  'demo-2': {
+    id: 'demo-2',
+    title: 'Building RESTful APIs with Node.js',
+    description: 'Master the art of building robust REST APIs using Node.js, Express, and MongoDB. Learn about authentication, validation, and best practices.',
+    scheduledAt: new Date(Date.now() + 86400000).toISOString(),
+    duration: 90,
+    status: 'SCHEDULED',
+    roomId: 'room_demo_2',
+    roomUrl: 'http://localhost:1984/api/whep?src=session_demo_2',
+    maxParticipants: 50,
+    isRecorded: true,
+    host: {
+      id: 'demo-host-2',
+      name: 'Michael Rodriguez',
+      avatar: null,
+      bio: 'Full-stack developer and API specialist'
+    },
+    course: {
+      id: 'demo-course-2',
+      title: 'Node.js Mastery',
+      thumbnail: '/images/courses/nodejs.jpg',
+      instructor: {
+        id: 'demo-host-2',
+        name: 'Michael Rodriguez'
+      }
+    },
+    currentAttendees: 0
+  },
+  'demo-3': {
+    id: 'demo-3',
+    title: 'Introduction to React Hooks',
+    description: 'Learn the fundamentals of React Hooks including useState, useEffect, and custom hooks. This session covers practical examples and best practices.',
+    scheduledAt: new Date().toISOString(),
+    duration: 60,
+    status: 'LIVE',
+    roomId: 'room_demo_3',
+    roomUrl: 'http://localhost:1984/api/whep?src=session_demo_3',
+    maxParticipants: 100,
+    isRecorded: true,
+    host: {
+      id: 'demo-host-1',
+      name: 'Sarah Chen',
+      avatar: null,
+      bio: 'Senior React Developer with 8 years of experience'
+    },
+    course: {
+      id: 'demo-course-1',
+      title: 'Advanced React Development',
+      thumbnail: '/images/courses/react-advanced.jpg',
+      instructor: {
+        id: 'demo-host-1',
+        name: 'Sarah Chen'
+      }
+    },
+    currentAttendees: 42
+  }
+}
+
 // GET /api/live-sessions/[id] - Get a specific live session
 export async function GET(
   request: NextRequest,
@@ -9,6 +97,15 @@ export async function GET(
 ) {
   try {
     const { id } = params
+
+    // Check if this is a demo session
+    if (id.startsWith('demo') && demoSessions[id]) {
+      return NextResponse.json({
+        success: true,
+        session: demoSessions[id],
+        isDemo: true
+      })
+    }
 
     const liveSession = await db.liveSession.findUnique({
       where: { id },
