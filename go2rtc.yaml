@@ -1,0 +1,59 @@
+# go2rtc Configuration for INR99 Academy
+# Copy this file to go2rtc.yaml and customize as needed
+
+# API Configuration
+# REST API for stream management
+api:
+  listen: "0.0.0.0:1984"
+  # Restrict origins in production for security
+  # origin: "https://inr99academy.com"
+
+# RTSP Configuration
+# For compatibility with existing camera infrastructure
+rtsp:
+  listen: "0.0.0.0:8554"
+
+# WebRTC Configuration
+# For real-time video streaming to browsers
+webrtc:
+  listen: "0.0.0.0:8555"
+  
+  # STUN servers for NAT traversal
+  # These help participants behind NAT to establish peer-to-peer connections
+  stun:
+    - "stun.l.google.com:19302"
+    - "stun1.l.google.com:19302"
+  
+  # TURN servers for relay (uncomment and configure for production)
+  # Required for participants behind symmetric NAT or restrictive firewalls
+  # turn:
+  #   - "turn:your-turn-server.com:3478?username=user&credential=pass"
+
+# RTSPtoWebRTC Configuration
+# Automatically converts RTSP streams to WebRTC
+rtsptoclient:
+  # Default codec settings
+  default_formats:
+    video: "h264"
+    audio: "opus"
+
+# Recording Configuration
+# Configure how recordings are saved
+# recordings:
+#   ffmpeg:
+#     "-c": "copy"
+#     "-f":
+#       - "mp4"
+
+# Logging Configuration
+logs:
+  level: "info"
+  # Set to "debug" for troubleshooting, "error" for production
+
+# Hardware Acceleration (optional, uncomment for your platform)
+# For NVIDIA GPU transcoding:
+# hwaccel: "cuda"
+# For Intel Quick Sync:
+# hwaccel: "vaapi"
+# For macOS VideoToolbox:
+# hwaccel: "videotoolbox"

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import {
@@ -21,6 +21,8 @@ import {
   AlertCircle,
   Play
 } from 'lucide-react'
+import { Broadcaster } from '@/components/live-sessions/Broadcaster'
+import { Viewer } from '@/components/live-sessions/Viewer'
 
 interface SessionParticipant {
   id: string
@@ -48,6 +50,7 @@ interface LiveSessionData {
   duration: number
   status: 'SCHEDULED' | 'LIVE' | 'COMPLETED' | 'CANCELLED'
   roomId: string | null
+  roomUrl: string | null
   currentAttendees: number
   host: {
     id: string
@@ -61,7 +64,10 @@ interface LiveSessionData {
   } | null
 }
 
-export default function LiveSessionPage({ params }: { params: { id: string } }) {
+export default function LiveSessionPage() {
+  const params = useParams()
+  const sessionId = params.id as string
+  
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
   const [sessionData, setSessionData] = useState<LiveSessionData | null>(null)
@@ -75,21 +81,22 @@ export default function LiveSessionPage({ params }: { params: { id: string } }) 
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [participants, setParticipants] = useState<SessionParticipant[]>([])
+  const [broadcastStatus, setBroadcastStatus] = useState<'idle' | 'connecting' | 'live' | 'error'>('idle')
+  const [viewingStatus, setViewingStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle')
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
-  // Get session safely - store result first before destructuring
   const sessionResult = useSession()
   const session = mounted ? sessionResult.data : null
 
   useEffect(() => {
     setMounted(true)
     fetchSession()
-  }, [params.id])
+  }, [sessionId])
 
   const fetchSession = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/live-sessions/${params.id}`)
+      const response = await fetch(`/api/live-sessions/${sessionId}`)
       const data = await response.json()
 
       if (data.success) {
@@ -110,19 +117,18 @@ export default function LiveSessionPage({ params }: { params: { id: string } }) 
 
   const joinSession = async () => {
     if (!session?.user) {
-      router.push('/auth/login?callbackUrl=/live-sessions/' + params.id)
+      router.push('/auth/login?callbackUrl=/live-sessions/' + sessionId)
       return
     }
 
     try {
-      const response = await fetch(`/api/live-sessions/${params.id}/attendance`, {
+      const response = await fetch(`/api/live-sessions/${sessionId}/attendance`, {
         method: 'POST'
       })
       const data = await response.json()
 
       if (data.success) {
         setIsJoined(true)
-        // Add initial system message
         setChatMessages([{
           id: 'system-1',
           userId: 'system',
@@ -141,7 +147,7 @@ export default function LiveSessionPage({ params }: { params: { id: string } }) 
 
   const leaveSession = async () => {
     try {
-      await fetch(`/api/live-sessions/${params.id}/attendance`, {
+      await fetch(`/api/live-sessions/${sessionId}/attendance`, {
         method: 'PUT'
       })
       setIsJoined(false)
@@ -166,7 +172,6 @@ export default function LiveSessionPage({ params }: { params: { id: string } }) 
     setChatMessages(prev => [...prev, message])
     setNewMessage('')
 
-    // Scroll to bottom
     setTimeout(() => {
       if (chatContainerRef.current) {
         chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
@@ -176,12 +181,39 @@ export default function LiveSessionPage({ params }: { params: { id: string } }) 
 
   const toggleMute = () => {
     setIsMuted(!isMuted)
-    // In a real implementation, this would control the WebRTC audio track
   }
 
   const toggleVideo = () => {
     setHasVideo(!hasVideo)
-    // In a real implementation, this would control the WebRTC video track
+  }
+
+  // ICE servers configuration
+  const iceServers: RTCIceServer[] = [
+    { urls: process.env.NEXT_PUBLIC_STUN_SERVER || 'stun:stun.l.google.com:19302' },
+  ]
+
+  const handleStreamStart = () => {
+    setBroadcastStatus('live')
+    // Update session status to LIVE
+    fetch(`/api/live-sessions/${sessionId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'LIVE' })
+    })
+  }
+
+  const handleStreamEnd = () => {
+    setBroadcastStatus('idle')
+  }
+
+  const handleStreamError = (error: Error) => {
+    setBroadcastStatus('error')
+    console.error('Broadcast error:', error)
+  }
+
+  const handleViewingError = (error: Error) => {
+    setViewingStatus('error')
+    console.error('Viewing error:', error)
   }
 
   if (loading) {
@@ -212,6 +244,9 @@ export default function LiveSessionPage({ params }: { params: { id: string } }) 
   const isHost = mounted && session?.user?.id === sessionData?.host?.id
   const isLive = sessionData.status === 'LIVE'
   const isScheduled = sessionData.status === 'SCHEDULED'
+
+  // Get stream URL for video components
+  const streamUrl = sessionData.roomUrl || `${process.env.NEXT_PUBLIC_GO2RTC_API_URL || 'http://localhost:1984'}/api/whep?src=session_${sessionId}`
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col">
@@ -261,41 +296,32 @@ export default function LiveSessionPage({ params }: { params: { id: string } }) 
         <div className={`flex-1 flex flex-col ${showChat || showParticipants ? 'mr-80' : ''}`}>
           {/* Video Container */}
           <div className="flex-1 relative bg-black">
-            {/* Main Video (Host) */}
+            {/* Main Video Area */}
             <div className="absolute inset-0 flex items-center justify-center">
-              {hasVideo ? (
-                <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center">
-                  <video
-                    autoPlay
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+              {isHost ? (
+                // Host view with Broadcaster component
+                <Broadcaster
+                  sessionId={sessionId}
+                  streamUrl={streamUrl}
+                  iceServers={iceServers}
+                  onStreamStart={handleStreamStart}
+                  onStreamEnd={handleStreamEnd}
+                  onError={handleStreamError}
+                />
               ) : (
-                <div className="text-center">
-                  <div className="w-32 h-32 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                    {sessionData.host.avatar ? (
-                      <img
-                        src={sessionData.host.avatar}
-                        alt={sessionData.host.name || ''}
-                        className="w-28 h-28 rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-4xl text-white font-bold">
-                        {sessionData.host.name?.charAt(0) || 'H'}
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="text-white text-xl font-semibold">{sessionData.host.name}</h3>
-                  <p className="text-gray-400">Host</p>
-                </div>
+                // Student view with Viewer component
+                <Viewer
+                  sessionId={sessionId}
+                  streamUrl={streamUrl}
+                  iceServers={iceServers}
+                  onError={handleViewingError}
+                />
               )}
             </div>
 
             {/* Live Badge */}
             {isLive && (
-              <div className="absolute top-4 left-4">
+              <div className="absolute top-4 left-4 z-10">
                 <span className="inline-flex items-center px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full">
                   <span className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></span>
                   LIVE
@@ -304,24 +330,12 @@ export default function LiveSessionPage({ params }: { params: { id: string } }) 
             )}
 
             {/* Session Timer */}
-            <div className="absolute top-4 right-4">
+            <div className="absolute top-4 right-4 z-10">
               <span className="inline-flex items-center px-3 py-1 bg-black/50 backdrop-blur-sm text-white text-sm rounded-full">
                 <Clock className="w-4 h-4 mr-2" />
                 {isLive ? '00:00:00' : `${sessionData.duration} min`}
               </span>
             </div>
-
-            {/* Self Video (if video enabled) */}
-            {hasVideo && (
-              <div className="absolute bottom-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-600">
-                <video
-                  autoPlay
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
           </div>
 
           {/* Controls */}
