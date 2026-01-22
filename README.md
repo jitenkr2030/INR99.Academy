@@ -6,24 +6,26 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8)](https://tailwindcss.com/)
+[![WebRTC](https://img.shields.io/badge/WebRTC-go2rtc-blue)](https://github.com/AlexxIT/go2rtc)
 
-INR99.Academy is a comprehensive learning platform designed to make quality education accessible to every Indian at just ₹99/month. Built with a mobile-first approach, it works perfectly on low-end smartphones with low bandwidth optimization.
+INR99.Academy is a comprehensive learning platform designed to make quality education accessible to every Indian at just ₹99/month. Built with a mobile-first approach, it works perfectly on low-end smartphones with low bandwidth optimization. The platform features real-time live learning sessions powered by go2rtc streaming infrastructure.
 
 ---
 
 ## 🌟 About
 
-INR99.Academy addresses the critical gap in affordable quality education in India. While premium platforms charge ₹10,000-50,000/year, INR99 offers the same value proposition at ₹1,188/year—making it 10x more accessible.
+INR99.Academy addresses the critical gap in affordable quality education in India. While premium platforms charge ₹10,000-50,000/year, INR99 offers the same value proposition at ₹1,188/year—making it 10x more accessible. The platform now features integrated live learning with real-time video streaming, enabling interactive sessions between instructors and students.
 
 ### Our Mission
 
-To democratize quality education in India by making it as accessible and affordable as UPI payments. Every Indian, regardless of their economic background, deserves access to world-class educational content.
+To democratize quality education in India by making it as accessible and affordable as UPI payments. Every Indian, regardless of their economic background, deserves access to world-class educational content, including live interactive learning experiences.
 
 ### Why INR99?
 
 - **Affordable**: Just ₹99/month (₹3/day)
 - **Accessible**: Works on low-end smartphones
 - **Comprehensive**: From school education to professional skills
+- **Interactive Live Learning**: Real-time video sessions with go2rtc streaming
 - **Localized**: Content in Hindi and English
 - **Flexible**: Learn at your own pace, anywhere
 
@@ -79,19 +81,33 @@ The platform offers a comprehensive 6-tier course structure:
 - **Digital Literacy**: UPI, Banking, Government Portals, Online Safety
 - **Community Systems**: Food Work, Bulk Buying, Work Models
 
-### 🎥 Live Learning
+### 🎥 Live Learning (Powered by go2rtc)
 
-- **Interactive Live Classes**: Real-time video sessions with expert instructors
+The platform features fully integrated live learning with real-time video streaming powered by go2rtc, an open-source WebRTC streaming server.
+
+- **Interactive Live Classes**: Real-time video sessions with expert instructors using WHIP/WHEP protocols
 - **Live Q&A**: Ask questions and get instant answers during sessions
 - **Session Scheduling**: Browse upcoming sessions and register in advance
-- **Attendance Tracking**: Track participation and session duration
-- **Session Recording**: Option to record and playback live sessions
+- **Attendance Tracking**: Track participation and session duration automatically
+- **Session Recording**: Record and playback live sessions with go2rtc recording API
+- **Multi-Viewer Support**: Scalable streaming architecture for large audiences
+- **Demo Sessions**: Test functionality without authentication
+
+### 🎛️ Streaming Infrastructure
+
+The live learning feature is powered by go2rtc, providing professional-grade streaming:
+
+- **WHIP Protocol**: WebRTC-HTTP Ingestion for instructor broadcasting
+- **WHEP Protocol**: WebRTC-HTTP Egress for student viewing
+- **Low Latency**: Optimized for real-time interaction
+- **Self-Hosted**: No per-minute licensing costs
+- **Open Source**: Transparent, customizable infrastructure
 
 ### 👨‍🏫 Instructor Dashboard
 
 - **Course Management**: Create and manage courses and lessons
 - **Student Progress**: Track student engagement and completion rates
-- **Live Session Hosting**: Schedule and conduct live learning sessions
+- **Live Session Hosting**: Schedule and conduct live learning sessions with video streaming
 - **Earnings Dashboard**: View earnings and payout information
 - **Discussion Forums**: Course-specific Q&A and discussion threads
 
@@ -99,8 +115,9 @@ The platform offers a comprehensive 6-tier course structure:
 
 - **User Management**: Complete user lifecycle management
 - **Content Management**: Course, lesson, and assessment management
-- **Live Session Management**: Create, schedule, and manage live sessions
-- **Analytics Dashboard**: Real-time statistics on users, courses, and revenue
+- **Live Session Management**: Create, schedule, and manage live streaming sessions
+- **Streaming Infrastructure**: Monitor go2rtc server status and stream health
+- **Analytics Dashboard**: Real-time statistics on users, courses, revenue, and streaming
 - **Discussion Moderation**: Tools to manage community discussions
 
 ### 💳 Subscription & Payments
@@ -134,17 +151,20 @@ Specialized content to clear common confusion points:
 - **Styling**: Tailwind CSS 4
 - **Components**: shadcn/ui with Lucide Icons
 - **State Management**: React Context + Custom Hooks
+- **Video Streaming**: WebRTC with go2rtc via WHIP/WHEP protocols
 
 ### Backend
 - **Runtime**: Node.js
 - **Database**: SQLite with Prisma ORM
 - **Authentication**: NextAuth.js with JWT tokens
 - **API**: RESTful endpoints with Next.js API Routes
+- **Streaming Server**: go2rtc (self-hosted WebRTC server)
 
 ### Infrastructure
 - **Deployment**: Vercel / Docker
 - **Version Control**: GitHub
 - **Package Manager**: Bun / npm
+- **Streaming**: Self-hosted go2rtc server on port 1984
 
 ---
 
@@ -160,6 +180,10 @@ INR99.Academy/
 │   │   │   ├── categories/    # Category management
 │   │   │   ├── courses/       # Course APIs
 │   │   │   ├── enrollments/   # Enrollment management
+│   │   │   ├── go2rtc/        # Live streaming APIs
+│   │   │   │   ├── streams/   # Stream management
+│   │   │   │   ├── signal/    # WebRTC signaling
+│   │   │   │   └── recording/ # Recording controls
 │   │   │   ├── live-sessions/ # Live session APIs
 │   │   │   ├── payments/      # Payment processing
 │   │   │   ├── progress/      # Progress tracking
@@ -181,6 +205,8 @@ INR99.Academy/
 │   │   ├── learning-paths/    # Learning path pages
 │   │   ├── learning-ledger/   # Progress tracking
 │   │   ├── live-sessions/     # Live learning
+│   │   │   ├── [id]/          # Session page with streaming
+│   │   │   └── create/        # Session creation
 │   │   ├── profile/           # User profile
 │   │   ├── school/            # School education
 │   │   ├── subscription/      # Subscription management
@@ -195,7 +221,12 @@ INR99.Academy/
 │   │   ├── lesson-player.tsx # Video lesson player
 │   │   ├── assessment-player.tsx # Quiz system
 │   │   ├── discussion-*.tsx  # Community features
-│   │   └── bandwidth-toggle.tsx # Low-bandwidth option
+│   │   ├── bandwidth-toggle.tsx # Low-bandwidth option
+│   │   ├── live-sessions/
+│   │   │   ├── Broadcaster.tsx # Instructor broadcast component
+│   │   │   └── Viewer.tsx    # Student viewing component
+│   │   ├── tenant/           # Multi-tenant support
+│   │   └── verification/     # Feature verification
 │   ├── contexts/             # React contexts
 │   │   ├── auth-context.tsx  # Authentication state
 │   │   └── bandwidth-context.tsx # Bandwidth settings
@@ -204,17 +235,35 @@ INR99.Academy/
 │   │   ├── auth.ts          # Auth utilities
 │   │   ├── db.ts            # Database connection
 │   │   ├── course-data.ts   # Static course data
-│   │   └── utils.ts         # Helper functions
+│   │   ├── go2rtc.ts        # go2rtc streaming service
+│   │   ├── utils.ts         # Helper functions
+│   │   ├── integrations/    # Third-party integrations
+│   │   ├── tiers/           # Subscription tiers
+│   │   └── verification/    # Feature verification
 │   ├── middleware.ts         # Route protection
 │   └── auth.ts              # Auth configuration
-├── prisma/
-│   ├── schema.prisma        # Database schema
-│   └── seed.ts              # Database seeding
-├── public/
-│   ├── assets/              # Static assets
-│   └── images/              # Image files
+├── backup/                   # Deployment backups
+│   └── deployments/         # Previous deployments
+├── data/                    # Data storage
+│   └── db/                  # SQLite databases
 ├── docs/                    # Documentation
-├── scripts/                 # Utility scripts
+│   ├── go2rtc-integration-guide.md
+│   ├── live-learning-audit.md
+│   └── reports/            # Status reports
+├── experiments/            # Experimental code
+├── prisma/
+│   ├── schema.prisma       # Database schema
+│   ├── seed.ts             # Database seeding
+│   └── db/                 # Prisma databases
+├── public/
+│   ├── assets/             # Static assets
+│   └── images/             # Image files
+├── temp/                   # Temporary files
+├── testing/                # Test files
+│   └── test-go2rtc-integration.js
+├── go2rtc.yaml             # go2rtc server configuration
+├── Dockerfile              # Docker configuration
+├── docker-compose.yml      # Docker compose
 └── package.json
 ```
 
@@ -233,7 +282,7 @@ Key Prisma models include:
 - **Assessment**: Quizzes and practice questions
 - **Certificate**: Course completion certificates
 - **Discussion**: Community Q&A and forums
-- **LiveSession**: Scheduled live learning sessions
+- **LiveSession**: Scheduled live learning sessions with streaming info
 - **Attendance**: Session attendance records
 - **Subscription**: User subscription management
 - **Payment**: Transaction history
@@ -244,9 +293,10 @@ Key Prisma models include:
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - Bun or npm
 - SQLite (or PostgreSQL for production)
+- go2rtc server (for live streaming)
 
 ### Installation
 
@@ -275,12 +325,23 @@ Key Prisma models include:
    bun run db:generate
    ```
 
-5. **Start the development server**
+5. **Set up go2rtc for live streaming**
+   ```bash
+   # Install go2rtc (Linux amd64 example)
+   wget https://github.com/AlexxIT/go2rtc/releases/download/v1.6.1/go2rtc_linux_amd64
+   mv go2rtc_linux_amd64 go2rtc
+   chmod +x go2tc
+   
+   # Start go2rtc server
+   ./go2rtc -c go2rtc.yaml
+   ```
+
+6. **Start the development server**
    ```bash
    bun run dev
    ```
 
-6. **Open your browser**
+7. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ### Available Scripts
@@ -297,6 +358,10 @@ bun run db:push          # Push schema to database
 bun run db:generate      # Generate Prisma client
 bun run db:migrate       # Run migrations
 bun run db:seed          # Seed database with initial data
+
+# Testing
+bun run test             # Run test suite
+node testing/test-go2rtc-integration.js  # Run streaming integration tests
 ```
 
 ---
@@ -314,9 +379,9 @@ The platform uses a secure authentication system:
 
 | Role | Description |
 |------|-------------|
-| **Student** | Access to courses, progress tracking, certificates |
-| **Instructor** | Course creation, student management, earnings |
-| **Admin** | Full platform management, user moderation |
+| **Student** | Access to courses, live sessions, progress tracking, certificates |
+| **Instructor** | Course creation, live streaming, student management, earnings |
+| **Admin** | Full platform management, user moderation, streaming infrastructure |
 
 ---
 
@@ -335,6 +400,55 @@ Multiple Indian payment methods supported:
 | Monthly | ₹99/month | - |
 | Quarterly | ₹297/3 months | 10% |
 | Yearly | ₹1,188/year | 15% |
+
+---
+
+## 🎥 Live Streaming Configuration
+
+### go2rtc Setup
+
+The live learning feature requires a go2rtc server for video streaming. Configure the server using `go2rtc.yaml`:
+
+```yaml
+# go2rtc Configuration
+api:
+  listen: ":1984"
+
+# WebRTC Configuration
+webrtc:
+ ICEServers:
+    - urls: "stun:stun.l.google.com:19302"
+
+# Recording Configuration (optional)
+record:
+  dir: "./recordings"
+```
+
+### Environment Variables
+
+```env
+# Database
+DATABASE_URL=file:./data/db/dev.db
+
+# Authentication
+NEXTAUTH_SECRET=your_secret_key
+NEXTAUTH_URL=https://your-domain.com
+
+# go2rtc Streaming Server
+GO2RTC_API_URL=http://localhost:1984
+GO2RTC_API_TOKEN=your_api_token
+
+# WebRTC
+NEXT_PUBLIC_STUN_SERVER=stun:stun.l.google.com:19302
+```
+
+### Testing Live Streaming
+
+The platform includes demo sessions for testing streaming functionality:
+
+1. Navigate to `/live-sessions`
+2. Click on a LIVE session (e.g., "Introduction to React Hooks")
+3. Demo mode allows testing without authentication
 
 ---
 
@@ -411,12 +525,14 @@ docker build -t inr99-academy .
 docker run -p 3000:3000 inr99-academy
 ```
 
-### Environment Variables
+### go2rtc Docker Deployment
 
-```env
-DATABASE_URL=your_database_url
-NEXTAUTH_SECRET=your_secret_key
-NEXTAUTH_URL=https://your-domain.com
+```bash
+# Run go2rtc in Docker
+docker run -p 1984:1984 -v ./recordings:/recordings alexxit/go2rtc:latest
+
+# Or use docker-compose with both services
+docker-compose up -d
 ```
 
 ---
@@ -428,18 +544,22 @@ NEXTAUTH_URL=https://your-domain.com
 - [ ] Hindi content expansion
 - [ ] Payment gateway integration (Razorpay)
 - [ ] School partnership program launch
+- [ ] Chat message persistence for live sessions
 
 ### Medium-term (3-6 months)
 - [ ] Regional language content (Tamil, Telugu, Marathi)
 - [ ] WhatsApp-based learning
 - [ ] Instructor certification program
 - [ ] Government tender applications
+- [ ] Session recording playback interface
 
 ### Long-term (6-12 months)
 - [ ] AI-powered personalized learning
 - [ ] Virtual reality learning experiences
 - [ ] International expansion
 - [ ] IPO preparation
+- [ ] Screen sharing for instructors
+- [ ] Multi-host panel discussions
 
 ---
 
@@ -465,6 +585,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - shadcn/ui for the beautiful component library
 - Prisma team for the amazing ORM
 - Tailwind CSS for utility-first styling
+- AlexxIT for the go2rtc project enabling open-source video streaming
 - All contributors who help make this project better
 
 ---
