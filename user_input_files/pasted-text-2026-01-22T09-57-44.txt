@@ -1,0 +1,216 @@
+INR99 WordPress Plugin Suite
+
+A comprehensive collection of WordPress plugins designed to integrate, extend, and white-label the INR99 learning management platform. This workspace contains all plugin repositories developed for the INR99 ecosystem.
+
+Suite Overview
+
+The INR99 WordPress Plugin Suite provides a modular approach to extending WordPress with powerful learning management capabilities. Each plugin serves a specific function within the ecosystem, from core LMS integration to media processing, live class connectivity, and license management. Together, these plugins transform a standard WordPress installation into a fully-featured learning management frontend capable of delivering courses, tracking progress, managing live sessions, and processing multimedia content.
+
+The architecture follows WordPress best practices with object-oriented PHP, proper hook integration, and standards-compliant code structure. Each plugin operates independently but can be combined to create a comprehensive learning platform. The licensing manager ensures that all plugins can enforce proper license validation and automatic updates across the entire suite.
+
+Plugin Matrix
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Plugin	Version	Purpose	Status
+INR99 Cloud LMS Connector	1.0.0	Core LMS integration, course sync, SSO	Complete
+INR99 Live Class Connector	1.0.0	Live class scheduling, recordings, Zoom/Meet integration	Complete
+INR99 White-Label Launcher	1.0.0	Branding setup, custom domains, platform provisioning	Complete
+INR99 PPTX Video Connector	1.0.0	PowerPoint to video conversion, media management	Complete
+INR99 Licensing Manager	1.0.0	License validation, tier management, automatic updates	Complete
+
+Prerequisites
+
+Before installing any plugin from this suite, ensure your WordPress environment meets the following requirements. These requirements apply across all plugins and represent the minimum supported configuration.
+
+WordPress version 5.0 or higher is required for all plugins, though version 6.0 or later is recommended for optimal compatibility with the block editor and modern WordPress features. PHP version 7.4 or higher is required, with PHP 8.0 or later recommended for improved performance and type safety. Each plugin follows WordPress coding standards and has been tested for compatibility with common security plugins, caching solutions, and hosting environments.
+
+For server requirements beyond the WordPress minimums, consider that the PPTX Video Connector may require additional resources for media conversion tasks. The Live Class Connector requires outbound HTTPS access to video conferencing APIs. All plugins store settings in the WordPress options table, eliminating the need for custom database tables.
+
+Repository Structure
+
+The workspace is organized into discrete plugin directories, each functioning as a self-contained WordPress plugin with its own file structure, assets, and documentation.
+
+/workspace/
+├── README.md                                    # This file - workspace overview
+├── inr99-cloud-lms-connector/                   # LMS integration plugin
+│   ├── inr99-cloud-lms-connector.php            # Main plugin file
+│   ├── README.md                                # Plugin-specific documentation
+│   ├── admin/                                   # Admin interface classes
+│   │   ├── class-admin-menu.php                 # Menu management
+│   │   ├── class-settings-page.php              # Settings page
+│   │   └── views/                               # Admin view templates
+│   ├── assets/                                  # Static assets
+│   │   ├── css/                                 # Stylesheets (admin, blocks, frontend)
+│   │   ├── images/                              # Plugin images and icons
+│   │   └── js/                                  # JavaScript files
+│   ├── blocks/                                  # Gutenberg blocks
+│   │   ├── class-blocks-init.php                # Block registration
+│   │   ├── certificate-block/                   # Certificate display block
+│   │   ├── courses-block/                       # Course listing block
+│   │   └── login-form-block/                    # Login form block
+│   ├── includes/                                # Core functionality
+│   │   ├── class-inr99-api-client.php           # API communication
+│   │   ├── class-inr99-auth-bridge.php          # SSO authentication
+│   │   ├── class-inr99-cache-manager.php        # Caching utilities
+│   │   ├── class-inr99-lms-core.php             # Core LMS logic
+│   │   ├── class-inr99-token-manager.php        # Token handling
+│   │   ├── class-inr99-webhook-handler.php      # Webhook processing
+│   │   └── helpers.php                          # Utility functions
+│   ├── languages/                               # Translation files
+│   └── shortcodes/                              # Shortcode classes
+│       ├── class-shortcode-certificates.php     # [inr99_certificates]
+│       ├── class-shortcode-course-detail.php    # [inr99_course_detail]
+│       ├── class-shortcode-courses.php          # [inr99_courses]
+│       ├── class-shortcode-dashboard.php        # [inr99_dashboard]
+│       ├── class-shortcode-instructor.php       # [inr99_instructor]
+│       ├── class-shortcode-login.php            # [inr99_login]
+│       ├── class-shortcode-plans.php            # [inr99_plans]
+│       ├── class-shortcode-progress.php         # [inr99_progress]
+│       └── class-shortcode-register.php         # [inr99_register]
+│
+├── inr99-live-class-connector/                  # Live class integration
+│   ├── inr99-live-class-connector.php           # Main plugin file
+│   ├── README.md                                # Plugin-specific documentation
+│   ├── admin/                                   # Admin interface
+│   ├── assets/                                  # Frontend assets
+│   │   ├── frontend.css                         # Public styles
+│   │   └── frontend.js                          # Public JavaScript
+│   ├── includes/                                # Core classes
+│   │   ├── class-api-client.php                 # API communication
+│   │   ├── class-schedule-manager.php           # Schedule handling
+│   │   └── class-session-manager.php            # Session management
+│   ├── languages/                               # Translations
+│   └── shortcodes/                              # Frontend shortcodes
+│       ├── class-shortcode-join.php             # [inr99_live_join]
+│       ├── class-shortcode-live.php             # [inr99_live_schedule]
+│       └── class-shortcode-recordings.php       # [inr99_recordings]
+│
+├── inr99-white-label-launcher/                  # White-label branding
+│   ├── inr99-white-label-launcher.php           # Main plugin file
+│   ├── README.md                                # Plugin-specific documentation
+│   ├── admin/                                   # Admin settings
+│   ├── assets/                                  # Assets
+│   │   ├── css/                                 # Admin and frontend styles
+│   │   └── js/                                  # Admin and frontend scripts
+│   ├── includes/                                # Core classes
+│   │   └── class-api-client.php                 # API communication
+│   └── shortcodes/                              # Setup wizard shortcode
+│       └── class-shortcode-launcher.php         # [inr99_white_label]
+│
+├── inr99-pptx-video-connector/                  # Media processing
+│   ├── inr99-pptx-video-connector.php           # Main plugin file
+│   ├── README.md                                # Plugin-specific documentation
+│   ├── admin/                                   # Admin interface
+│   │   ├── class-admin-menu.php                 # Menu management
+│   │   └── views/                               # Dashboard and job views
+│   ├── assets/                                  # Assets
+│   ├── includes/                                # Core classes
+│   │   ├── class-api-client.php                 # API communication
+│   │   ├── class-job-manager.php                # Conversion job handling
+│   │   ├── class-license-manager.php            # License enforcement
+│   │   └── class-upload-handler.php             # File upload processing
+│   ├── languages/                               # Translations
+│   └── shortcodes/                              # Frontend shortcodes
+│       ├── class-shortcode-gallery.php          # [inr99_pptx_gallery]
+│       ├── class-shortcode-history.php          # [inr99_pptx_history]
+│       └── class-shortcode-upload.php           # [inr99_pptx_upload]
+│
+└── inr99-licensing-manager/                     # License management
+    ├── inr99-licensing-manager.php              # Main plugin file
+    ├── README.md                                # Plugin-specific documentation
+    ├── admin/                                   # Admin interface
+    │   ├── class-admin-settings.php             # Settings page
+    │   └── class-dashboard-widget.php           # Dashboard widget
+    ├── assets/                                  # Assets
+    │   ├── css/                                 # Admin styles
+    │   └── js/                                  # Admin JavaScript
+    └── includes/                                # Core classes
+        ├── class-api-client.php                 # API communication
+        ├── class-gatekeeper.php                 # Public tier enforcement
+        ├── class-tracker.php                    # Usage telemetry
+        └── class-updater.php                    # Update system integration
+
+
+Quick Start for Development
+
+To set up this workspace for development, begin by cloning the repository or downloading the plugin directories to your local development environment. Each plugin directory is self-contained and can be installed independently by copying the entire directory to your WordPress installation's wp-content/plugins/ folder.
+
+For active development, create a symbolic link from your WordPress plugins directory to the plugin folder in this workspace. This allows you to edit files in the workspace while seeing changes immediately in your WordPress installation. For example, if your WordPress installation is at /var/www/html/wp-content/plugins/ and your workspace is at /workspace/, you would create a link using ln -s /workspace/inr99-cloud-lms-connector /var/www/html/wp-content/plugins/inr99-cloud-lms-connector.
+
+After linking the plugins, activate them through the WordPress admin plugins page. Each plugin will add its own menu items and settings pages. The recommended activation order places the Licensing Manager first, followed by the Cloud LMS Connector, then the remaining plugins in any order that suits your workflow.
+
+Integration Architecture
+
+Understanding how these plugins work together helps in planning your WordPress configuration and troubleshooting potential issues. The architecture follows a hub-and-spoke model with the Licensing Manager serving as a central enforcement point.
+
+The Cloud LMS Connector functions as the primary integration point, synchronizing course data, user accounts, and progress information between the INR99 cloud platform and your WordPress site. This plugin registers the most shortcodes and provides the deepest integration with WordPress content types through its Gutenberg blocks. All frontend course display, user dashboards, and progress tracking flows through this plugin.
+
+The Live Class Connector extends the LMS experience by adding real-time session capabilities. It integrates with video conferencing platforms and displays upcoming sessions alongside regular course content. The connector retrieves session information through the central API client shared with other plugins in the suite.
+
+The White-Label Launcher provides the branding infrastructure that makes the LMS feel like a native part of your WordPress site. This plugin handles the initial site provisioning and ongoing asset management for custom branding elements. When activated, it presents a setup wizard that connects your WordPress site to the INR99 provisioning API.
+
+The PPTX Video Connector adds media processing capabilities for converting presentation files into video content. This plugin integrates with the broader LMS by making converted videos available as course resources. It maintains its own job queue for tracking conversion progress.
+
+The Licensing Manager sits at the foundation of all other plugins, providing license validation, tier enforcement, and automatic update functionality. Other plugins use the public INR99_Gatekeeper class to check license status and restrict features based on the user's license tier. This centralized approach eliminates duplicate license checking code and ensures consistent enforcement across the entire suite.
+
+Common Configuration Tasks
+
+Several configuration tasks recur across multiple plugins and understanding them in context helps streamline the setup process. API credentials represent the most common configuration element, as each plugin communicates with the INR99 cloud platform through authenticated API calls.
+
+API credentials are typically entered in the plugin's settings page, accessible through the WordPress admin menu under the plugin's designated menu item. The credentials consist of an API key and secret pair obtained from your INR99 account dashboard. These credentials authorize your WordPress site to communicate with the INR99 platform and should be treated as sensitive information protected from unauthorized access.
+
+Shortcode placement represents another common task, as most plugins provide shortcodes for displaying content on WordPress pages and posts. The individual plugin README files document each available shortcode with its parameters and usage examples. Shortcodes can be added through the WordPress block editor, classic editor, or widget areas depending on your site's configuration.
+
+User role management affects how different user types interact with the plugins. The LMS Connector creates custom user roles for instructors and students, while the other plugins respect WordPress's built-in role hierarchy. Review the role capabilities in each plugin's settings to ensure users have appropriate access levels.
+
+Support and Resources
+
+For additional documentation, API references, and troubleshooting guides, consult the individual README files in each plugin directory. These files contain detailed information specific to each plugin's features, configuration options, and usage patterns.
+
+For issues specific to a particular plugin, check the plugin's settings page for diagnostic information and error logs. The plugins capture detailed error information that helps identify configuration problems, API authentication issues, and compatibility conflicts.
+
+For questions about the INR99 platform itself, including account management, billing, and content creation tools, contact INR99 support through your account dashboard. The WordPress plugins in this suite focus on the technical integration and do not control account-level settings or subscription management.
+
+License
+
+Each plugin in this suite requires a valid INR99 license for full functionality. The Licensing Manager handles license validation and enforces tier restrictions. See the individual plugin README files for license requirements and the licensing manager documentation for activation instructions.
