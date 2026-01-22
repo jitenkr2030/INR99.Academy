@@ -7,18 +7,19 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8)](https://tailwindcss.com/)
 [![WebRTC](https://img.shields.io/badge/WebRTC-go2rtc-blue)](https://github.com/AlexxIT/go2rtc)
+[![Multi-tenant](https://img.shields.io/badge/Architecture-Multi--tenant-purple)](https://github.com)
 
-INR99.Academy is a comprehensive learning platform designed to make quality education accessible to every Indian at just ₹99/month. Built with a mobile-first approach, it works perfectly on low-end smartphones with low bandwidth optimization. The platform features real-time live learning sessions powered by go2rtc streaming infrastructure.
+INR99.Academy is a comprehensive learning platform designed to make quality education accessible to every Indian at just ₹99/month. Built with a mobile-first approach, it works perfectly on low-end smartphones with low bandwidth optimization. The platform features real-time live learning sessions, white-label multi-tenant architecture, PPTX to video conversion, and comprehensive school management systems.
 
 ---
 
 ## 🌟 About
 
-INR99.Academy addresses the critical gap in affordable quality education in India. While premium platforms charge ₹10,000-50,000/year, INR99 offers the same value proposition at ₹1,188/year—making it 10x more accessible. The platform now features integrated live learning with real-time video streaming, enabling interactive sessions between instructors and students.
+INR99.Academy addresses the critical gap in affordable quality education in India. While premium platforms charge ₹10,000-50,000/year, INR99 offers the same value proposition at ₹1,188/year—making it 10x more accessible. The platform now features integrated live learning with real-time video streaming, a complete white-label solution for institutions, and advanced content creation tools.
 
 ### Our Mission
 
-To democratize quality education in India by making it as accessible and affordable as UPI payments. Every Indian, regardless of their economic background, deserves access to world-class educational content, including live interactive learning experiences.
+To democratize quality education in India by making it as accessible and affordable as UPI payments. Every Indian, regardless of their economic background, deserves access to world-class educational content, including live interactive learning experiences, institution-branded platforms, and AI-powered content creation tools.
 
 ### Why INR99?
 
@@ -26,6 +27,9 @@ To democratize quality education in India by making it as accessible and afforda
 - **Accessible**: Works on low-end smartphones
 - **Comprehensive**: From school education to professional skills
 - **Interactive Live Learning**: Real-time video sessions with go2rtc streaming
+- **White-Label Ready**: Launch your own branded learning platform
+- **Content Creation**: Convert PPTX presentations to video lessons instantly
+- **Institution Management**: Complete school administration system
 - **Localized**: Content in Hindi and English
 - **Flexible**: Learn at your own pace, anywhere
 
@@ -93,53 +97,139 @@ The platform features fully integrated live learning with real-time video stream
 - **Multi-Viewer Support**: Scalable streaming architecture for large audiences
 - **Demo Sessions**: Test functionality without authentication
 
-### 🎛️ Streaming Infrastructure
+### 🏢 White-Label Platform
 
-The live learning feature is powered by go2rtc, providing professional-grade streaming:
+Complete multi-tenant white-label solution for institutions, partners, and enterprises to launch their own branded learning platforms.
 
-- **WHIP Protocol**: WebRTC-HTTP Ingestion for instructor broadcasting
-- **WHEP Protocol**: WebRTC-HTTP Egress for student viewing
-- **Low Latency**: Optimized for real-time interaction
-- **Self-Hosted**: No per-minute licensing costs
-- **Open Source**: Transparent, customizable infrastructure
+#### 🎨 Dynamic Branding
+- Complete control over colors, fonts, logos, and custom CSS
+- Primary, secondary, and accent color customization
+- Custom font families and typography
+- Logo and favicon management
+- Custom CSS injection for advanced customization
+- Social media asset configuration
+- Branded login pages and email templates
 
-### 👨‍🏫 Instructor Dashboard
+#### 🌐 Subdomain & Domain Management
+- Automatic subdomain provisioning (your-school.inr99.academy)
+- Custom domain support (courses.yourdomain.com)
+- Cloudflare and Route53 DNS integration
+- Automatic SSL certificate management
+- DNS record management and verification
+- Multi-domain configurations
+- Domain ownership verification
 
-- **Course Management**: Create and manage courses and lessons
-- **Student Progress**: Track student engagement and completion rates
-- **Live Session Hosting**: Schedule and conduct live learning sessions with video streaming
-- **Earnings Dashboard**: View earnings and payout information
-- **Discussion Forums**: Course-specific Q&A and discussion threads
+#### 👥 Multi-Tenant Architecture
+- Complete tenant isolation for security
+- Tenant-specific configurations and settings
+- Isolated databases or shared with row-level security
+- Cross-tenant analytics and reporting
+- Tenant-specific pricing and subscriptions
+- White-label tier management
 
-### 🛡️ Admin Dashboard
+### 🏫 Institution Management System
 
-- **User Management**: Complete user lifecycle management
-- **Content Management**: Course, lesson, and assessment management
-- **Live Session Management**: Create, schedule, and manage live streaming sessions
-- **Streaming Infrastructure**: Monitor go2rtc server status and stream health
-- **Analytics Dashboard**: Real-time statistics on users, courses, revenue, and streaming
-- **Discussion Moderation**: Tools to manage community discussions
+Comprehensive school and institution administration dashboard for managing educational institutions.
 
-### 💳 Subscription & Payments
+#### 📊 Academic Management
+- **Classes Management**: Create and manage classes, sections, and divisions
+- **Courses & Curriculum**: Assign courses to classes with syllabus tracking
+- **Timetable Scheduling**: Automated timetable generation and management
+- **Academic Sessions**: Multiple academic year management
+- **Attendance Management**: Daily attendance with percentage tracking
 
-- **Affordable Pricing**: Just ₹99/month with quarterly and yearly plans
-- **Multiple Payment Methods**: UPI, Credit/Debit Cards, Digital Wallets
-- **Flexible Plans**: Monthly (₹99), Quarterly (₹297), Yearly (₹1188)
-- **Subscription Management**: Automatic renewal and cancellation
+#### 👨‍🏫 Staff Management
+- **Teacher Management**: Add, assign, and manage teaching staff
+- **Subject Allocation**: Assign subjects to teachers
+- **Staff Attendance**: Track teacher and staff attendance
+- **Salary Management**: Salary structure and payroll processing
+- **Performance Evaluation**: Teacher performance metrics
 
-### 🎓 Certification System
+#### 👨‍👩‍👧‍👦 Student Management
+- **Student Admission**: Complete admission process with documentation
+- **Student Profiles**: Comprehensive student information management
+- **Parent Portal**: Guardian access to monitor student progress
+- **Bulk Operations**: Bulk student admission and management
+- **Transfer Management**: Student transfer between classes/sections
 
-- **Course Completion Certificates**: Verified certificates upon completion
-- **Digital Verification**: Unique certificate numbers with public verification
-- **Shareable Credentials**: Download and share with employers
+#### 📋 Examination & Results
+- **Exam Management**: Create and schedule examinations
+- **Marks Entry**: Bulk marks entry with validation
+- **Grade Calculation**: Automatic grade and CGPA calculation
+- **Report Cards**: Automated report card generation
+- **Result Analysis**: Performance analytics and comparisons
 
-### 🏢 Confusion Removers
+#### 💰 Billing & Payments
+- **Fee Structure**: Flexible fee categories and structures
+- **Fee Collection**: Online and offline fee collection
+- **Payment Gateway Integration**: Razorpay, Cashfree, UPI support
+- **Expense Tracking**: Institutional expense management
+- **Financial Reports**: Revenue and expense analytics
 
-Specialized content to clear common confusion points:
+### 📝 Content Creation Tools
 
-- **Digital Confusion**: UPI, Banking, Government Portals
-- **Financial Confusion**: Stock Market, Mutual Funds, Insurance
-- **Government Services**: Schemes, Certificates, Benefits
+#### PPTX to Video Converter
+
+CloudConvert-powered presentation to video conversion for creating engaging video lessons from PowerPoint presentations.
+
+- **PPTX to Video**: Convert presentations to MP4 videos
+- **PPTX to Audio**: Extract audio for podcast-style lessons
+- **Customizable Settings**: Frame rate, resolution, and bitrate control
+- **Thumbnail Generation**: Automatic video thumbnails
+- **Cost Estimation**: Estimate conversion costs before processing
+- **Webhook Integration**: Automatic processing completion notifications
+- **Batch Processing**: Convert multiple files simultaneously
+- **Quality Options**: Multiple quality presets (720p, 1080p, 4K)
+
+### 🎓 Verification & Compliance
+
+#### 🏛️ School Board Integration
+
+Direct integration with Indian educational boards for verification and data sync.
+
+- **CBSE Integration**: Affiliation verification, student result retrieval
+- **ICSE Integration**: Council number validation, marks verification
+- **State Boards**: All Indian state boards supported (AP, TS, UP, Bihar, etc.)
+- **NCTE Integration**: Teacher eligibility verification
+- **AICTE Integration**: Institution and course approval verification
+
+#### 📋 Document Verification
+- **Domain Verification**: DNS and ownership verification for institutions
+- **Document Processing**: Automated document validation and OCR
+- **Appeal Workflow**: Multi-level verification appeal process
+- **Grace Period Management**: Flexible verification deadlines
+- **Export Capabilities**: Bulk verification data export
+
+### 📈 Analytics & Reporting
+
+#### Advanced Analytics Dashboard
+- **User Analytics**: User acquisition, engagement, and retention metrics
+- **Course Analytics**: Popular courses, completion rates, and feedback
+- **Revenue Analytics**: Subscription trends, revenue by plan, cohort analysis
+- **Learning Analytics**: Time spent, progress patterns, assessment performance
+- **Real-Time Dashboard**: Live metrics and instant insights
+- **Custom Reports**: Generate custom analytics reports
+- **Compliance Reports**: Regulatory compliance documentation
+
+### 🔔 Notifications System
+
+#### Real-Time Notifications
+- **Push Notifications**: Web push notifications for announcements
+- **Email Notifications**: Branded email templates via SendGrid
+- **In-App Notifications**: Real-time in-app notification center
+- **SMS Notifications**: Transactional and promotional SMS support
+- **Notification Templates**: Customizable notification templates
+- **Delivery Analytics**: Notification delivery and engagement tracking
+
+### 🛡️ Account Health & Tiers
+
+#### Tier Management System
+- **Multiple Subscription Tiers**: Free, Basic, Pro, Enterprise tiers
+- **Feature Flags**: Granular feature access control
+- **Usage Tracking**: API usage, storage, and bandwidth tracking
+- **Health Monitoring**: Account health scores and recommendations
+- **Grace Periods**: Automatic grace period for expired subscriptions
+- **Billing Alerts**: Payment due and expiration notifications
 
 ---
 
@@ -159,12 +249,15 @@ Specialized content to clear common confusion points:
 - **Authentication**: NextAuth.js with JWT tokens
 - **API**: RESTful endpoints with Next.js API Routes
 - **Streaming Server**: go2rtc (self-hosted WebRTC server)
+- **Content Conversion**: CloudConvert API integration
 
 ### Infrastructure
 - **Deployment**: Vercel / Docker
 - **Version Control**: GitHub
 - **Package Manager**: Bun / npm
-- **Streaming**: Self-hosted go2rtc server on port 1984
+- **Storage**: AWS S3 compatible storage
+- **DNS Management**: Cloudflare / Route53 integration
+- **Email**: SendGrid transactional email
 
 ---
 
@@ -188,7 +281,10 @@ INR99.Academy/
 │   │   │   ├── payments/      # Payment processing
 │   │   │   ├── progress/      # Progress tracking
 │   │   │   ├── school/        # School data APIs
-│   │   │   └── subscriptions/ # Subscription management
+│   │   │   ├── subscriptions/ # Subscription management
+│   │   │   ├── instructor/    # Instructor management
+│   │   │   ├── integrations/  # Third-party integrations
+│   │   │   └── verification/  # Verification APIs
 │   │   ├── admin/             # Admin dashboard
 │   │   ├── auth/              # Login/Register pages
 │   │   ├── business/          # Business landing page
@@ -199,8 +295,35 @@ INR99.Academy/
 │   │   ├── courses/           # Course catalog & details
 │   │   ├── dashboard/         # User dashboards
 │   │   │   ├── admin/         # Admin dashboard
+│   │   │   │   ├── accounts/  # Account health
+│   │   │   │   ├── analytics/ # Advanced analytics
+│   │   │   │   ├── users/     # User management
+│   │   │   │   ├── verification/ # Verification management
+│   │   │   │   └── settings/  # Platform settings
 │   │   │   ├── instructor/    # Instructor dashboard
-│   │   │   └── student/       # Student dashboard
+│   │   │   │   ├── courses/   # Course management
+│   │   │   │   ├── students/  # Student management
+│   │   │   │   └── overview/  # Dashboard overview
+│   │   │   ├── student/       # Student dashboard
+│   │   │   │   ├── courses/   # Enrolled courses
+│   │   │   │   ├── certificates/ # Student certificates
+│   │   │   │   └── profile/   # Student profile
+│   │   │   ├── tenant/        # Tenant management
+│   │   │   │   ├── domain/    # Domain management
+│   │   │   │   ├── tier/      # Tier management
+│   │   │   │   └── verification/ # Domain verification
+│   │   │   └── health/        # Health monitoring
+│   │   ├── institution/       # Institution management
+│   │   │   ├── admin/         # Institution admin
+│   │   │   │   ├── classes/   # Class management
+│   │   │   │   ├── courses/   # Course management
+│   │   │   │   ├── teachers/  # Teacher management
+│   │   │   │   ├── students/  # Student management
+│   │   │   │   ├── assessments/# Assessment management
+│   │   │   │   ├── billing/   # Fee management
+│   │   │   │   └── analytics/ # Institution analytics
+│   │   │   ├── auth/          # Institution login
+│   │   │   └── verification/  # Institution verification
 │   │   ├── instructor/        # Instructor portal
 │   │   ├── learning-paths/    # Learning path pages
 │   │   ├── learning-ledger/   # Progress tracking
@@ -210,7 +333,10 @@ INR99.Academy/
 │   │   ├── profile/           # User profile
 │   │   ├── school/            # School education
 │   │   ├── subscription/      # Subscription management
-│   │   └── verify-certificate/# Certificate verification
+│   │   ├── verify-certificate/# Certificate verification
+│   │   ├── white-label/       # White-label landing page
+│   │   ├── tenant-pages/      # Tenant-specific pages
+│   │   └── institution/       # Institution management pages
 │   ├── components/            # React components
 │   │   ├── ui/               # shadcn/ui components
 │   │   ├── auth-modal.tsx    # Authentication modal
@@ -236,10 +362,54 @@ INR99.Academy/
 │   │   ├── db.ts            # Database connection
 │   │   ├── course-data.ts   # Static course data
 │   │   ├── go2rtc.ts        # go2rtc streaming service
+│   │   ├── cloudconvert.ts  # PPTX to Video conversion
 │   │   ├── utils.ts         # Helper functions
+│   │   ├── analytics/       # Advanced analytics
+│   │   ├── aws.ts           # AWS utilities
+│   │   ├── cashfree.ts      # Cashfree payment
+│   │   ├── email.ts         # Email service
+│   │   ├── brand/           # White-label branding
+│   │   │   ├── dynamic-css.ts     # Dynamic CSS generation
+│   │   │   └── dns-provider.ts    # DNS management
+│   │   ├── error-handling/  # Error handling utilities
+│   │   ├── health/          # Account health
 │   │   ├── integrations/    # Third-party integrations
+│   │   │   ├── cloudconvert.ts    # Content conversion
+│   │   │   ├── integration-manager.ts
+│   │   │   ├── razorpay-integration.ts
+│   │   │   ├── s3-storage.ts      # S3 storage
+│   │   │   ├── sendgrid-integration.ts
+│   │   │   └── school-boards/     # School board integrations
+│   │   │       ├── cbse-integration.ts
+│   │   │       ├── icse-integration.ts
+│   │   │       ├── state-boards-integration.ts
+│   │   │       ├── ncte-integration.ts
+│   │   │       ├── aicte-integration.ts
+│   │   │       ├── school-board-types.ts
+│   │   │       ├── school-board-manager.ts
+│   │   │       └── index.ts
+│   │   ├── middleware/      # Route middleware
+│   │   │   ├── index.ts
+│   │   │   ├── rbac.ts      # Role-based access control
+│   │   │   ├── tenant-isolation.ts
+│   │   │   └── custom-domain.ts
+│   │   ├── notifications/   # Notification services
+│   │   ├── reports/         # Compliance reports
+│   │   ├── support/         # Support ticket system
 │   │   ├── tiers/           # Subscription tiers
-│   │   └── verification/    # Feature verification
+│   │   │   ├── access-control.ts
+│   │   │   ├── feature-flags.ts
+│   │   │   ├── tier-management.ts
+│   │   │   └── tier-service.ts
+│   │   ├── validations/     # Form validations
+│   │   └── verification/    # Verification systems
+│   │       ├── appeal-workflow.ts
+│   │       ├── document-processing.ts
+│   │       ├── domain-verification.ts
+│   │       ├── external-services.ts
+│   │       ├── feature-access.ts
+│   │       ├── grace-period.ts
+│   │       └── i18n/        # Internationalization
 │   ├── middleware.ts         # Route protection
 │   └── auth.ts              # Auth configuration
 ├── backup/                   # Deployment backups
@@ -249,6 +419,8 @@ INR99.Academy/
 ├── docs/                    # Documentation
 │   ├── go2rtc-integration-guide.md
 │   ├── live-learning-audit.md
+│   ├── white-label-platform-audit.md
+│   ├── platform-architecture.md
 │   └── reports/            # Status reports
 ├── experiments/            # Experimental code
 ├── prisma/
@@ -273,6 +445,7 @@ INR99.Academy/
 
 Key Prisma models include:
 
+### Core Models
 - **User**: Authentication, profile, and role management
 - **Course**: Course catalog with taxonomy (vertical, category, subcategory)
 - **Lesson**: Modular micro-lessons with video/text/quiz types
@@ -282,10 +455,39 @@ Key Prisma models include:
 - **Assessment**: Quizzes and practice questions
 - **Certificate**: Course completion certificates
 - **Discussion**: Community Q&A and forums
+
+### Live Learning
 - **LiveSession**: Scheduled live learning sessions with streaming info
 - **Attendance**: Session attendance records
+
+### White-Label & Multi-Tenant
+- **Tenant**: White-label tenant configurations
+- **TenantBranding**: Tenant-specific branding settings
+- **TenantDomain**: Custom domain mappings
+- **TenantTier**: Subscription tier and limits
+
+### Institution Management
+- **Institution**: School/institution records
+- **InstitutionClass**: Class and section definitions
+- **Teacher**: Teaching staff records
+- **Student**: Student records with parent links
+- **Parent**: Guardian/parent accounts
+- **Subject**: Subject definitions
+- **Exam**: Examination records
+- **Result**: Student examination results
+- **FeeStructure**: Fee categories
+- **FeePayment**: Payment records
+
+### Subscriptions & Billing
 - **Subscription**: User subscription management
 - **Payment**: Transaction history
+- **TierFeature**: Feature flags by tier
+- **UsageRecord**: API and resource usage
+
+### Verification
+- **VerificationRequest**: Domain verification requests
+- **VerificationAppeal**: Appeal records
+- **DocumentVerification**: Document validation records
 
 ---
 
@@ -297,6 +499,7 @@ Key Prisma models include:
 - Bun or npm
 - SQLite (or PostgreSQL for production)
 - go2rtc server (for live streaming)
+- CloudConvert API key (for PPTX to video)
 
 ### Installation
 
@@ -330,7 +533,7 @@ Key Prisma models include:
    # Install go2rtc (Linux amd64 example)
    wget https://github.com/AlexxIT/go2rtc/releases/download/v1.6.1/go2rtc_linux_amd64
    mv go2rtc_linux_amd64 go2rtc
-   chmod +x go2tc
+   chmod +x go2rtc
    
    # Start go2rtc server
    ./go2rtc -c go2rtc.yaml
@@ -343,6 +546,47 @@ Key Prisma models include:
 
 7. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+### Environment Variables
+
+```env
+# Database
+DATABASE_URL=file:./data/db/dev.db
+
+# Authentication
+NEXTAUTH_SECRET=your_secret_key
+NEXTAUTH_URL=https://your-domain.com
+
+# go2rtc Streaming Server
+GO2RTC_API_URL=http://localhost:1984
+GO2RTC_API_TOKEN=your_api_token
+
+# CloudConvert (PPTX to Video)
+CLOUDCONVERT_API_KEY=your_cloudconvert_api_key
+CLOUDCONVERT_WEBHOOK_URL=https://your-domain.com/api/webhooks/cloudconvert
+
+# WebRTC
+NEXT_PUBLIC_STUN_SERVER=stun:stun.l.google.com:19302
+
+# AWS S3 Storage
+AWS_ACCESS_KEY_ID=your_access_key
+AWS_SECRET_ACCESS_KEY=your_secret_key
+AWS_REGION=ap-south-1
+AWS_S3_BUCKET=your-bucket-name
+
+# Payments
+RAZORPAY_KEY_ID=your_razorpay_key
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+CASHFREE_APP_ID=your_cashfree_app_id
+CASHFREE_SECRET_KEY=your_cashfree_secret
+
+# Email (SendGrid)
+SENDGRID_API_KEY=your_sendgrid_api_key
+FROM_EMAIL=noreply@your-domain.com
+
+# DNS (Cloudflare)
+CLOUDFLARE_API_TOKEN=your_cloudflare_token
+```
 
 ### Available Scripts
 
@@ -372,8 +616,10 @@ The platform uses a secure authentication system:
 
 - **Mobile Number Authentication**: OTP-based verification for Indian users
 - **NextAuth.js Integration**: Session-based authentication with JWT tokens
-- **Role-Based Access Control**: Student, Instructor, Admin roles
+- **Role-Based Access Control**: Student, Instructor, Admin, Institution roles
 - **Protected Routes**: Middleware-based route protection
+- **Multi-Factor Authentication**: Support for enhanced security
+- **Session Management**: Secure session handling with refresh tokens
 
 ### User Roles
 
@@ -381,6 +627,8 @@ The platform uses a secure authentication system:
 |------|-------------|
 | **Student** | Access to courses, live sessions, progress tracking, certificates |
 | **Instructor** | Course creation, live streaming, student management, earnings |
+| **Institution Admin** | Full school administration, staff, students, classes |
+| **Tenant Admin** | White-label platform management, branding, domain |
 | **Admin** | Full platform management, user moderation, streaming infrastructure |
 
 ---
@@ -392,14 +640,17 @@ Multiple Indian payment methods supported:
 - **UPI**: Direct transfers and QR code scanning
 - **Cards**: Credit and debit card processing
 - **Wallets**: Paytm, PhonePe, Google Pay, Amazon Pay
+- **Net Banking**: All major Indian banks
 
 ### Subscription Plans
 
-| Plan | Price | Savings |
-|------|-------|---------|
-| Monthly | ₹99/month | - |
-| Quarterly | ₹297/3 months | 10% |
-| Yearly | ₹1,188/year | 15% |
+| Plan | Price | Features |
+|------|-------|----------|
+| Free | ₹0 | Limited courses, no live sessions |
+| Monthly | ₹99/month | Full access, live sessions |
+| Quarterly | ₹297/3 months | Full access + 10% savings |
+| Yearly | ₹1,188/year | Full access + 15% savings |
+| Enterprise | Custom | White-label, dedicated support |
 
 ---
 
@@ -416,30 +667,12 @@ api:
 
 # WebRTC Configuration
 webrtc:
- ICEServers:
+  ICEServers:
     - urls: "stun:stun.l.google.com:19302"
 
 # Recording Configuration (optional)
 record:
   dir: "./recordings"
-```
-
-### Environment Variables
-
-```env
-# Database
-DATABASE_URL=file:./data/db/dev.db
-
-# Authentication
-NEXTAUTH_SECRET=your_secret_key
-NEXTAUTH_URL=https://your-domain.com
-
-# go2rtc Streaming Server
-GO2RTC_API_URL=http://localhost:1984
-GO2RTC_API_TOKEN=your_api_token
-
-# WebRTC
-NEXT_PUBLIC_STUN_SERVER=stun:stun.l.google.com:19302
 ```
 
 ### Testing Live Streaming
@@ -525,14 +758,18 @@ docker build -t inr99-academy .
 docker run -p 3000:3000 inr99-academy
 ```
 
+### Docker Compose (Full Stack)
+
+```bash
+# Start all services (app + go2rtc + database)
+docker-compose up -d
+```
+
 ### go2rtc Docker Deployment
 
 ```bash
 # Run go2rtc in Docker
 docker run -p 1984:1984 -v ./recordings:/recordings alexxit/go2rtc:latest
-
-# Or use docker-compose with both services
-docker-compose up -d
 ```
 
 ---
@@ -545,6 +782,8 @@ docker-compose up -d
 - [ ] Payment gateway integration (Razorpay)
 - [ ] School partnership program launch
 - [ ] Chat message persistence for live sessions
+- [ ] PPTX to Video UI in course builder
+- [ ] Parent mobile app
 
 ### Medium-term (3-6 months)
 - [ ] Regional language content (Tamil, Telugu, Marathi)
@@ -552,6 +791,8 @@ docker-compose up -d
 - [ ] Instructor certification program
 - [ ] Government tender applications
 - [ ] Session recording playback interface
+- [ ] AI-powered content recommendations
+- [ ] Advanced analytics dashboards
 
 ### Long-term (6-12 months)
 - [ ] AI-powered personalized learning
@@ -560,6 +801,8 @@ docker-compose up -d
 - [ ] IPO preparation
 - [ ] Screen sharing for instructors
 - [ ] Multi-host panel discussions
+- [ ] Blockchain-based certificates
+- [ ] Metaverse virtual classrooms
 
 ---
 
@@ -586,6 +829,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Prisma team for the amazing ORM
 - Tailwind CSS for utility-first styling
 - AlexxIT for the go2rtc project enabling open-source video streaming
+- CloudConvert for powerful content conversion APIs
 - All contributors who help make this project better
 
 ---
