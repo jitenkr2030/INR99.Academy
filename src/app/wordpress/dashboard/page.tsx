@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Copy, Eye, ExternalLink, CreditCard, Key, Settings } from "lucide-react";
+import { Loader2, Plus, Copy, Eye, ExternalLink, CreditCard, Key, Settings, CheckCircle } from "lucide-react";
 
 interface WordPressSite {
   id: string;

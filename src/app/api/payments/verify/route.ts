@@ -123,6 +123,7 @@ export async function POST(request: NextRequest) {
         { error: "Payment ID and method are required" },
         { status: 400 }
       );
+    }
 
     // Find the payment record
     const payment = await db.paymentRecord.findFirst({
