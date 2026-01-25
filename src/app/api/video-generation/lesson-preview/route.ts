@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { videoGenerator } from '@/remotion/utils/videoGenerator';
 import { z } from 'zod';
-import fs from 'fs';
 import path from 'path';
 
 // Schema for lesson preview video generation
@@ -40,8 +38,11 @@ export async function POST(request: NextRequest) {
 
 		console.log(`Starting lesson preview video generation for lesson ${validatedData.lessonNumber}...`);
 
+		// Dynamic import to avoid webpack bundling issues
+		const { renderVideo } = await import('@/lib/remotion-service');
+
 		// Generate the video
-		const resultPath = await videoGenerator.generateVideo(
+		const result = await renderVideo(
 			{
 				compositionId: 'LessonPreview',
 				inputProps,
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
 		);
 
 		// Return the video URL
-		const videoUrl = `/videos/${filename}`;
+		const videoUrl = result.videoUrl;
 
 		return NextResponse.json({
 			success: true,
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
 			metadata: {
 				compositionId: 'LessonPreview',
 				lessonNumber: validatedData.lessonNumber,
-				fileSize: fs.statSync(resultPath).size,
+				fileSize: result.fileSize,
 				createdAt: new Date().toISOString(),
 			},
 		});

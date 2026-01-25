@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { videoGenerator } from '@/remotion/utils/videoGenerator';
 import { z } from 'zod';
-import fs from 'fs';
 import path from 'path';
 
 // Schema for batch video generation
@@ -110,8 +108,11 @@ export async function POST(request: NextRequest) {
 			}
 		}
 
+		// Dynamic import to avoid webpack bundling issues
+		const { renderBatchVideos } = await import('@/lib/remotion-service');
+
 		// Generate all videos
-		const results = await videoGenerator.generateBatchVideos(
+		const results = await renderBatchVideos(
 			processedJobs.map(job => ({
 				compositionId: job.compositionId,
 				inputProps: job.inputProps,
@@ -124,15 +125,14 @@ export async function POST(request: NextRequest) {
 		);
 
 		// Prepare response with metadata
-		const videoResults = results.map((resultPath, index) => {
+		const videoResults = results.map((result, index) => {
 			const job = processedJobs[index];
-			const stats = fs.statSync(resultPath);
 			
 			return {
 				jobIndex: job.originalIndex,
 				type: job.type,
-				videoUrl: job.videoUrl,
-				fileSize: stats.size,
+				videoUrl: result.videoUrl,
+				fileSize: result.fileSize,
 				createdAt: new Date().toISOString(),
 				compositionId: job.compositionId,
 			};

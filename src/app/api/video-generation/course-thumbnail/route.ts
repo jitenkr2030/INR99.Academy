@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { videoGenerator } from '@/remotion/utils/videoGenerator';
 import { z } from 'zod';
-import fs from 'fs';
 import path from 'path';
 
 // Schema for course thumbnail video generation
@@ -43,8 +41,11 @@ export async function POST(request: NextRequest) {
 
 		console.log('Starting course thumbnail video generation...');
 
+		// Dynamic import to avoid webpack bundling issues
+		const { renderVideo } = await import('@/lib/remotion-service');
+
 		// Generate the video
-		const resultPath = await videoGenerator.generateVideo(
+		const result = await renderVideo(
 			{
 				compositionId: 'CourseThumbnail',
 				inputProps,
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
 		);
 
 		// Return the video URL
-		const videoUrl = `/videos/${filename}`;
+		const videoUrl = result.videoUrl;
 
 		return NextResponse.json({
 			success: true,
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
 			message: 'Course thumbnail video generated successfully',
 			metadata: {
 				compositionId: 'CourseThumbnail',
-				fileSize: fs.statSync(resultPath).size,
+				fileSize: result.fileSize,
 				createdAt: new Date().toISOString(),
 			},
 		});
