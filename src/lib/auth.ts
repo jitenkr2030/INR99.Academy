@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import { authOptions } from '@/auth'
 
 export interface User {
   id: string
@@ -11,7 +12,7 @@ export function getAuthenticatedUser(request: NextRequest): User | null {
   try {
     // Get the authorization header
     const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!authHeader || !authHeader.toLowerCase().startsWith('bearer ')) {
       return null
     }
 
