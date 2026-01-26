@@ -64,6 +64,53 @@ INR99.Academy is a comprehensive learning platform designed to make quality educ
 - **Payment Integration**: Custom payment processor supporting UPI, cards, and wallets
 - **Real-time**: Ready for WebSocket integration for live features
 
+## 🧪 Testing
+
+This project implements a comprehensive testing strategy using **Vitest**, a blazing-fast unit test framework powered by Vite. Our testing approach ensures code reliability, maintains code quality, and facilitates safe refactoring across the codebase.
+
+### Testing Philosophy
+
+We believe in writing tests that serve as documentation for the codebase. Tests should be:
+
+- **Fast**: Running in milliseconds to encourage frequent execution
+- **Reliable**: Providing consistent results without flakiness
+- **Meaningful**: Covering critical business logic and edge cases
+- **Maintainable**: Using clear patterns that developers can understand and extend
+
+### Test Structure
+
+The test suite is organized into two main categories:
+
+**Unit Tests** (`tests/unit/`): These tests focus on individual functions and modules in isolation. They mock external dependencies such as databases, APIs, and third-party services to ensure tests run quickly and reliably. Unit tests cover utility functions, authentication logic, and payment processing components.
+
+**Integration Tests** (`tests/integration/`): These tests verify that API endpoints and complex workflows function correctly. They test the interaction between multiple components, including database operations, authentication flows, and external service integrations.
+
+### Documentation
+
+We maintain comprehensive documentation for our test suite to help developers understand and contribute to our testing efforts:
+
+- **[Test Documentation](test-documentation.md)**: An overview of the test suite structure, coverage details, and testing patterns used throughout the project.
+
+- **[Test Runner Guide](test-runner-guide.md)**: Instructions for running tests, configuring the test environment, and best practices for writing new tests.
+
+- **[Test API Reference](test-api-reference.md)**: A detailed reference of custom test helpers, mock utilities, and testing utilities available in the project.
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode for development
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run a specific test file
+npm test -- auth.test.ts
+```
+
 ## 📱 Mobile-First Design
 
 The platform is designed to work seamlessly across all devices, with special attention to:
