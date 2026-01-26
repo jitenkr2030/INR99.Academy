@@ -15,6 +15,7 @@ export default defineConfig({
       '.git/',
       '.next/',
       'coverage/',
+      'tests/load/',  // Load tests use k6, not vitest
     ],
     coverage: {
       provider: 'v8',
