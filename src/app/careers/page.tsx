@@ -5,7 +5,7 @@ import { NewNavigation } from "@/components/new-navigation"
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { X } from 'lucide-react'
+import { X, Loader2, ExternalLink, Linkedin, FileText } from 'lucide-react'
 
 interface Position {
   title: string
@@ -19,14 +19,18 @@ export default function CareersPage() {
   const [selectedPosition, setSelectedPosition] = useState<Position | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     email: '',
     phone: '',
     linkedin: '',
     experience: '',
-    coverLetter: ''
+    coverLetter: '',
+    resumeUrl: '',
+    portfolioUrl: ''
   })
   const [submitted, setSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const positions: Position[] = [
     {
@@ -86,19 +90,24 @@ export default function CareersPage() {
     setSelectedPosition(position)
     setShowModal(true)
     setSubmitted(false)
+    setError(null)
     setFormData({
-      name: '',
+      fullName: '',
       email: '',
       phone: '',
       linkedin: '',
       experience: '',
-      coverLetter: ''
+      coverLetter: '',
+      resumeUrl: '',
+      portfolioUrl: ''
     })
   }
 
   const handleCloseModal = () => {
     setShowModal(false)
     setSelectedPosition(null)
+    setSubmitted(false)
+    setError(null)
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -107,30 +116,48 @@ export default function CareersPage() {
       ...prev,
       [name]: value
     }))
+    setError(null)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Create email content
-    const subject = `Application for ${selectedPosition?.title}`
-    const body = `
-Name: ${formData.name}
-Email: ${formData.email}
-Phone: ${formData.phone}
-LinkedIn: ${formData.linkedin}
-Experience: ${formData.experience}
-
-Cover Letter:
-${formData.coverLetter}
-    `.trim()
     
-    // Open email client
-    window.open(`mailto:careers@inr99.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`)
-    setSubmitted(true)
-    setTimeout(() => {
-      setShowModal(false)
-      setSelectedPosition(null)
-    }, 2000)
+    if (!selectedPosition) return
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/careers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          position: selectedPosition.title,
+          department: selectedPosition.department,
+          ...formData
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit application')
+      }
+
+      setSubmitted(true)
+      
+      // Close modal after 3 seconds
+      setTimeout(() => {
+        handleCloseModal()
+      }, 3000)
+
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -220,13 +247,19 @@ ${formData.coverLetter}
             
             {!submitted ? (
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {error && (
+                  <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    {error}
+                  </div>
+                )}
+                
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
                     <Input
                       type="text"
-                      name="name"
-                      value={formData.name}
+                      name="fullName"
+                      value={formData.fullName}
                       onChange={handleInputChange}
                       required
                       placeholder="John Doe"
@@ -258,13 +291,17 @@ ${formData.coverLetter}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn Profile</label>
-                    <Input
-                      type="url"
-                      name="linkedin"
-                      value={formData.linkedin}
-                      onChange={handleInputChange}
-                      placeholder="https://linkedin.com/in/johndoe"
-                    />
+                    <div className="relative">
+                      <Linkedin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        type="url"
+                        name="linkedin"
+                        value={formData.linkedin}
+                        onChange={handleInputChange}
+                        placeholder="https://linkedin.com/in/johndoe"
+                        className="pl-10"
+                      />
+                    </div>
                   </div>
                 </div>
                 
@@ -278,6 +315,42 @@ ${formData.coverLetter}
                     required
                     placeholder="e.g., 5 years"
                   />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Resume/CV Link *
+                  </label>
+                  <div className="relative">
+                    <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      type="url"
+                      name="resumeUrl"
+                      value={formData.resumeUrl}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Link to your resume (Google Drive, Dropbox, LinkedIn, etc.)"
+                      className="pl-10"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Share a link to your resume (Google Drive, Dropbox, LinkedIn, or personal website)
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Portfolio/Website</label>
+                  <div className="relative">
+                    <ExternalLink className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      type="url"
+                      name="portfolioUrl"
+                      value={formData.portfolioUrl}
+                      onChange={handleInputChange}
+                      placeholder="https://your-portfolio.com"
+                      className="pl-10"
+                    />
+                  </div>
                 </div>
                 
                 <div>
@@ -304,8 +377,16 @@ ${formData.coverLetter}
                   <Button
                     type="submit"
                     className="flex-1 bg-orange-500 hover:bg-orange-600"
+                    disabled={isLoading}
                   >
-                    Submit Application
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      'Submit Application'
+                    )}
                   </Button>
                 </div>
               </form>
@@ -317,7 +398,10 @@ ${formData.coverLetter}
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Application Submitted!</h3>
-                <p className="text-gray-600">Thank you for applying. We'll review your application and get back to you soon.</p>
+                <p className="text-gray-600">Thank you for applying for the {selectedPosition?.title} position. We'll review your application and get back to you soon.</p>
+                <p className="text-gray-500 text-sm mt-4">
+                  A confirmation email has been sent to {formData.email}
+                </p>
               </div>
             )}
           </div>

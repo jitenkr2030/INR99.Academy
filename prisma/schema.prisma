@@ -914,13 +914,10 @@ model Tenant {
   currentUsers        Int                 @default(0)
   allowCustomDomain   Boolean             @default(false)
   allowWhiteLabel     Boolean             @default(true)
-  
-  // Eligibility fields for white-label access
   studentCount        Int?
   eligibilityStatus   EligibilityStatus   @default(PENDING)
   eligibilityDeadline DateTime?
   verifiedAt          DateTime?
-  
   metadata            String?
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
@@ -972,7 +969,7 @@ model TenantDomain {
   type          DomainType       @default(SUBDOMAIN)
   status        DomainStatus     @default(ACTIVE)
   dnsProvisioned Boolean         @default(false)
-  dnsRecords    String?          // JSON array of DNS records created
+  dnsRecords    String?
   sslStatus     SslStatus        @default(PENDING)
   verifiedAt    DateTime?
   createdAt     DateTime         @default(now())
@@ -1149,10 +1146,6 @@ enum EligibilityStatus {
   EXPIRED
 }
 
-// ============================================
-// VERIFICATION DOCUMENT MODEL
-// ============================================
-
 model VerificationDocument {
   id            String              @id @default(cuid())
   tenantId      String
@@ -1191,10 +1184,6 @@ enum DocVerificationStatus {
   REJECTED
   REQUIRES_MORE_INFO
 }
-
-// ============================================
-// PARENT ACCESS MODELS
-// ============================================
 
 model ParentUser {
   id            String            @id @default(cuid())
@@ -1250,10 +1239,6 @@ model StudentProfile {
   @@index([parentCode])
   @@map("student_profiles")
 }
-
-// ============================================
-// COURSE CLASS ASSIGNMENT MODELS
-// ============================================
 
 model CourseClassAssignment {
   id           String              @id @default(cuid())
@@ -1323,10 +1308,6 @@ enum LinkStatus {
   REJECTED
   REMOVED
 }
-
-// ============================================
-// CONTENT APPROVAL WORKFLOW MODELS
-// ============================================
 
 model ContentApprovalRequest {
   id            String              @id @default(cuid())
@@ -1418,17 +1399,13 @@ enum ReviewAction {
   ARCHIVE
 }
 
-// ============================================
-// CONTENT PERMISSIONS MODELS
-// ============================================
-
 model ContentPermission {
   id          String             @id @default(cuid())
   contentType ContentPermissionType
   contentId   String
   permission  PermissionType
   role        PermissionRole
-  conditions  String?            // JSON conditions for granular control
+  conditions  String?
   priority    Int                @default(0)
   isActive    Boolean            @default(true)
   createdAt   DateTime           @default(now())
@@ -1449,7 +1426,7 @@ model ContentAccessLog {
   action      AccessAction
   ipAddress   String?
   userAgent   String?
-  metadata    String?             // JSON additional data
+  metadata    String?
   createdAt   DateTime            @default(now())
 
   @@index([contentType, contentId])
@@ -1503,3 +1480,36 @@ enum AccessAction {
   FAILED
 }
 
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  INTERVIEW
+  OFFER
+  REJECTED
+}
+
+model JobApplication {
+  id          String            @id @default(cuid())
+  position    String
+  department  String?
+  fullName    String
+  email       String
+  phone       String?
+  linkedin    String?
+  experience  String?
+  coverLetter String?           @db.Text
+  resumeUrl   String?
+  portfolioUrl String?
+  status      ApplicationStatus @default(PENDING)
+  notes       String?           @db.Text
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([position])
+  @@index([createdAt])
+  @@map("job_applications")
+}
