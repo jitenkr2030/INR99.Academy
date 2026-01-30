@@ -64,6 +64,61 @@ const COURSE_ID_MAPPING: Record<string, string> = {
   // Additional courses
   'course-actuarial-science': 'course-actuarial-science',
   'advanced-excel-pro': 'advanced-excel-pro',
+
+  // Courses from user input file (fixing "course not found" issue)
+  'complete-job-preparation': 'career_jobprep',
+  'startup-foundation-idea-business': 'startup_foundation',
+  'data-science-python': 'career3',
+  'class10-mathematics': 'school18',
+  'bcom-financial-accounting': 'college10',
+  'excel-mastery': 'advanced-excel-pro',
+  'english-communication-mastery': 'cr_english_mastery',
+  'cyber-safety-digital-security': 'cyber_safety',
+  'meditation-mindfulness': 'life6',
+  'indian-constitution-civics': 'cr_indian_constitution',
+
+  // MBA Programs
+  'mba-finance-advanced': 'mba_finance',
+  'mba-marketing-management': 'mba_marketing',
+  'mba-human-resources': 'mba_hr',
+
+  // M.Com Programs
+  'mcom-advanced-accounting': 'mcom_accounting',
+  'mcom-taxation-planning': 'mcom_taxation',
+
+  // M.Sc Programs
+  'msc-data-science-analytics': 'msc_data_science',
+  'msc-cyber-security': 'msc_cyber_security',
+
+  // MCA Programs
+  'mca-cloud-computing': 'mca_cloud',
+
+  // M.A. Programs
+  'ma-economics-data-analysis': 'ma_economics',
+
+  // LL.M Programs
+  'llm-corporate-law': 'llm_corporate',
+  'llm-intellectual-property': 'llm_ip',
+
+  // Government Exam Courses
+  'upsc-civil-services-foundation': 'upsc_prelims',
+  'ssc-cgl-complete-preparation': 'ssc_cgl',
+  'banking-ibps-po-complete': 'banking_ibps',
+  'railways-rrb-alp-technician': 'railways_rrb',
+  'cat-mba-entrance-prep': 'cat_mba',
+
+  // ACCA Courses
+  'acca-fa-course': 'acca_level1',
+  'acca-ma-course': 'acca_level2',
+  'acca-fa-intl': 'acca_fa_intl',
+  'acca-applied-skills': 'acca_applied',
+  'acca-strategic-professional': 'acca_strategic',
+
+  // Law Courses for Citizens
+  'survival-law-indian-citizen': 'law_survival',
+  'power-law-citizens-handle': 'law_power',
+  'case-handling-law-nonlawyers': 'law_case_handling',
+  'citizen-leader-law-impact': 'law_citizen_leader',
 }
 
 export async function GET(
