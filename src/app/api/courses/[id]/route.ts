@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { courses } from '@/lib/course-data'
 
 // Mapping between expected course IDs and actual seeded IDs
 const COURSE_ID_MAPPING: Record<string, string> = {
@@ -186,6 +187,79 @@ export async function GET(
     })
 
     if (!course) {
+      // If not found in database, check static courses from course-data.ts
+      const staticCourse = courses.find(c => c.id === courseId || c.slug === courseId)
+      
+      if (staticCourse) {
+        // Return static course data
+        return NextResponse.json({
+          success: true,
+          course: {
+            id: staticCourse.id,
+            title: staticCourse.title,
+            description: staticCourse.description,
+            longDescription: staticCourse.longDescription,
+            thumbnail: staticCourse.thumbnail,
+            difficulty: staticCourse.difficulty.toUpperCase(),
+            duration: staticCourse.totalDuration,
+            pricing: {
+              type: staticCourse.price === 0 ? 'free' : 'paid',
+              price: staticCourse.price,
+              currency: staticCourse.currency,
+              period: 'one-time',
+              description: staticCourse.price === 0 ? 'Free course' : `Course available at INR ${staticCourse.price}`,
+            },
+            rating: staticCourse.rating,
+            reviewCount: staticCourse.reviewCount,
+            tagline: staticCourse.tagline,
+            language: staticCourse.language,
+            instructor: {
+              id: staticCourse.instructor.id,
+              name: staticCourse.instructor.name,
+              bio: staticCourse.instructor.bio,
+              avatar: staticCourse.instructor.avatar,
+              expertise: staticCourse.instructor.expertise,
+            },
+            learningPath: null,
+            modules: staticCourse.modules.map((module, index) => ({
+              id: module.id,
+              title: module.title,
+              order: module.order,
+              lessons: module.lessons.map(lesson => ({
+                id: lesson.id,
+                title: lesson.title,
+                duration: lesson.duration,
+                order: lesson.order,
+                type: lesson.type,
+                isFree: lesson.isFree,
+                videoUrl: lesson.type === 'video' ? lesson.content : null,
+                content: lesson.type === 'text' ? lesson.content : null,
+              })),
+            })),
+            lessons: staticCourse.modules.flatMap(m => m.lessons).map(lesson => ({
+              id: lesson.id,
+              title: lesson.title,
+              duration: lesson.duration,
+              order: lesson.order,
+              type: lesson.type,
+              isLocked: !lesson.isFree,
+              videoUrl: lesson.type === 'video' ? lesson.content : null,
+              content: lesson.type === 'text' ? lesson.content : null,
+            })),
+            lessonCount: staticCourse.lessonCount,
+            moduleCount: staticCourse.moduleCount,
+            assessments: [],
+            totalLessons: staticCourse.lessonCount,
+            totalAssessments: 0,
+            enrollmentCount: staticCourse.enrollmentCount,
+            outcomes: staticCourse.outcomes,
+            requirements: staticCourse.requirements,
+            createdAt: staticCourse.createdAt,
+            updatedAt: staticCourse.updatedAt,
+          }
+        })
+      }
+      
       return NextResponse.json(
         { success: false, message: 'Course not found' },
         { status: 404 }
