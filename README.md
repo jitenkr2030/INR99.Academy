@@ -15,7 +15,7 @@ INR99.Academy is a comprehensive learning platform designed to make quality educ
 
 ## 🌟 About
 
-INR99.Academy addresses the critical gap in affordable quality education in India. While premium platforms charge ₹10,000-50,000/year, INR99 offers the same value proposition at ₹1,188/year—making it 10x more accessible. The platform now features integrated live learning with real-time video streaming, a complete white-label solution for institutions, and advanced content creation tools.
+INR99.Academy addresses the critical gap in affordable quality education in India. While premium platforms charge ₹10,000-50,000/year, INR99 offers the same value proposition at ₹999/year—making it 10x more accessible. The platform now features integrated live learning with real-time video streaming, a complete white-label solution for institutions, and advanced content creation tools.
 
 ### Our Mission
 
@@ -649,7 +649,7 @@ Multiple Indian payment methods supported:
 | Free | ₹0 | Limited courses, no live sessions |
 | Monthly | ₹99/month | Full access, live sessions |
 | Quarterly | ₹297/3 months | Full access + 10% savings |
-| Yearly | ₹1,188/year | Full access + 15% savings |
+| Yearly | ₹999/year | Full access + 15% savings |
 | Enterprise | Custom | White-label, dedicated support |
 
 ---
