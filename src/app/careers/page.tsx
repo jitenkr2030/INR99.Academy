@@ -13,6 +13,13 @@ interface Position {
   location: string
   type: string
   description: string
+  details?: {
+    roleOverview: string
+    keyResponsibilities: string[]
+    whoCanApply: string[]
+    compensation: string
+    growthOpportunity: string
+  }
 }
 
 export default function CareersPage() {
@@ -33,6 +40,34 @@ export default function CareersPage() {
   const [error, setError] = useState<string | null>(null)
 
   const positions: Position[] = [
+    {
+      title: "Institution Relationship Coordinator (IRC)",
+      department: "Partnerships",
+      location: "Field-based (Schools & Colleges in assigned area)",
+      type: "Commission-based",
+      description: "Represent INR99 Academy and visit schools and colleges to introduce our digital learning platform. Build trust with institutions and help them onboard smoothly.",
+      details: {
+        roleOverview: "The Institution Relationship Coordinator (IRC) will represent INR99 Academy and visit schools and colleges to introduce our digital learning platform. The role focuses on building trust with institutions, explaining benefits clearly, and helping them onboard smoothly. This is not a desk job. It involves field visits, conversations with principals, directors, and coordinators.",
+        keyResponsibilities: [
+          "Visit schools and colleges in assigned locations",
+          "Introduce INR99 Academy platform to management",
+          "Explain benefits for students and institutions",
+          "Share demo access and guide basic understanding",
+          "Collect feedback, contact details, and interest level",
+          "Coordinate onboarding with the core team",
+          "Maintain simple visit records (school name, contact, status)"
+        ],
+        whoCanApply: [
+          "Experience in field work, education, sales, NGO, telecom, or insurance preferred",
+          "Good communication skills (local language + basic English)",
+          "Confident, polite, and presentable",
+          "Ability to explain ideas clearly (degree not mandatory)",
+          "Smartphone required (laptop NOT mandatory)"
+        ],
+        compensation: "Commission-based per onboarded institution. No fixed salary initially. Performance-based growth opportunity.",
+        growthOpportunity: "Long-term association with a growing education platform. Opportunity to become Area Coordinator / Team Lead. Certificate & experience letter after performance review."
+      }
+    },
     {
       title: "Senior Frontend Developer",
       department: "Engineering",
@@ -246,7 +281,36 @@ export default function CareersPage() {
             </div>
             
             {!submitted ? (
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="p-6">
+                {/* Position Details */}
+                {selectedPosition.details && (
+                  <div className="mb-6 bg-gray-50 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-900 mb-2">Role Overview</h4>
+                    <p className="text-gray-600 text-sm mb-4">{selectedPosition.details.roleOverview}</p>
+                    
+                    <h4 className="font-semibold text-gray-900 mb-2">Key Responsibilities</h4>
+                    <ul className="list-disc list-inside text-gray-600 text-sm mb-4 space-y-1">
+                      {selectedPosition.details.keyResponsibilities.map((resp, i) => (
+                        <li key={i}>{resp}</li>
+                      ))}
+                    </ul>
+                    
+                    <h4 className="font-semibold text-gray-900 mb-2">Who Can Apply</h4>
+                    <ul className="list-disc list-inside text-gray-600 text-sm mb-4 space-y-1">
+                      {selectedPosition.details.whoCanApply.map((qual, i) => (
+                        <li key={i}>{qual}</li>
+                      ))}
+                    </ul>
+                    
+                    <h4 className="font-semibold text-gray-900 mb-2">Compensation</h4>
+                    <p className="text-gray-600 text-sm mb-4">{selectedPosition.details.compensation}</p>
+                    
+                    <h4 className="font-semibold text-gray-900 mb-2">Growth Opportunity</h4>
+                    <p className="text-gray-600 text-sm">{selectedPosition.details.growthOpportunity}</p>
+                  </div>
+                )}
+                
+                <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                     {error}
@@ -390,6 +454,7 @@ export default function CareersPage() {
                   </Button>
                 </div>
               </form>
+              </div>
             ) : (
               <div className="p-6 text-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
