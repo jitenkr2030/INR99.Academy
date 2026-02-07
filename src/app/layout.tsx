@@ -17,19 +17,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "INR99.Academy - India's Learning Infrastructure",
-  description: "A learning utility as reliable and affordable as UPI. Access quality education that works in villages, towns, and cities alike for just ₹99/month.",
-  keywords: ["INR99.Academy", "Online Learning", "Education India", "Affordable Learning", "Mobile Learning", "UPI for Education"],
+  title: "INR99 Academy | White-Label Online Academy Platform at ₹99/Month",
+  description: "INR99 Academy helps teachers and institutes launch their own branded online academy with live classes, student dashboard, courses, and payments at ₹99 per student/month.",
+  keywords: ["INR99 Academy", "white-label LMS", "online academy platform", "education software", "learning management system", "coaching institute software", "school management software", "launch online academy", "branded learning platform", "affordable LMS India", "₹99 education platform"],
   authors: [{ name: "INR99.Academy Team" }],
   openGraph: {
-    title: "INR99.Academy - India's Learning Infrastructure",
-    description: "Learn for just ₹99/month. Quality education accessible across India.",
+    title: "INR99 Academy | White-Label Online Academy Platform at ₹99/Month",
+    description: "INR99 Academy helps teachers and institutes launch their own branded online academy with live classes, student dashboard, courses, and payments at ₹99 per student/month.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "INR99.Academy - India's Learning Infrastructure",
-    description: "Learn for just ₹99/month. Quality education accessible across India.",
+    title: "INR99 Academy | White-Label Online Academy Platform at ₹99/Month",
+    description: "INR99 Academy helps teachers and institutes launch their own branded online academy with live classes, student dashboard, courses, and payments at ₹99 per student/month.",
   },
   icons: {
     icon: '/favicon.svg',
@@ -63,6 +63,20 @@ export default async function RootLayout({
   // This eliminates client-side session checking and prevents blinking
   const session = await auth()
 
+  // Organization Schema for SEO
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "INR99 Academy",
+    "url": "https://inr99.academy",
+    "logo": "https://inr99.academy/logo.png",
+    "description": "White-label online education platform for teachers and institutes at ₹99 per student per month",
+    "foundingCountry": "IN",
+    "sameAs": [
+      "https://github.com/jitenkr2030"
+    ]
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -70,6 +84,12 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{
             __html: cssLoadScript,
           }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationSchema),
+          }}
+          type="application/ld+json"
         />
       </head>
       <body

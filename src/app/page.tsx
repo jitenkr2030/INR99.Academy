@@ -183,8 +183,7 @@ export default function NewLandingPage() {
             lineHeight: '1.2',
             marginBottom: '1.5rem'
           }}>
-            From Class 1 to Career — <br />
-            <span style={{ color: '#facc15' }}>Learning for Every Indian</span>
+            INR99 Academy – Launch Your Own Online Academy at ₹99/Month
           </h1>
 
           {/* Description */}
@@ -192,11 +191,11 @@ export default function NewLandingPage() {
             fontSize: '1.25rem',
             color: '#bfdbfe',
             marginBottom: '2rem',
-            maxWidth: '600px',
+            maxWidth: '700px',
             margin: '0 auto 2rem',
             lineHeight: '1.6'
           }}>
-            A learning utility, just like UPI — for every Indian student
+            INR99 Academy is a white-label online education platform that helps teachers, coaching institutes, and schools launch their own branded academy with live classes, student dashboard, courses, and payments — starting at just ₹99 per student per month.
           </p>
 
           {/* CTA Button */}

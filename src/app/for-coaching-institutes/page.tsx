@@ -3,12 +3,12 @@ import { NewNavigation } from "@/components/new-navigation";
 import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
-  title: "About INR99 Academy | White-Label Online Education Platform",
-  description: "Learn about INR99 Academy - a white-label online education platform helping teachers, coaching institutes, and schools launch their branded academy at ₹99 per student/month.",
-  keywords: ["about INR99 Academy", "white-label education platform", "online academy India", "learning management system", "education technology", "coaching institute software"],
+  title: "Online Coaching Platform India | Launch Digital Academy at ₹99/month",
+  description: "INR99 Academy provides coaching institutes with a white-label online coaching platform to launch their branded digital academy at just ₹99 per student/month. Transform your coaching center into a digital powerhouse.",
+  keywords: ["online coaching platform India", "coaching institute software", "digital coaching center", "JEE NEET coaching online", "white label LMS for coaching", "coaching management software"],
 };
 
-export default function AboutPage() {
+export default function ForCoachingInstitutesPage() {
   return (
     <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       <NewNavigation />
@@ -31,7 +31,7 @@ export default function AboutPage() {
             fontSize: '0.875rem',
             marginBottom: '1.5rem'
           }}>
-            🎓 About INR99 Academy
+            🏫 For Coaching Institutes
           </div>
           <h1 style={{
             fontSize: '2.5rem',
@@ -39,7 +39,7 @@ export default function AboutPage() {
             lineHeight: '1.2',
             marginBottom: '1rem'
           }}>
-            About INR99 Academy
+            Transform Your Coaching Institute into a Digital Academy
           </h1>
           <p style={{
             fontSize: '1.25rem',
@@ -48,12 +48,12 @@ export default function AboutPage() {
             maxWidth: '700px',
             margin: '0 auto'
           }}>
-            Empowering educators across India with affordable, branded learning infrastructure
+            Take your coaching business online. Reach more students, increase revenue, and build your brand with INR99 Academy.
           </p>
         </div>
       </section>
 
-      {/* Problem & Solution Section */}
+      {/* Why Go Digital Section */}
       <section style={{ padding: '5rem 1rem', background: '#f9fafb' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -63,16 +63,16 @@ export default function AboutPage() {
               color: '#1f2937',
               marginBottom: '1rem'
             }}>
-              The Problem We Solve
+              Why Coaching Institutes Are Going Digital
             </h2>
             <p style={{
               color: '#6b7280',
               fontSize: '1.125rem',
               lineHeight: '1.6',
-              maxWidth: '700px',
+              maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Traditional education platforms are expensive, complicated, and out of reach for most Indian teachers, coaching institutes, and schools.
+              The education landscape has changed. Students expect online options. Coaching centers that adapt will thrive.
             </p>
           </div>
 
@@ -87,6 +87,26 @@ export default function AboutPage() {
               borderRadius: '1rem',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🌍</div>
+              <h3 style={{
+                fontSize: '1.25rem',
+                fontWeight: '600',
+                color: '#1f2937',
+                marginBottom: '0.75rem'
+              }}>
+                Expand Beyond Local
+              </h3>
+              <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
+                Your coaching center is limited by local students. Go digital and reach students across India, even globally.
+              </p>
+            </div>
+
+            <div style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '1rem',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>💰</div>
               <h3 style={{
                 fontSize: '1.25rem',
@@ -94,10 +114,10 @@ export default function AboutPage() {
                 color: '#1f2937',
                 marginBottom: '0.75rem'
               }}>
-                High Costs
+                New Revenue Streams
               </h3>
               <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-                Most LMS platforms charge thousands of rupees monthly, making them inaccessible for small coaching centers and individual teachers.
+                Sell online courses, recorded classes, and test series. Generate revenue even when students aren't physically present.
               </p>
             </div>
 
@@ -107,44 +127,24 @@ export default function AboutPage() {
               borderRadius: '1rem',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚙️</div>
+              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⭐</div>
               <h3 style={{
                 fontSize: '1.25rem',
                 fontWeight: '600',
                 color: '#1f2937',
                 marginBottom: '0.75rem'
               }}>
-                Technical Complexity
+                Build Your Brand
               </h3>
               <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-                Complex setups require technical expertise that most educators simply do not have. You should teach, not struggle with software.
-              </p>
-            </div>
-
-            <div style={{
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '1rem',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-            }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🎨</div>
-              <h3 style={{
-                fontSize: '1.25rem',
-                fontWeight: '600',
-                color: '#1f2937',
-                marginBottom: '0.75rem'
-              }}>
-                No Branding
-              </h3>
-              <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-                Generic platforms mean your students never see YOUR brand. You invest in marketing but benefit someone else.
+                A white-label platform puts YOUR coaching institute's brand front and center. Students know who to thank.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Who Is This For Section */}
+      {/* Features Section */}
       <section style={{ padding: '5rem 1rem', background: 'white' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -154,16 +154,16 @@ export default function AboutPage() {
               color: '#1f2937',
               marginBottom: '1rem'
             }}>
-              Who INR99 Academy Is For
+              Everything Your Coaching Institute Needs
             </h2>
             <p style={{
               color: '#6b7280',
               fontSize: '1.125rem',
               lineHeight: '1.6',
-              maxWidth: '700px',
+              maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Our platform is designed for educators who want to focus on teaching while we handle the technology.
+              A complete digital ecosystem designed specifically for coaching institutes.
             </p>
           </div>
 
@@ -172,77 +172,135 @@ export default function AboutPage() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: '2rem'
           }}>
-            {/* Individual Teachers */}
+            {/* Batch Management */}
             <div style={{
               background: '#f9fafb',
               padding: '2rem',
               borderRadius: '1rem',
               border: '2px solid #e5e7eb'
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👨‍🏫</div>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👥</div>
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
                 color: '#1f2937',
                 marginBottom: '0.75rem'
               }}>
-                Individual Teachers
+                Batch Management
               </h3>
               <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '1rem' }}>
-                Subject experts, tutors, and freelance educators who want to monetize their knowledge with their own branded platform.
+                Organize students into batches. Track progress by batch. Manage multiple courses simultaneously.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Create and sell courses
+                  <span style={{ color: '#16a34a' }}>✓</span> Create unlimited batches
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Host live classes
+                  <span style={{ color: '#16a34a' }}>✓</span> Batch-wise content access
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Track student progress
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Accept payments directly
+                  <span style={{ color: '#16a34a' }}>✓</span> Performance comparison
                 </li>
               </ul>
             </div>
 
-            {/* Coaching Institutes */}
+            {/* Test Series */}
             <div style={{
               background: '#f9fafb',
               padding: '2rem',
               borderRadius: '1rem',
               border: '2px solid #e5e7eb'
             }}>
-              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏫</div>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📝</div>
               <h3 style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
                 color: '#1f2937',
                 marginBottom: '0.75rem'
               }}>
-                Coaching Institutes
+                Test Series Platform
               </h3>
               <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '1rem' }}>
-                JEE, NEET, CAT, UPSC, SSC, Banking, and other competitive exam preparation centers looking to go digital.
+                Create and sell test series. Full-length mocks, chapter tests, and practice quizzes.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Full digital ecosystem
+                  <span style={{ color: '#16a34a' }}>✓</span> Create unlimited tests
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Batch management
+                  <span style={{ color: '#16a34a' }}>✓</span> Auto-grading
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Test series integration
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> White-label domain
+                  <span style={{ color: '#16a34a' }}>✓</span> Detailed analytics
                 </li>
               </ul>
             </div>
 
-            {/* Schools & Colleges */}
+            {/* Live Classes */}
+            <div style={{
+              background: '#f9fafb',
+              padding: '2rem',
+              borderRadius: '1rem',
+              border: '2px solid #e5e7eb'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎥</div>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '0.75rem'
+              }}>
+                Live Classes
+              </h3>
+              <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '1rem' }}>
+                Host live teaching sessions. Interactive doubt clearing and real-time engagement.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> HD video streaming
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Screen sharing
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Session recording
+                </li>
+              </ul>
+            </div>
+
+            {/* Content Library */}
+            <div style={{
+              background: '#f9fafb',
+              padding: '2rem',
+              borderRadius: '1rem',
+              border: '2px solid #e5e7eb'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📚</div>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '0.75rem'
+              }}>
+                Content Library
+              </h3>
+              <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '1rem' }}>
+                Build a comprehensive content library. Videos, PDFs, presentations, and more.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Video hosting
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> PDF documents
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Presentation support
+                </li>
+              </ul>
+            </div>
+
+            {/* Student Portal */}
             <div style={{
               background: '#f9fafb',
               padding: '2rem',
@@ -256,23 +314,52 @@ export default function AboutPage() {
                 color: '#1f2937',
                 marginBottom: '0.75rem'
               }}>
-                Schools & Colleges
+                Student Dashboard
               </h3>
               <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '1rem' }}>
-                Educational institutions wanting to offer online learning to their students with their own branded portal.
+                Give students their own dashboard. Track progress, view courses, and access content.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Progress tracking
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Performance reports
+                </li>
+                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Mobile access
+                </li>
+              </ul>
+            </div>
+
+            {/* White-Label */}
+            <div style={{
+              background: '#f9fafb',
+              padding: '2rem',
+              borderRadius: '1rem',
+              border: '2px solid #e5e7eb'
+            }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎨</div>
+              <h3 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '0.75rem'
+              }}>
+                White-Label Platform
+              </h3>
+              <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '1rem' }}>
+                Your logo, your colors, your subdomain. Complete brand control.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
                   <span style={{ color: '#16a34a' }}>✓</span> Custom subdomain
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Parent/student portals
+                  <span style={{ color: '#16a34a' }}>✓</span> Your logo
                 </li>
                 <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Attendance tracking
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: '#374151' }}>
-                  <span style={{ color: '#16a34a' }}>✓</span> Progress reports
+                  <span style={{ color: '#16a34a' }}>✓</span> Custom colors
                 </li>
               </ul>
             </div>
@@ -292,7 +379,7 @@ export default function AboutPage() {
             color: '#1f2937',
             marginBottom: '1rem'
           }}>
-            Simple, Transparent Pricing
+            Affordable Pricing for Coaching Institutes
           </h2>
           <p style={{
             color: '#6b7280',
@@ -302,7 +389,7 @@ export default function AboutPage() {
             maxWidth: '600px',
             margin: '0 auto 2rem'
           }}>
-            We believe every educator deserves access to professional learning infrastructure.
+            No expensive setup. No monthly固定 fees. Just ₹99 per student per month.
           </p>
 
           <div style={{
@@ -314,20 +401,6 @@ export default function AboutPage() {
             margin: '0 auto'
           }}>
             <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: '#dcfce7',
-              color: '#166534',
-              borderRadius: '9999px',
-              padding: '0.5rem 1rem',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              marginBottom: '1.5rem'
-            }}>
-              ✨ Most Affordable in India
-            </div>
-            <div style={{
               display: 'flex',
               alignItems: 'baseline',
               justifyContent: 'center',
@@ -338,33 +411,37 @@ export default function AboutPage() {
               <span style={{ fontSize: '1.25rem', color: '#6b7280' }}>per student/month</span>
             </div>
             <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
-              For institutions with fewer than 1500 students
+              Perfect for JEE, NEET, CAT, UPSC, SSC, Banking coaching
             </p>
 
             <div style={{
               borderTop: '1px solid #e5e7eb',
               paddingTop: '2rem',
-              marginBottom: '2rem'
+              marginBottom: '2rem',
+              textAlign: 'left'
             }}>
+              <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+                <strong>Everything Included:</strong>
+              </p>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ color: '#374151' }}>Platform Access</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓ Unlimited</span>
+                <span style={{ color: '#374151' }}>Your branded platform</span>
+                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ color: '#374151' }}>Course Creation</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓ Unlimited</span>
+                <span style={{ color: '#374151' }}>Live classes</span>
+                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ color: '#374151' }}>Live Classes</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓ Included</span>
+                <span style={{ color: '#374151' }}>Test series</span>
+                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ color: '#374151' }}>White-Label Domain</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓ Included</span>
+                <span style={{ color: '#374151' }}>Content library</span>
+                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#374151' }}>Student Dashboard</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓ Included</span>
+                <span style={{ color: '#374151' }}>Student management</span>
+                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
               </div>
             </div>
 
@@ -388,7 +465,7 @@ export default function AboutPage() {
               e.currentTarget.style.transform = 'translateY(0)'
             }}
             >
-              Start Your Platform Today
+              Start Your Digital Academy
             </a>
 
             <div style={{
@@ -398,16 +475,16 @@ export default function AboutPage() {
               marginTop: '1.5rem'
             }}>
               <p style={{ color: '#166534', fontSize: '0.875rem', margin: 0 }}>
-                <strong>Free for Large Institutions:</strong> Schools and colleges with 1500+ students get full access absolutely free.
+                <strong>Free for Large Institutes:</strong> Coaching centers with 1500+ students get full access absolutely free.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Indian Context Section */}
+      {/* Exam Categories */}
       <section style={{ padding: '5rem 1rem', background: 'white' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <h2 style={{
               fontSize: '2rem',
@@ -415,7 +492,7 @@ export default function AboutPage() {
               color: '#1f2937',
               marginBottom: '1rem'
             }}>
-              Built for India
+              Perfect for All Exam Categories
             </h2>
             <p style={{
               color: '#6b7280',
@@ -424,99 +501,80 @@ export default function AboutPage() {
               maxWidth: '600px',
               margin: '0 auto'
             }}>
-              Every feature designed with Indian educators and students in mind.
+              Whether you coach for engineering, medical, civil services, or banking, we have you covered.
             </p>
           </div>
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
             gap: '1.5rem'
           }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📱</div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>
-                Mobile-First Design
-              </h3>
-              <p style={{ color: '#6b7280', fontSize: '0.9375rem' }}>
-                Works seamlessly on low-end smartphones with 2G/3G connections
-              </p>
-            </div>
-
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🌐</div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>
-                Multi-Language Support
-              </h3>
-              <p style={{ color: '#6b7280', fontSize: '0.9375rem' }}>
-                Content and interface available in multiple Indian languages
-              </p>
-            </div>
-
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>💳</div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>
-                UPI Integration
-              </h3>
-              <p style={{ color: '#6b7280', fontSize: '0.9375rem' }}>
-                Accept payments via UPI, cards, and net banking seamlessly
-              </p>
-            </div>
-
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>📊</div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.5rem' }}>
-                Low Data Mode
-              </h3>
-              <p style={{ color: '#6b7280', fontSize: '0.9375rem' }}>
-                Optimized for users with limited data plans
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Vision Section */}
-      <section style={{
-        padding: '5rem 1rem',
-        background: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #eff6ff 100%)'
-      }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{
-            background: 'white',
-            padding: '3rem',
-            borderRadius: '1.5rem',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }}>
-            <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>🎯</div>
-            <h2 style={{
-              fontSize: '1.75rem',
-              fontWeight: '700',
-              color: '#1f2937',
-              marginBottom: '1.5rem'
+            <div style={{
+              background: '#f9fafb',
+              padding: '2rem',
+              borderRadius: '1rem',
+              textAlign: 'center'
             }}>
-              Our Vision
-            </h2>
-            <blockquote style={{
-              fontSize: '1.375rem',
-              fontWeight: '600',
-              color: '#1f2937',
-              fontStyle: 'italic',
-              lineHeight: '1.5',
-              marginBottom: '1.5rem',
-              maxWidth: '600px',
-              margin: '0 auto 1.5rem'
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🎯</div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>JEE</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Engineering Entrance</p>
+            </div>
+
+            <div style={{
+              background: '#f9fafb',
+              padding: '2rem',
+              borderRadius: '1rem',
+              textAlign: 'center'
             }}>
-              "To democratize quality education by giving every teacher, institute, and school the tools to launch their own professional online academy — starting at just ₹99 per student."
-            </blockquote>
-            <p style={{
-              color: '#6b7280',
-              lineHeight: '1.6',
-              maxWidth: '600px',
-              margin: '0 auto'
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>⚕️</div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>NEET</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Medical Entrance</p>
+            </div>
+
+            <div style={{
+              background: '#f9fafb',
+              padding: '2rem',
+              borderRadius: '1rem',
+              textAlign: 'center'
             }}>
-              We believe that geography should never limit access to quality education. Just as UPI transformed financial transactions, we aim to transform education delivery across India.
-            </p>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📊</div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>CAT</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Management Entrance</p>
+            </div>
+
+            <div style={{
+              background: '#f9fafb',
+              padding: '2rem',
+              borderRadius: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🏛️</div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>UPSC</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Civil Services</p>
+            </div>
+
+            <div style={{
+              background: '#f9fafb',
+              padding: '2rem',
+              borderRadius: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🏦</div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>SSC</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Staff Selection</p>
+            </div>
+
+            <div style={{
+              background: '#f9fafb',
+              padding: '2rem',
+              borderRadius: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>💼</div>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>Banking</h3>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>IBPS, SBI, RBI</p>
+            </div>
           </div>
         </div>
       </section>
@@ -534,7 +592,7 @@ export default function AboutPage() {
             fontWeight: '700',
             marginBottom: '1rem'
           }}>
-            Ready to Launch Your Academy?
+            Ready to Go Digital?
           </h2>
           <p style={{
             fontSize: '1.125rem',
@@ -544,7 +602,7 @@ export default function AboutPage() {
             margin: '0 auto 2rem',
             lineHeight: '1.6'
           }}>
-            Join thousands of educators who trust INR99 Academy to power their online learning journey.
+            Transform your coaching institute into a modern digital academy at just ₹99 per student per month.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <a href="/institution/signup" style={{
