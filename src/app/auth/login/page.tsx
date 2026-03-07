@@ -162,10 +162,20 @@ export default function LoginPage() {
 
           {/* Demo Accounts */}
           <div style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '6px', marginTop: '1.5rem' }}>
-            <p style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem' }}>Demo:</p>
+            <p style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem' }}>Demo Accounts:</p>
             <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-              <p>Student: student1@inr99.com</p>
-              <p>Password: demo123</p>
+              <div style={{ marginBottom: '0.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e5e7eb' }}>
+                <p style={{ fontWeight: '600', color: '#dc2626' }}>Admin:</p>
+                <p>admin1@inr99.com / demo123</p>
+              </div>
+              <div style={{ marginBottom: '0.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e5e7eb' }}>
+                <p style={{ fontWeight: '600', color: '#7c3aed' }}>Instructor:</p>
+                <p>instructor1@inr99.com / demo123</p>
+              </div>
+              <div>
+                <p style={{ fontWeight: '600', color: '#16a34a' }}>Student:</p>
+                <p>student1@inr99.com / demo123</p>
+              </div>
             </div>
           </div>
 

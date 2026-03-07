@@ -2,79 +2,93 @@
 
 ## 📋 Overview
 
-This guide explains how to use the demo accounts to test different user roles and features in INR99.Academy LMS platform.
+This guide explains how to use the demo accounts to test different user roles and features in INR99.Academy LMS platform. All demo accounts use the same password for easy testing.
 
 ## 🔑 Demo Account Credentials
 
+All demo accounts use: **Password: `demo123`**
+
 ### 👑 **Admin Account**
-- **Mobile:** `9999999999`
-- **Email:** `admin@inr99.academy`
-- **Name:** Platform Administrator
-- **Role:** ADMIN
-- **Features:**
-  - Full admin dashboard access
-  - User management with role assignment
-  - Platform analytics and reporting
-  - Content moderation tools
-  - System configuration
+| Field | Value |
+|-------|-------|
+| **Email** | `admin1@inr99.com` |
+| **Password** | `demo123` |
+| **Name** | Demo Admin 1 |
+| **Role** | ADMIN |
+| **Features:** | |
+| | Full admin dashboard access |
+| | User management with role assignment |
+| | Platform analytics and reporting |
+| | Content moderation tools |
+| | System configuration |
 
 ### 👨‍🏫 **Instructor Account**
-- **Mobile:** `8888888888`
-- **Email:** `instructor@inr99.academy`
-- **Name:** Dr. Priya Sharma
-- **Role:** INSTRUCTOR
-- **Features:**
-  - Complete instructor dashboard
-  - Course creation and management
-  - Student enrollment tracking
-  - Earnings and analytics
-  - Profile management
+| Field | Value |
+|-------|-------|
+| **Email** | `instructor1@inr99.com` |
+| **Password** | `demo123` |
+| **Name** | Demo Instructor 1 |
+| **Role** | INSTRUCTOR |
+| **Features:** | |
+| | Complete instructor dashboard |
+| | Course creation and management |
+| | Student enrollment tracking |
+| | Earnings and analytics |
+| | Profile management |
 
-### 👨‍🎓 **Student Account**
-- **Mobile:** `7777777777`
-- **Email:** `student@inr99.academy`
-- **Name:** Demo Student
-- **Role:** STUDENT
-- **Features:**
-  - Full student dashboard
-  - Course enrollment and progress tracking
-  - Profile management with settings
-  - Certificate viewing
-  - Community features
+### 👨‍🎓 **Student Accounts**
+| Field | Value |
+|-------|-------|
+| **Email** | `student1@inr99.com` |
+| **Password** | `demo123` |
+| **Name** | Demo Student 1 |
+| **Role** | STUDENT |
+| **Features:** | |
+| | Full student dashboard |
+| | Course enrollment and progress tracking |
+| | Profile management with settings |
+| | Certificate viewing |
+| | Community features |
+
+#### Additional Student Accounts:
+- **student2@inr99.com** / `demo123` - Demo Student 2
+- **student3@inr99.com** / `demo123` - Demo Student 3
 
 ### 👑 **Super Admin Account**
-- **Mobile:** `6666666666`
-- **Email:** `superadmin@inr99.academy`
-- **Name:** Super Administrator
-- **Role:** SUPER_ADMIN
-- **Features:**
-  - All admin privileges
-  - Platform-wide management
-  - System administration
-  - Advanced analytics
+| Field | Value |
+|-------|-------|
+| **Email** | `superadmin1@inr99.com` |
+| **Password** | `demo123` |
+| **Name** | Super Admin |
+| **Role** | SUPER_ADMIN |
+| **Features:** | |
+| | All admin privileges |
+| | Platform-wide management |
+| | System administration |
+| | Advanced analytics |
+
+### 📚 **Additional Instructor Accounts:**
+- **instructor2@inr99.com** / `demo123` - Demo Instructor 2
 
 ## 🔐 Authentication Process
 
 ### Step 1: Login
-1. Click "Login / Signup" in the header
-2. Enter any demo mobile number (e.g., `9999999999`)
-3. Click "Send OTP"
+1. Go to https://inr99.academy/auth/login
+2. Enter any demo email from the table above
+3. Enter password: `demo123`
+4. Click "Sign In"
 
-### Step 2: OTP Verification
-- **Demo OTP:** Use `123456` for all demo accounts
-- Any 6-digit OTP will work for demo purposes
-- System automatically detects demo accounts
-
-### Step 3: Dashboard Access
+### Step 2: Dashboard Access
 After successful login, you'll be redirected based on your role:
 - **Admin:** Admin Dashboard (`/admin`)
 - **Instructor:** Instructor Dashboard (`/instructor`)
 - **Student:** Student Dashboard (`/dashboard`)
+- **Super Admin:** Full Admin Dashboard with super privileges
 
 ## 🎯 Testing Different Roles
 
 ### 🔧 **Testing Admin Features**
-1. Login with Admin account (`9999999999`)
+1. Login with Admin account (`admin1@inr99.com`)
 2. Access Admin Dashboard from profile dropdown
 3. Test features:
    - View user management
@@ -83,7 +97,7 @@ After successful login, you'll be redirected based on your role:
    - View system analytics
 
 ### 👨‍🏫 **Testing Instructor Features**
-1. Login with Instructor account (`8888888888`)
+1. Login with Instructor account (`instructor1@inr99.com`)
 2. Access Instructor Dashboard from profile dropdown
 3. Test features:
    - View instructor application form
@@ -93,7 +107,7 @@ After successful login, you'll be redirected based on your role:
    - Edit instructor profile
 
 ### 👨‍🎓 **Testing Student Features**
-1. Login with Student account (`7777777777`)
+1. Login with Student account (`student1@inr99.com`)
 2. Access Student Dashboard and Profile
 3. Test features:
    - Browse and enroll in courses
@@ -124,37 +138,6 @@ After successful login, you'll be redirected based on your role:
 - **Content:** Course moderation, category management
 - **System:** Settings, activity logs
 
-## 🔧 **Categories Dropdown Fix**
-
-### ✅ **What Was Fixed:**
-- Categories dropdown now displays 4 main learning path categories
-- Learning paths are shown as subcategories
-- Course counts are displayed for each category
-- Featured categories are highlighted
-
-### 📚 **Available Categories:**
-1. **School Education (Class 1-12)**
-   - Primary School (Class 1-5)
-   - Middle School (Class 6-8)
-   - High School (Class 9-10)
-   - Senior Secondary (Class 11-12)
-
-2. **College & University (UG Foundation)**
-   - Engineering Foundation
-   - Medical Sciences Foundation
-   - Business & Commerce Foundation
-   - Arts & Humanities Foundation
-
-3. **Career & Professional Skills**
-   - Technology & Programming
-   - Business & Entrepreneurship
-   - Creative & Design
-   - Communication & Marketing
-
-4. **Life Skills & Personal Development**
-   - Personal Finance & Investment
-   - Health & Wellness
-
 ## 🚀 **Testing the Learning Flow**
 
 ### 1. **Course Discovery**
@@ -184,10 +167,12 @@ After successful login, you'll be redirected based on your role:
 - ✅ Demo authentication system
 - ✅ Course creation and management
 - ✅ Student enrollment tracking
-- ✅ Learning### 🎯 **Demo Testing statistics and analytics
+- ✅ Learning statistics and analytics
 
- Checklist:**
-- [ ] Login with all 4 demo accounts
+## 🎯 **Demo Testing Checklist:**
+- [ ] Login with Admin account
+- [ ] Login with Instructor account
+- [ ] Login with Student account
 - [ ] Test role-based navigation
 - [ ] Explore categories dropdown
 - [ ] Test course enrollment and learning
@@ -198,20 +183,25 @@ After successful login, you'll be redirected based on your role:
 
 ## 🆘 **Troubleshooting**
 
-### **Categories Not Showing?**
-- Refresh the page after login
-- Check browser console for errors
-- Ensure you're logged in with a demo account
-
 ### **Login Issues?**
-- Use exact mobile numbers: `9999999999`, `8888888888`, `7777777777`, `6666666666`
-- Demo OTP is always: `123456`
+- Use exact demo emails:
+  - `admin1@inr99.com` (Admin)
+  - `instructor1@inr99.com` (Instructor)
+  - `student1@inr99.com` (Student)
+  - `superadmin1@inr99.com` (Super Admin)
+- Demo password is always: `demo123`
 - Check internet connection
 
 ### **Role Not Displaying?**
 - Clear browser cache and cookies
 - Logout and login again
 - Check if role information appears in profile dropdown
+
+### **Dashboard Not Loading?**
+- Verify you have the correct role for the dashboard
+- Admin accounts access `/admin`
+- Instructor accounts access `/instructor`
+- Student accounts access `/dashboard`
 
 ## 📞 **Support**
 

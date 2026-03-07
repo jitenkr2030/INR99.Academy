@@ -304,8 +304,12 @@ export function AuthModal({ isOpen, onClose, onAuthSuccess }: AuthModalProps) {
 
           {/* Demo Accounts */}
           <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-xs font-medium text-gray-700 mb-1">Demo Accounts:</p>
-            <p className="text-xs text-gray-600">student1@inr99.com / demo123</p>
+            <p className="text-xs font-medium text-gray-700 mb-2">Demo Accounts:</p>
+            <div className="space-y-1 text-xs">
+              <p><span className="text-red-600 font-medium">Admin:</span> admin1@inr99.com / demo123</p>
+              <p><span className="text-purple-600 font-medium">Instructor:</span> instructor1@inr99.com / demo123</p>
+              <p><span className="text-green-600 font-medium">Student:</span> student1@inr99.com / demo123</p>
+            </div>
           </div>
         </CardContent>
       </Card>
