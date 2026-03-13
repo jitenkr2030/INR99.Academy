@@ -22,6 +22,7 @@ export default function SubscriptionPage() {
   const [mounted, setMounted] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('professional')
 
   useEffect(() => {
     setMounted(true)
@@ -116,9 +117,7 @@ export default function SubscriptionPage() {
   ]
 
   const handleSubscribe = (planId: string) => {
-    // Store the selected plan and billing cycle
-    localStorage.setItem('selectedPlan', planId)
-    localStorage.setItem('billingCycle', billingCycle)
+    setSelectedPlanId(planId)
     setShowPayment(true)
   }
 
@@ -137,6 +136,12 @@ export default function SubscriptionPage() {
     }).format(amount)
   }
 
+  const getSelectedPlan = () => {
+    const plan = subscriptionPlans.find(p => p.id === selectedPlanId)
+    if (!plan) return subscriptionPlans[2] // Default to Professional
+    return billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice
+  }
+
   if (showPayment) {
     return (
       <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -144,8 +149,8 @@ export default function SubscriptionPage() {
         <div style={{ minHeight: '100vh', background: '#f9fafb', paddingTop: '64px' }}>
           <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem' }}>
             <PaymentProcessor 
-              defaultAmount={subscriptionPlans.find(p => p.id === selectedPlan)?.price || 99}
-              planType={selectedPlan}
+              defaultAmount={getSelectedPlan()}
+              planType={selectedPlanId}
               onSuccess={handlePaymentSuccess}
               onCancel={() => setShowPayment(false)}
             />
@@ -225,8 +230,58 @@ export default function SubscriptionPage() {
             </div>
             <p style={{ color: '#a16207', fontSize: '0.95rem' }}>
               Choose <strong>₹99/month</strong> (1,500+ students), <strong>₹999/month</strong> (100 users), <strong>₹9,999/month</strong> (1,000 users), or <strong>Enterprise</strong> for unlimited users! 
-              Best value - Save ₹252 with yearly plan.
+              Get <strong>10% off</strong> with yearly billing.
             </p>
+          </div>
+
+          {/* Billing Cycle Toggle */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            gap: '1rem',
+            marginBottom: '2rem',
+            padding: '1rem'
+          }}>
+            <span style={{ 
+              fontSize: '1rem', 
+              fontWeight: billingCycle === 'monthly' ? '600' : '400',
+              color: billingCycle === 'monthly' ? '#111827' : '#9ca3af'
+            }}>
+              Monthly
+            </span>
+            <button
+              onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+              style={{
+                width: '60px',
+                height: '32px',
+                borderRadius: '9999px',
+                background: billingCycle === 'yearly' ? '#16a34a' : '#d1d5db',
+                border: 'none',
+                cursor: 'pointer',
+                position: 'relative',
+                transition: 'background 0.2s'
+              }}
+            >
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: 'white',
+                position: 'absolute',
+                top: '4px',
+                left: billingCycle === 'yearly' ? '32px' : '4px',
+                transition: 'left 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+              }} />
+            </button>
+            <span style={{ 
+              fontSize: '1rem', 
+              fontWeight: billingCycle === 'yearly' ? '600' : '400',
+              color: billingCycle === 'yearly' ? '#111827' : '#9ca3af'
+            }}>
+              Yearly <span style={{ color: '#16a34a', fontWeight: '600', fontSize: '0.875rem' }}>(Save 10%)</span>
+            </span>
           </div>
 
           {/* Subscription Plans */}
@@ -306,12 +361,21 @@ export default function SubscriptionPage() {
                         </span>
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                        <span style={{ fontSize: '1.5rem', color: '#ea580c', fontWeight: 'bold' }}>₹</span>
-                        <span style={{ fontSize: '3rem', fontWeight: 'bold', color: '#111827' }}>
-                          {plan.price}
-                        </span>
-                        <span style={{ color: '#6b7280', fontSize: '1rem' }}>/{plan.duration}</span>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                          <span style={{ fontSize: '1.5rem', color: '#ea580c', fontWeight: 'bold' }}>₹</span>
+                          <span style={{ fontSize: '3rem', fontWeight: 'bold', color: '#111827' }}>
+                            {billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice}
+                          </span>
+                          <span style={{ color: '#6b7280', fontSize: '1rem' }}>/{billingCycle === 'yearly' ? 'year' : plan.duration}</span>
+                        </div>
+                        {billingCycle === 'yearly' && (
+                          <div style={{ marginTop: '0.5rem', textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.875rem', color: '#16a34a', fontWeight: '600' }}>
+                              Save ₹{plan.monthlyPrice * 12 - plan.yearlyPrice} per year!
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -378,9 +442,9 @@ export default function SubscriptionPage() {
                     {plan.isCustom ? (
                       '📞 Contact Sales'
                     ) : plan.popular ? (
-                      '🔥 Get Started - Most Popular'
-                    ) : plan.id === 'free-whitelabel' ? (
-                      '🚀 Start Free - 1,500+ Students'
+                      billingCycle === 'yearly' ? '🔥 Get Started - Best Value' : '🔥 Get Started - Most Popular'
+                    ) : plan.id === 'institutional' ? (
+                      billingCycle === 'yearly' ? '🚀 Start - ₹990/year' : '🚀 Start Free - 1,500+ Students'
                     ) : (
                       '✅ Get Started'
                     )}
