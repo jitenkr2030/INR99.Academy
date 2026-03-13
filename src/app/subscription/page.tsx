@@ -75,7 +75,7 @@ export default function SubscriptionPage() {
       name: 'Professional',
       price: 4999,
       duration: 'month',
-      userLimit: 'Up to 2,000 users',
+      userLimit: 'Up to 1,000 users',
       bestFor: 'Growing schools',
       features: [
         'Custom domain',
@@ -217,7 +217,7 @@ export default function SubscriptionPage() {
               </h3>
             </div>
             <p style={{ color: '#a16207', fontSize: '0.95rem' }}>
-              Choose <strong>₹99/month</strong> (1,500+ students), <strong>₹999/month</strong> (100 users), <strong>₹4,999/month</strong> (2,000 users), or <strong>Enterprise</strong> for unlimited users! 
+              Choose <strong>₹99/month</strong> (1,500+ students), <strong>₹999/month</strong> (100 users), <strong>₹4,999/month</strong> (1,000 users), or <strong>Enterprise</strong> for unlimited users! 
               Best value - Save ₹252 with yearly plan.
             </p>
           </div>
