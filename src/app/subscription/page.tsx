@@ -383,59 +383,6 @@ export default function SubscriptionPage() {
             ))}
           </div>
 
-          {/* Features Comparison */}
-          <div style={{
-            background: 'white',
-            borderRadius: '1rem',
-            padding: '2rem',
-            marginBottom: '4rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-          }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#111827', marginBottom: '0.5rem', textAlign: 'center' }}>
-              Plan Comparison
-            </h2>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem', textAlign: 'center', marginBottom: '2rem' }}>
-              Compare features between all available plans
-            </p>
-            
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                    <th style={{ textAlign: 'left', padding: '1rem', color: '#6b7280', fontWeight: '500' }}>Feature</th>
-                    <th style={{ textAlign: 'center', padding: '1rem', color: '#111827', fontWeight: '600' }}>Monthly</th>
-                    <th style={{ textAlign: 'center', padding: '1rem', color: '#111827', fontWeight: '600' }}>Quarterly</th>
-                    <th style={{ textAlign: 'center', padding: '1rem', color: '#111827', fontWeight: '600' }}>Yearly</th>
-                  </tr>
-                </thead>
-                <tbody style={{ borderBottom: '1px solid #e5e7eb' }}>
-                  {[
-                    { feature: 'School Learning (Class 1-12)', monthly: '✓ All Classes', quarterly: '✓ All Classes', yearly: '✓ All Classes' },
-                    { feature: 'College Foundation', monthly: '✓ All Degrees', quarterly: '✓ All Degrees', yearly: '✓ All Degrees' },
-                    { feature: 'Career & Skills', monthly: '✓ All Categories', quarterly: '✓ All Categories', yearly: '✓ All Categories' },
-                    { feature: 'Money & Business', monthly: '✓ All Topics', quarterly: '✓ All Topics', yearly: '✓ All Topics' },
-                    { feature: '18 Learning Categories', monthly: '✓ Complete', quarterly: '✓ Complete', yearly: '✓ Complete' },
-                    { feature: 'Mobile App Access', monthly: '✓', quarterly: '✓', yearly: '✓' },
-                    { feature: 'Progress Tracking', monthly: '✓', quarterly: '✓', yearly: '✓' },
-                    { feature: 'Community Access', monthly: '✓', quarterly: '✓', yearly: '✓' },
-                    { feature: 'Certificates', monthly: 'Premium', quarterly: 'Premium', yearly: 'Premium' },
-                    { feature: 'Priority Support', monthly: '✓', quarterly: '✓', yearly: '✓' },
-                    { feature: 'Offline Access', monthly: '✗', quarterly: '✗', yearly: '✓' },
-                    { feature: '1-on-1 Mentoring', monthly: '✗', quarterly: '✗', yearly: '✓' },
-                    { feature: 'Savings', monthly: '-', quarterly: '₹48 saved', yearly: '₹252 saved' }
-                  ].map((row, index) => (
-                    <tr key={index} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                      <td style={{ padding: '0.75rem 1rem', color: '#374151', fontSize: '0.875rem' }}>{row.feature}</td>
-                      <td style={{ padding: '0.75rem 1rem', textAlign: 'center', color: '#111827', fontSize: '0.875rem' }}>{row.monthly}</td>
-                      <td style={{ padding: '0.75rem 1rem', textAlign: 'center', color: '#111827', fontSize: '0.875rem' }}>{row.quarterly}</td>
-                      <td style={{ padding: '0.75rem 1rem', textAlign: 'center', color: '#111827', fontSize: '0.875rem' }}>{row.yearly}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
           {/* Money Back Guarantee */}
           <div style={{
             background: 'white',
