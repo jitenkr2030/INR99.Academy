@@ -8,7 +8,8 @@ import { PaymentProcessor } from '@/components/payment-processor'
 interface SubscriptionPlan {
   id: string
   name: string
-  price: number
+  monthlyPrice: number
+  yearlyPrice: number
   duration: string
   userLimit: string
   bestFor: string
@@ -20,7 +21,7 @@ interface SubscriptionPlan {
 export default function SubscriptionPage() {
   const [mounted, setMounted] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<string>('yearly')
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
 
   useEffect(() => {
     setMounted(true)
@@ -36,12 +37,13 @@ export default function SubscriptionPage() {
 
   const subscriptionPlans: SubscriptionPlan[] = [
     {
-      id: 'free-whitelabel',
-      name: 'Free White-Label',
-      price: 99,
+      id: 'institutional',
+      name: 'Institutional',
+      monthlyPrice: 99,
+      yearlyPrice: 990,
       duration: 'month',
       userLimit: '1,500+ students',
-      bestFor: 'Large institutions',
+      bestFor: 'Large institutions (1500+ students)',
       features: [
         'White-label platform access',
         'Custom subdomain',
@@ -55,7 +57,8 @@ export default function SubscriptionPage() {
     {
       id: 'starter',
       name: 'Starter',
-      price: 999,
+      monthlyPrice: 999,
+      yearlyPrice: 9990,
       duration: 'month',
       userLimit: 'Up to 100 users',
       bestFor: 'Small coaching institutes',
@@ -73,7 +76,8 @@ export default function SubscriptionPage() {
     {
       id: 'professional',
       name: 'Professional',
-      price: 9999,
+      monthlyPrice: 9999,
+      yearlyPrice: 99990,
       duration: 'month',
       userLimit: 'Up to 1,000 users',
       bestFor: 'Growing schools',
@@ -92,7 +96,8 @@ export default function SubscriptionPage() {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: 0,
+      monthlyPrice: 0,
+      yearlyPrice: 0,
       duration: 'custom',
       userLimit: 'Unlimited users',
       bestFor: 'Large school chains',
@@ -111,7 +116,9 @@ export default function SubscriptionPage() {
   ]
 
   const handleSubscribe = (planId: string) => {
-    setSelectedPlan(planId)
+    // Store the selected plan and billing cycle
+    localStorage.setItem('selectedPlan', planId)
+    localStorage.setItem('billingCycle', billingCycle)
     setShowPayment(true)
   }
 
