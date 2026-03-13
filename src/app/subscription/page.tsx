@@ -59,9 +59,9 @@ export default function SubscriptionPage() {
       id: 'starter',
       name: 'Starter',
       monthlyPrice: 999,
-      yearlyPrice: 9990,
+      yearlyPrice: 8990,
       duration: 'month',
-      userLimit: 'Up to 100 users',
+      userLimit: 'Up to 150 users',
       bestFor: 'Small coaching institutes',
       features: [
         'Custom subdomain',
@@ -70,15 +70,58 @@ export default function SubscriptionPage() {
         'Email support',
         'Course management',
         'Student management',
-        'Live sessions (limited)'
+        'Live sessions (5/month)',
+        'Bulk user import (up to 50)'
       ],
       popular: false
+    },
+    {
+      id: 'growth',
+      name: 'Growth',
+      monthlyPrice: 3499,
+      yearlyPrice: 31490,
+      duration: 'month',
+      userLimit: 'Up to 500 users',
+      bestFor: 'Mid-size institutes',
+      features: [
+        'Custom subdomain',
+        'Full branding suite',
+        'Advanced analytics',
+        'Priority email support',
+        'Course management',
+        'Student management',
+        'Live sessions (20/month)',
+        'Bulk user import (up to 200)',
+        'Custom domain',
+        'API access'
+      ]
+    },
+    {
+      id: 'business',
+      name: 'Business',
+      monthlyPrice: 6999,
+      yearlyPrice: 62990,
+      duration: 'month',
+      userLimit: 'Up to 800 users',
+      bestFor: 'Expanding schools',
+      features: [
+        'Custom domain',
+        'Full branding suite',
+        'Advanced analytics',
+        'Priority support',
+        'Course management',
+        'Student management',
+        'Live sessions (50/month)',
+        'Bulk user import (unlimited)',
+        'API access',
+        'Custom integrations'
+      ]
     },
     {
       id: 'professional',
       name: 'Professional',
       monthlyPrice: 9999,
-      yearlyPrice: 99990,
+      yearlyPrice: 89990,
       duration: 'month',
       userLimit: 'Up to 1,000 users',
       bestFor: 'Growing schools',
@@ -90,7 +133,8 @@ export default function SubscriptionPage() {
         'API access',
         'Custom integrations',
         'Unlimited live sessions',
-        'Bulk user import'
+        'Bulk user import (unlimited)',
+        'SSO integration'
       ],
       popular: true
     },
@@ -229,7 +273,7 @@ export default function SubscriptionPage() {
               </h3>
             </div>
             <p style={{ color: '#a16207', fontSize: '0.95rem' }}>
-              Choose <strong>₹99/month</strong> (1,500+ students), <strong>₹999/month</strong> (100 users), <strong>₹9,999/month</strong> (1,000 users), or <strong>Enterprise</strong> for unlimited users! 
+              Choose <strong>₹99/month</strong> (1,500+ students), <strong>₹999/month</strong> (150 users), <strong>₹3,499/month</strong> (500 users), <strong>₹6,999/month</strong> (800 users), <strong>₹9,999/month</strong> (1,000 users), or <strong>Enterprise</strong> for unlimited users! 
               Get <strong>10% off</strong> with yearly billing.
             </p>
           </div>
