@@ -10,8 +10,11 @@ interface SubscriptionPlan {
   name: string
   price: number
   duration: string
+  userLimit: string
+  bestFor: string
   features: string[]
   popular?: boolean
+  isCustom?: boolean
 }
 
 export default function SubscriptionPage() {
@@ -33,50 +36,77 @@ export default function SubscriptionPage() {
 
   const subscriptionPlans: SubscriptionPlan[] = [
     {
-      id: 'monthly',
-      name: 'Monthly Plan',
+      id: 'free-whitelabel',
+      name: 'Free White-Label',
       price: 99,
       duration: 'month',
+      userLimit: '1,500+ students',
+      bestFor: 'Large institutions',
       features: [
-        'Everything included - School + College + Career + Business',
-        'All 18 learning categories',
-        'Mobile & desktop access',
-        'Progress tracking',
-        'Community access',
-        'Priority support',
-        'Download certificates'
+        'White-label platform access',
+        'Custom subdomain',
+        'Basic branding controls',
+        'Course management',
+        'Student management',
+        'Basic analytics',
+        'Email support'
       ]
     },
     {
-      id: 'quarterly',
-      name: 'Quarterly Plan',
-      price: 249,
-      duration: 'quarter',
-      features: [
-        'Everything in Monthly',
-        'Save ₹48 vs monthly',
-        'All 18 learning categories',
-        'Mobile & desktop access',
-        'Progress tracking',
-        'Community access',
-        'Priority support',
-        'Download certificates'
-      ]
-    },
-    {
-      id: 'yearly',
-      name: 'Yearly Plan',
+      id: 'starter',
+      name: 'Starter',
       price: 999,
-      duration: 'year',
+      duration: 'month',
+      userLimit: 'Up to 100 users',
+      bestFor: 'Small coaching institutes',
       features: [
-        'Everything in Quarterly',
-        'Save ₹252 vs quarterly',
-        'Offline access',
-        '1-on-1 mentoring',
-        'Exclusive workshops',
-        'Priority customer support'
+        'Custom subdomain',
+        'Full branding suite',
+        'Basic analytics',
+        'Email support',
+        'Course management',
+        'Student management',
+        'Live sessions (limited)'
+      ],
+      popular: false
+    },
+    {
+      id: 'professional',
+      name: 'Professional',
+      price: 4999,
+      duration: 'month',
+      userLimit: 'Up to 2,000 users',
+      bestFor: 'Growing schools',
+      features: [
+        'Custom domain',
+        'Advanced customization',
+        'Full analytics suite',
+        'Priority support',
+        'API access',
+        'Custom integrations',
+        'Unlimited live sessions',
+        'Bulk user import'
       ],
       popular: true
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise',
+      price: 0,
+      duration: 'custom',
+      userLimit: 'Unlimited users',
+      bestFor: 'Large school chains',
+      features: [
+        'White-label solution',
+        'Dedicated infrastructure',
+        'Custom development',
+        '24/7 phone support',
+        'SLA guarantee',
+        'On-premise option',
+        'Custom integrations',
+        'Dedicated account manager'
+      ],
+      isCustom: true
     }
   ]
 
@@ -137,22 +167,22 @@ export default function SubscriptionPage() {
                 color: '#92400e',
                 fontWeight: '600'
               }}>
-                🚀 India's Learning Utility - Just ₹999/year
+                🚀 White-Label Platform for Schools - Starting at ₹99/month
               </span>
             </div>
             <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#111827', marginBottom: '1rem' }}>
-              One Subscription = 
-              <span style={{ color: '#ea580c', display: 'block' }}>Everything</span>
+              White-Label Learning Platform
+              <span style={{ color: '#ea580c', display: 'block' }}>For Schools & Institutions</span>
             </h1>
             <p style={{ fontSize: '1.125rem', color: '#6b7280', maxWidth: '700px', margin: '0 auto 1.5rem' }}>
-              Access School Learning (Class 1-12) + College Foundation + Career Skills + Money & Business. 
-              All 18 learning categories included. No per-course pricing, no hidden fees.
+              Launch your own branded online academy. Choose a plan based on your student count. 
+              Custom subdomain, full branding controls, and powerful learning management features included.
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               {[
-                { icon: '✅', text: 'No per-course pricing' },
-                { icon: '✅', text: 'Cancel anytime' },
-                { icon: '✅', text: 'Family sharing' }
+                { icon: '✅', text: 'Custom subdomain' },
+                { icon: '✅', text: 'Full branding control' },
+                { icon: '✅', text: 'Multi-tenant architecture' }
               ].map((item, index) => (
                 <span key={index} style={{
                   display: 'inline-flex',
@@ -183,11 +213,11 @@ export default function SubscriptionPage() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
               <span style={{ fontSize: '1.5rem' }}>🎯</span>
               <h3 style={{ fontSize: '1.125rem', fontWeight: '700', color: '#92400e' }}>
-                Available Plans - Monthly, Quarterly & Yearly
+                White-Label Plans for Schools & Institutions
               </h3>
             </div>
             <p style={{ color: '#a16207', fontSize: '0.95rem' }}>
-              Choose <strong>₹99/month</strong>, <strong>₹249/quarter</strong>, or <strong>₹999/year</strong> for complete access to all 18 learning categories! 
+              Choose <strong>₹99/month</strong> (1,500+ students), <strong>₹999/month</strong> (100 users), <strong>₹4,999/month</strong> (2,000 users), or <strong>Enterprise</strong> for unlimited users! 
               Best value - Save ₹252 with yearly plan.
             </p>
           </div>
@@ -237,37 +267,44 @@ export default function SubscriptionPage() {
                 )}
                 
                 <div style={{ padding: '2rem', textAlign: 'center' }}>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', marginBottom: '1rem' }}>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>
                     {plan.name}
                   </h3>
                   
+                  {/* User Limit Badge */}
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <span style={{
+                      display: 'inline-block',
+                      background: '#e0e7ff',
+                      color: '#4338ca',
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem',
+                      fontWeight: '600'
+                    }}>
+                      {plan.userLimit}
+                    </span>
+                  </div>
+                  
+                  {/* Best For */}
+                  <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+                    {plan.bestFor}
+                  </p>
+                  
                   <div style={{ marginBottom: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-                      <span style={{ fontSize: '1.5rem', color: '#ea580c', fontWeight: 'bold' }}>₹</span>
-                      <span style={{ fontSize: '3rem', fontWeight: 'bold', color: '#111827' }}>
-                        {plan.price}
-                      </span>
-                      <span style={{ color: '#6b7280', fontSize: '1rem' }}>/{plan.duration}</span>
-                    </div>
-                    {plan.id === 'yearly' && (
-                      <div style={{ marginTop: '0.5rem' }}>
-                        <span style={{ fontSize: '1rem', color: '#16a34a', fontWeight: '600' }}>
-                          Just ₹999/year - Best Value!
+                    {plan.isCustom ? (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                        <span style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#111827' }}>
+                          Custom
                         </span>
                       </div>
-                    )}
-                    {plan.id === 'quarterly' && (
-                      <div style={{ marginTop: '0.5rem' }}>
-                        <span style={{ fontSize: '1rem', color: '#16a34a', fontWeight: '600' }}>
-                          Just ₹249/quarter - Save ₹48!
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
+                        <span style={{ fontSize: '1.5rem', color: '#ea580c', fontWeight: 'bold' }}>₹</span>
+                        <span style={{ fontSize: '3rem', fontWeight: 'bold', color: '#111827' }}>
+                          {plan.price}
                         </span>
-                      </div>
-                    )}
-                    {plan.id === 'monthly' && (
-                      <div style={{ marginTop: '0.5rem' }}>
-                        <span style={{ fontSize: '1rem', color: '#9ca3af', fontWeight: '600' }}>
-                          See monthly breakdown
-                        </span>
+                        <span style={{ color: '#6b7280', fontSize: '1rem' }}>/{plan.duration}</span>
                       </div>
                     )}
                   </div>
@@ -295,7 +332,7 @@ export default function SubscriptionPage() {
                   </ul>
                   
                   <button
-                    onClick={() => handleSubscribe(plan.id)}
+                    onClick={() => plan.isCustom ? window.location.href = '/contact' : handleSubscribe(plan.id)}
                     style={{
                       width: '100%',
                       padding: '0.875rem',
@@ -304,11 +341,11 @@ export default function SubscriptionPage() {
                       fontSize: '1rem',
                       fontWeight: '600',
                       cursor: 'pointer',
-                      background: plan.id === 'yearly'
+                      background: plan.popular
                           ? '#ea580c'
-                          : plan.id === 'quarterly'
-                            ? '#16a34a'
-                            : '#6b7280',
+                          : plan.isCustom
+                          ? '#7c3aed'
+                          : '#111827',
                       color: 'white',
                       transition: 'background 0.2s',
                       display: 'flex',
@@ -317,24 +354,26 @@ export default function SubscriptionPage() {
                       gap: '0.5rem'
                     }}
                     onMouseEnter={(e) => {
-                      if (plan.id === 'yearly') {
+                      if (plan.popular) {
                         e.currentTarget.style.background = '#c2410c'
-                      } else if (plan.id === 'quarterly') {
-                        e.currentTarget.style.background = '#15803d'
+                      } else if (plan.isCustom) {
+                        e.currentTarget.style.background = '#6b21a8'
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (plan.id === 'yearly') {
+                      if (plan.popular) {
                         e.currentTarget.style.background = '#ea580c'
-                      } else if (plan.id === 'quarterly') {
-                        e.currentTarget.style.background = '#16a34a'
+                      } else if (plan.isCustom) {
+                        e.currentTarget.style.background = '#7c3aed'
                       }
                     }}
                   >
-                    {plan.id === 'yearly' ? (
-                      '🔥 Get Started - Best Value'
-                    ) : plan.id === 'quarterly' ? (
-                      '✅ Get Started - Save ₹48!'
+                    {plan.isCustom ? (
+                      '📞 Contact Sales'
+                    ) : plan.popular ? (
+                      '🔥 Get Started - Most Popular'
+                    ) : plan.id === 'free-whitelabel' ? (
+                      '🚀 Start Free - 1,500+ Students'
                     ) : (
                       '✅ Get Started'
                     )}
