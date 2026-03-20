@@ -38,13 +38,13 @@ export default function SubscriptionPage() {
 
   const subscriptionPlans: SubscriptionPlan[] = [
     {
-      id: 'institutional',
-      name: 'Institutional',
+      id: 'essential',
+      name: 'Essential',
       monthlyPrice: 99,
       yearlyPrice: 990,
       duration: 'month',
       userLimit: '1,500+ students',
-      bestFor: 'Large institutions (1500+ students)',
+      bestFor: 'Large institutions (min 1,500 students)',
       features: [
         'White-label platform access',
         'Custom subdomain',
@@ -52,7 +52,10 @@ export default function SubscriptionPage() {
         'Course management',
         'Student management',
         'Basic analytics',
-        'Email support'
+        'Email support',
+        'Video hosting (10GB storage)',
+        'PPTX to video conversion',
+        'Basic CDN delivery'
       ]
     },
     {
@@ -61,7 +64,7 @@ export default function SubscriptionPage() {
       monthlyPrice: 999,
       yearlyPrice: 8990,
       duration: 'month',
-      userLimit: 'Up to 150 users',
+      userLimit: 'Up to 100 users',
       bestFor: 'Small coaching institutes',
       features: [
         'Custom subdomain',
@@ -71,7 +74,10 @@ export default function SubscriptionPage() {
         'Course management',
         'Student management',
         'Live sessions (5/month)',
-        'Bulk user import (up to 50)'
+        'Bulk user import (up to 50)',
+        'Video hosting (50GB storage)',
+        'PPTX to video conversion',
+        'Standard CDN delivery'
       ],
       popular: false
     },
@@ -81,7 +87,7 @@ export default function SubscriptionPage() {
       monthlyPrice: 3499,
       yearlyPrice: 31490,
       duration: 'month',
-      userLimit: 'Up to 500 users',
+      userLimit: 'Up to 350 users',
       bestFor: 'Mid-size institutes',
       features: [
         'Custom subdomain',
@@ -93,7 +99,10 @@ export default function SubscriptionPage() {
         'Live sessions (20/month)',
         'Bulk user import (up to 200)',
         'Custom domain',
-        'API access'
+        'API access',
+        'Video hosting (200GB storage)',
+        'Unlimited PPTX conversions',
+        'Premium CDN delivery'
       ]
     },
     {
@@ -102,7 +111,7 @@ export default function SubscriptionPage() {
       monthlyPrice: 6999,
       yearlyPrice: 62990,
       duration: 'month',
-      userLimit: 'Up to 800 users',
+      userLimit: 'Up to 700 users',
       bestFor: 'Expanding schools',
       features: [
         'Custom domain',
@@ -114,7 +123,11 @@ export default function SubscriptionPage() {
         'Live sessions (50/month)',
         'Bulk user import (unlimited)',
         'API access',
-        'Custom integrations'
+        'Custom integrations',
+        'Video hosting (500GB storage)',
+        'Unlimited PPTX conversions',
+        'Premium CDN with global edge',
+        'Priority video processing'
       ]
     },
     {
@@ -134,7 +147,12 @@ export default function SubscriptionPage() {
         'Custom integrations',
         'Unlimited live sessions',
         'Bulk user import (unlimited)',
-        'SSO integration'
+        'SSO integration',
+        'Video hosting (1TB storage)',
+        'Unlimited PPTX conversions',
+        'Enterprise CDN delivery',
+        'Priority video processing',
+        'Advanced analytics dashboard'
       ],
       popular: true
     },
@@ -273,8 +291,8 @@ export default function SubscriptionPage() {
               </h3>
             </div>
             <p style={{ color: '#a16207', fontSize: '0.95rem' }}>
-              Choose <strong>₹99/month</strong> (1,500+ students), <strong>₹999/month</strong> (150 users), <strong>₹3,499/month</strong> (500 users), <strong>₹6,999/month</strong> (800 users), <strong>₹9,999/month</strong> (1,000 users), or <strong>Enterprise</strong> for unlimited users! 
-              Get <strong>10% off</strong> with yearly billing.
+              Choose <strong>₹99/month</strong> (1,500+ students), <strong>₹999/month</strong> (100 users), <strong>₹3,499/month</strong> (350 users), <strong>₹6,999/month</strong> (700 users), <strong>₹9,999/month</strong> (1,000 users), or <strong>Enterprise</strong> for unlimited users! 
+              Get <strong>10% off</strong> with yearly billing. All plans include video hosting with PPTX conversion.
             </p>
           </div>
 
@@ -487,8 +505,8 @@ export default function SubscriptionPage() {
                       '📞 Contact Sales'
                     ) : plan.popular ? (
                       billingCycle === 'yearly' ? '🔥 Get Started - Best Value' : '🔥 Get Started - Most Popular'
-                    ) : plan.id === 'institutional' ? (
-                      billingCycle === 'yearly' ? '🚀 Start - ₹990/year' : '🚀 Start Free - 1,500+ Students'
+                    ) : plan.id === 'essential' ? (
+                      billingCycle === 'yearly' ? '🚀 Start - ₹990/year' : '🚀 Start - 1,500+ Students'
                     ) : (
                       '✅ Get Started'
                     )}
