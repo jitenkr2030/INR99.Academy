@@ -160,21 +160,40 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo Accounts */}
+          {/* Demo Accounts - Enhanced Display */}
           <div style={{ backgroundColor: '#f9fafb', padding: '1rem', borderRadius: '6px', marginTop: '1.5rem' }}>
-            <p style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem' }}>Demo Accounts:</p>
-            <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-              <div style={{ marginBottom: '0.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e5e7eb' }}>
-                <p style={{ fontWeight: '600', color: '#dc2626' }}>Admin:</p>
-                <p>admin1@inr99.com / demo123</p>
+            <p style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', color: '#374151' }}>Demo Accounts:</p>
+            <div style={{ fontSize: '0.7rem', color: '#6b7280' }}>
+              {/* Admin Accounts */}
+              <div style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
+                <p style={{ fontWeight: '600', color: '#dc2626', marginBottom: '0.25rem' }}>Admin:</p>
+                <div style={{ display: 'grid', gap: '0.25rem' }}>
+                  <p>admin1@inr99.com / demo123</p>
+                  <p>admin2@inr99.com / demo123</p>
+                  <p>admin3@inr99.com / demo123</p>
+                </div>
               </div>
-              <div style={{ marginBottom: '0.5rem', paddingBottom: '0.5rem', borderBottom: '1px solid #e5e7eb' }}>
-                <p style={{ fontWeight: '600', color: '#7c3aed' }}>Instructor:</p>
-                <p>instructor1@inr99.com / demo123</p>
+              {/* Instructor/Teacher Accounts */}
+              <div style={{ marginBottom: '0.75rem', paddingBottom: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
+                <p style={{ fontWeight: '600', color: '#7c3aed', marginBottom: '0.25rem' }}>Instructor/Teacher:</p>
+                <div style={{ display: 'grid', gap: '0.25rem' }}>
+                  <p>instructor1@inr99.com / demo123</p>
+                  <p>instructor2@inr99.com / demo123</p>
+                  <p>instructor3@inr99.com / demo123</p>
+                  <p>teacher1@inr99.com / demo123</p>
+                  <p>teacher2@inr99.com / demo123</p>
+                </div>
               </div>
+              {/* Student Accounts */}
               <div>
-                <p style={{ fontWeight: '600', color: '#16a34a' }}>Student:</p>
-                <p>student1@inr99.com / demo123</p>
+                <p style={{ fontWeight: '600', color: '#16a34a', marginBottom: '0.25rem' }}>Student:</p>
+                <div style={{ display: 'grid', gap: '0.25rem' }}>
+                  <p>student1@inr99.com / demo123</p>
+                  <p>student2@inr99.com / demo123</p>
+                  <p>student3@inr99.com / demo123</p>
+                  <p>student4@inr99.com / demo123</p>
+                  <p>student5@inr99.com / demo123</p>
+                </div>
               </div>
             </div>
           </div>

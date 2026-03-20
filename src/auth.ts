@@ -8,12 +8,26 @@ export type UserRole = 'STUDENT' | 'INSTRUCTOR' | 'ADMIN' | 'SUPER_ADMIN'
 
 // Demo user accounts - no database dependency
 const demoUsers: Record<string, { id: string; name: string; role: UserRole; password: string }> = {
+  // Student Accounts
   'student1@inr99.com': { id: 'student1', name: 'Demo Student 1', role: 'STUDENT', password: 'demo123' },
   'student2@inr99.com': { id: 'student2', name: 'Demo Student 2', role: 'STUDENT', password: 'demo123' },
   'student3@inr99.com': { id: 'student3', name: 'Demo Student 3', role: 'STUDENT', password: 'demo123' },
+  'student4@inr99.com': { id: 'student4', name: 'Demo Student 4', role: 'STUDENT', password: 'demo123' },
+  'student5@inr99.com': { id: 'student5', name: 'Demo Student 5', role: 'STUDENT', password: 'demo123' },
+  
+  // Instructor Accounts
   'instructor1@inr99.com': { id: 'instructor1', name: 'Demo Instructor 1', role: 'INSTRUCTOR', password: 'demo123' },
   'instructor2@inr99.com': { id: 'instructor2', name: 'Demo Instructor 2', role: 'INSTRUCTOR', password: 'demo123' },
+  'instructor3@inr99.com': { id: 'instructor3', name: 'Demo Instructor 3', role: 'INSTRUCTOR', password: 'demo123' },
+  'teacher1@inr99.com': { id: 'teacher1', name: 'Demo Teacher 1', role: 'INSTRUCTOR', password: 'demo123' },
+  'teacher2@inr99.com': { id: 'teacher2', name: 'Demo Teacher 2', role: 'INSTRUCTOR', password: 'demo123' },
+  
+  // Admin Accounts
   'admin1@inr99.com': { id: 'admin1', name: 'Demo Admin 1', role: 'ADMIN', password: 'demo123' },
+  'admin2@inr99.com': { id: 'admin2', name: 'Demo Admin 2', role: 'ADMIN', password: 'demo123' },
+  'admin3@inr99.com': { id: 'admin3', name: 'Demo Admin 3', role: 'ADMIN', password: 'demo123' },
+  
+  // Super Admin Account
   'superadmin1@inr99.com': { id: 'superadmin1', name: 'Super Admin', role: 'SUPER_ADMIN', password: 'demo123' },
 }
 
