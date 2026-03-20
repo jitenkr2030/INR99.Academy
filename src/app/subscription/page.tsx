@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { NewNavigation } from '@/components/new-navigation'
-import { PaymentProcessor } from '@/components/payment-processor'
 
 export default function SubscriptionPage() {
   const [mounted, setMounted] = useState(false)
-  const [showPayment, setShowPayment] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
@@ -22,33 +22,7 @@ export default function SubscriptionPage() {
   }
 
   const handleSubscribe = () => {
-    setShowPayment(true)
-  }
-
-  const handlePaymentSuccess = () => {
-    alert('Subscription Activated! Welcome to INR99.Academy!')
-    setShowPayment(false)
-    setTimeout(() => {
-      window.location.href = '/dashboard'
-    }, 2000)
-  }
-
-  if (showPayment) {
-    return (
-      <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-        <NewNavigation />
-        <div style={{ minHeight: '100vh', background: '#f9fafb', paddingTop: '64px' }}>
-          <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem' }}>
-            <PaymentProcessor 
-              defaultAmount={99}
-              planType="essential"
-              onSuccess={handlePaymentSuccess}
-              onCancel={() => setShowPayment(false)}
-            />
-          </div>
-        </div>
-      </div>
-    )
+    router.push('/institution/signup')
   }
 
   return (
