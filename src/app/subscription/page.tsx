@@ -8,7 +8,6 @@ import { PaymentProcessor } from '@/components/payment-processor'
 export default function SubscriptionPage() {
   const [mounted, setMounted] = useState(false)
   const [showPayment, setShowPayment] = useState(false)
-  const [studentCount, setStudentCount] = useState<number>(100)
 
   useEffect(() => {
     setMounted(true)
@@ -34,13 +33,6 @@ export default function SubscriptionPage() {
     }, 2000)
   }
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR'
-    }).format(amount)
-  }
-
   if (showPayment) {
     return (
       <div style={{ margin: 0, padding: 0, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -48,7 +40,7 @@ export default function SubscriptionPage() {
         <div style={{ minHeight: '100vh', background: '#f9fafb', paddingTop: '64px' }}>
           <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem 1rem' }}>
             <PaymentProcessor 
-              defaultAmount={99 * studentCount}
+              defaultAmount={99}
               planType="essential"
               onSuccess={handlePaymentSuccess}
               onCancel={() => setShowPayment(false)}
@@ -127,7 +119,7 @@ export default function SubscriptionPage() {
                 How the Essential Plan Works
               </h3>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
               <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'left' }}>
                 <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🏫</div>
                 <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>For Schools</h4>
@@ -143,66 +135,11 @@ export default function SubscriptionPage() {
                 </p>
               </div>
               <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1.5rem', textAlign: 'left' }}>
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📊</div>
-                <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>Revenue Share</h4>
+                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💡</div>
+                <h4 style={{ fontSize: '1rem', fontWeight: '600', color: '#111827', marginBottom: '0.5rem' }}>Why It Works</h4>
                 <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                  Schools earn 30% commission on every parent subscription. With 1,000 students paying ₹99/month, your school earns ₹29,700/month!
+                  Schools enhance their digital learning offerings at zero cost. Parents get affordable, high-quality education for their children.
                 </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Pricing Calculator */}
-          <div style={{
-            background: 'white',
-            borderRadius: '1rem',
-            padding: '2rem',
-            marginBottom: '3rem',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            textAlign: 'center'
-          }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', color: '#111827', marginBottom: '1rem' }}>
-              Calculate Your School's Earnings
-            </h2>
-            <p style={{ color: '#6b7280', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-              Enter the number of students at your school to see how much revenue you can generate through parent subscriptions.
-            </p>
-            
-            <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-              <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '600', color: '#374151', marginBottom: '0.5rem', textAlign: 'left' }}>
-                Number of Students
-              </label>
-              <input
-                type="number"
-                value={studentCount}
-                onChange={(e) => setStudentCount(Math.max(1, parseInt(e.target.value) || 1))}
-                style={{
-                  width: '100%',
-                  padding: '0.875rem',
-                  border: '2px solid #e5e7eb',
-                  borderRadius: '0.5rem',
-                  fontSize: '1.125rem',
-                  textAlign: 'center',
-                  marginBottom: '1.5rem'
-                }}
-                min="1"
-              />
-              
-              <div style={{ background: '#f9fafb', borderRadius: '0.75rem', padding: '1.5rem', marginBottom: '1.5rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div>
-                    <p style={{ fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Monthly Revenue</p>
-                    <p style={{ fontSize: '1.5rem', fontWeight: '700', color: '#111827' }}>{formatCurrency(99 * studentCount)}</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>School Commission (30%)</p>
-                    <p style={{ fontSize: '1.5rem', fontWeight: '700', color: '#16a34a' }}>{formatCurrency(99 * studentCount * 0.3)}</p>
-                  </div>
-                </div>
-                <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1rem' }}>
-                  <p style={{ fontSize: '0.75rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Annual Earnings Potential</p>
-                  <p style={{ fontSize: '2rem', fontWeight: '700', color: '#ea580c' }}>{formatCurrency(99 * studentCount * 0.3 * 12)}</p>
-                </div>
               </div>
             </div>
           </div>
@@ -263,8 +200,7 @@ export default function SubscriptionPage() {
                     'Analytics & progress tracking',
                     'Live session hosting',
                     'Video hosting with PPTX conversion',
-                    'Email & chat support',
-                    '30% commission on parent subscriptions'
+                    'Email & chat support'
                   ].map((feature, index) => (
                     <li key={index} style={{
                       display: 'flex',
@@ -273,7 +209,7 @@ export default function SubscriptionPage() {
                       padding: '0.625rem 0',
                       fontSize: '0.875rem',
                       color: '#374151',
-                      borderBottom: index < 8 ? '1px solid #f3f4f6' : 'none'
+                      borderBottom: '1px solid #f3f4f6'
                     }}>
                       <span style={{ color: '#16a34a', fontSize: '1rem' }}>✓</span>
                       {feature}
@@ -320,7 +256,7 @@ export default function SubscriptionPage() {
               </button>
               
               <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '1rem' }}>
-                Parents pay ₹99/month per student. Schools earn 30% commission.
+                Parents pay ₹99/month per student for premium learning access.
               </p>
             </div>
           </div>
@@ -418,19 +354,19 @@ export default function SubscriptionPage() {
               {[
                 {
                   q: 'How is this free for schools?',
-                  a: 'Schools receive the platform at no cost. We generate revenue through parent subscriptions, and schools earn a 30% commission on all payments made by parents of their students.'
+                  a: 'INR99 Academy provides the platform to schools at no cost. Revenue from parent subscriptions covers platform maintenance and development costs.'
                 },
                 {
                   q: 'What if a parent cannot afford ₹99/month?',
-                  a: 'Schools can use their commission earnings to subsidize or cover the cost for students from economically weaker sections.'
+                  a: 'Schools can choose to subsidize the cost for students from economically weaker sections using their own resources.'
                 },
                 {
                   q: 'Can we use our own domain name?',
                   a: 'Yes! The Essential plan includes custom subdomain access. For a fully custom domain (e.g., learning.yourschool.com), contact our sales team.'
                 },
                 {
-                  q: 'How do we receive our commission?',
-                  a: 'Commissions are processed monthly via bank transfer. Schools receive their earnings within 15 days of the billing cycle.'
+                  q: 'What support is available?',
+                  a: 'We provide email and chat support for all schools. Premium support options are available for schools with specific requirements.'
                 }
               ].map((faq, index) => (
                 <div key={index} style={{
