@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Your platform domain - update when you purchase inr99.academy
+// Your platform domain
 const PLATFORM_DOMAIN = 'inr99.academy'
 const MAIN_HOSTNAMES = ['inr99.academy', 'www.inr99.academy', 'localhost']
 
@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
   // Extract hostname (remove port if present)
   const currentHostname = hostname.split(':')[0].toLowerCase()
 
-  // Check if this is the main platform (no subdomain)
+  // Check if this is the main platform (no custom domain)
   const isMainPlatform = MAIN_HOSTNAMES.some(
     domain => currentHostname === domain
   )
@@ -32,9 +32,31 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Check if this is a custom domain (not a subdomain of the platform)
+  // Custom domains are domains that don't end with .inr99.academy
+  const isCustomDomain = !currentHostname.endsWith(`.${PLATFORM_DOMAIN}`) && 
+                         !currentHostname.includes('localhost')
+
+  if (isCustomDomain) {
+    // Extract domain (e.g., "school.com" from "school.com")
+    const domain = currentHostname
+
+    // For custom domains, rewrite URL to use tenant route group
+    // This allows us to have a completely separate UI for tenants
+    const url = request.nextUrl.clone()
+    url.pathname = `/tenant-pages${pathname}`
+    url.search = request.nextUrl.search
+
+    // Add tenant info as header for downstream use
+    const response = NextResponse.rewrite(url)
+    response.headers.set('x-tenant-domain', domain)
+    response.headers.set('x-tenant-hostname', currentHostname)
+
+    return response
+  }
+
   // Check if this is a tenant subdomain (e.g., school.inr99.academy)
-  const isSubdomain = currentHostname.endsWith(`.${PLATFORM_DOMAIN}`) ||
-                      currentHostname.includes('localhost')
+  const isSubdomain = currentHostname.endsWith(`.${PLATFORM_DOMAIN}`)
 
   if (isSubdomain) {
     // Extract subdomain (e.g., "school" from "school.inr99.academy")

@@ -3,52 +3,33 @@ import { createClient } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
-  const subdomain = searchParams.get('name')
+  const domain = searchParams.get('name')
 
-  if (!subdomain) {
+  if (!domain) {
     return NextResponse.json(
-      { error: 'Subdomain name is required' },
+      { error: 'Domain name is required' },
       { status: 400 }
     )
   }
 
-  // Validate subdomain format
-  const subdomainRegex = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/
-  if (!subdomainRegex.test(subdomain)) {
+  // Validate domain format
+  const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*\.[a-z]{2,}$/
+  if (!domainRegex.test(domain.toLowerCase())) {
     return NextResponse.json(
       {
         available: false,
-        error: 'Subdomain can only contain lowercase letters, numbers, and hyphens. It must start and end with a letter or number.',
+        error: 'Please enter a valid domain name (e.g., schoolname.com)',
       },
       { status: 400 }
     )
   }
 
   // Check minimum and maximum length
-  if (subdomain.length < 3 || subdomain.length > 63) {
+  if (domain.length < 4 || domain.length > 253) {
     return NextResponse.json(
       {
         available: false,
-        error: 'Subdomain must be between 3 and 63 characters.',
-      },
-      { status: 400 }
-    )
-  }
-
-  // Check for reserved subdomains
-  const reservedSubdomains = [
-    'www', 'mail', 'admin', 'api', 'app', 'dashboard',
-    'inr99', 'support', 'help', 'blog', 'docs',
-    'pricing', 'about', 'contact', 'auth', 'login',
-    'register', 'instructor', 'student', 'cdn', 'static',
-    'assets', 'images', 'files', 'localhost'
-  ]
-
-  if (reservedSubdomains.includes(subdomain.toLowerCase())) {
-    return NextResponse.json(
-      {
-        available: false,
-        error: 'This subdomain is reserved and cannot be used.',
+        error: 'Domain must be between 4 and 253 characters.',
       },
       { status: 400 }
     )
@@ -56,28 +37,25 @@ export async function GET(request: NextRequest) {
 
   const db = createClient()
 
-  // Check if subdomain exists
-  const existingTenant = await db.tenant.findUnique({
-    where: { slug: subdomain.toLowerCase() },
-    select: { id: true, name: true },
-  })
-
-  // Also check tenant domains
-  const existingDomain = await db.tenantDomain.findUnique({
-    where: { domain: `${subdomain.toLowerCase()}.inr99.academy` },
+  // Check if domain exists in tenant domains
+  const existingDomain = await db.tenantDomain.findFirst({
+    where: { domain: domain.toLowerCase() },
     select: { id: true },
   })
 
-  if (existingTenant || existingDomain) {
+  if (existingDomain) {
     return NextResponse.json({
       available: false,
-      error: 'This subdomain is already taken.',
+      error: 'This domain is already registered.',
     })
   }
 
+  // Generate slug from domain
+  const slug = domain.toLowerCase().replace(/\./g, '-').replace(/[^a-z0-9-]/g, '')
+
   return NextResponse.json({
     available: true,
-    subdomain: subdomain.toLowerCase(),
-    fullDomain: `${subdomain.toLowerCase()}.inr99.academy`,
+    domain: domain.toLowerCase(),
+    slug: slug,
   })
 }

@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/db'
 import { hash } from 'bcryptjs'
-import {
-  createDnsProvider,
-  SubdomainProvisioningService,
-  SubdomainProvisioningConfig,
-} from '@/lib/brand/dns-provider'
 
 // Eligibility threshold for free white-label access
 const ELIGIBILITY_THRESHOLD = 1000
@@ -17,14 +12,14 @@ export async function POST(request: NextRequest) {
       institutionName, 
       email, 
       phone, 
-      subdomain, 
+      customDomain, 
       adminName, 
       adminPassword,
       studentCount 
     } = body
 
     // Validate required fields
-    if (!institutionName || !email || !subdomain || !adminName || !adminPassword) {
+    if (!institutionName || !email || !customDomain || !adminName || !adminPassword) {
       return NextResponse.json(
         { error: 'All fields are required' },
         { status: 400 }
@@ -48,50 +43,38 @@ export async function POST(request: NextRequest) {
       ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
       : null
 
-    // Validate subdomain format
-    const subdomainRegex = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/
-    if (!subdomainRegex.test(subdomain)) {
+    // Validate custom domain format
+    const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*\.[a-z]{2,}$/
+    if (!domainRegex.test(customDomain.toLowerCase())) {
       return NextResponse.json(
-        { error: 'Invalid subdomain format' },
+        { error: 'Invalid domain format. Please enter a valid domain (e.g., schoolname.com)' },
         { status: 400 }
       )
     }
 
-    if (subdomain.length < 3 || subdomain.length > 63) {
+    if (customDomain.length < 4 || customDomain.length > 253) {
       return NextResponse.json(
-        { error: 'Subdomain must be between 3 and 63 characters' },
-        { status: 400 }
-      )
-    }
-
-    // Check reserved subdomains
-    const reservedSubdomains = [
-      'www', 'mail', 'admin', 'api', 'app', 'dashboard',
-      'inr99', 'support', 'help', 'blog', 'docs',
-      'pricing', 'about', 'contact', 'auth', 'login',
-      'register', 'instructor', 'student', 'cdn', 'static'
-    ]
-
-    if (reservedSubdomains.includes(subdomain.toLowerCase())) {
-      return NextResponse.json(
-        { error: 'This subdomain is reserved' },
+        { error: 'Domain must be between 4 and 253 characters' },
         { status: 400 }
       )
     }
 
     const db = createClient()
 
-    // Check if subdomain is available in database
-    const existingTenant = await db.tenant.findUnique({
-      where: { slug: subdomain.toLowerCase() },
+    // Check if custom domain is already registered in database
+    const existingDomain = await db.tenantDomain.findFirst({
+      where: { domain: customDomain.toLowerCase() },
     })
 
-    if (existingTenant) {
+    if (existingDomain) {
       return NextResponse.json(
-        { error: 'This subdomain is already taken' },
+        { error: 'This domain is already registered' },
         { status: 400 }
       )
     }
+
+    // Generate a slug from the domain for internal use
+    const slug = customDomain.toLowerCase().replace(/\./g, '-').replace(/[^a-z0-9-]/g, '')
 
     // Check if email is already registered
     const existingUser = await db.user.findUnique({
@@ -108,53 +91,11 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await hash(adminPassword, 12)
 
-    // Initialize DNS provider for subdomain auto-provisioning
-    const dnsProviderConfig = {
-      provider: (process.env.DNS_PROVIDER as 'cloudflare' | 'route53') || 'cloudflare',
-      apiKey: process.env.DNS_PROVIDER_API_KEY,
-      apiSecret: process.env.DNS_PROVIDER_API_SECRET,
-      region: process.env.AWS_REGION || 'us-east-1',
-    }
-
-    let dnsProvisioningResult = null
-    let domainStatus: 'PENDING' | 'ACTIVE' | 'FAILED' = 'PENDING'
-
-    // Try to provision subdomain in DNS if provider is configured
-    if (process.env.DNS_PROVIDER_API_KEY) {
-      const dnsProvider = createDnsProvider(dnsProviderConfig)
-
-      if (dnsProvider) {
-        const initialized = await dnsProvider.initialize(dnsProviderConfig)
-
-        if (initialized) {
-          const subdomainService = new SubdomainProvisioningService({
-            baseDomain: 'inr99.academy',
-            dnsProvider,
-            sslProvider: 'cloudflare',
-            defaultTtl: 3600,
-          })
-
-          // Provision the subdomain
-          dnsProvisioningResult = await subdomainService.provisionSubdomain(
-            subdomain.toLowerCase(),
-            '' // tenantId will be added after tenant creation
-          )
-
-          // Update domain status based on DNS provisioning
-          if (dnsProvisioningResult.sslStatus === 'provisioned') {
-            domainStatus = 'ACTIVE'
-          } else if (dnsProvisioningResult.sslStatus === 'failed') {
-            domainStatus = 'FAILED'
-          }
-        }
-      }
-    }
-
     // Create the tenant and admin user in a transaction
     const tenant = await db.tenant.create({
       data: {
         name: institutionName,
-        slug: subdomain.toLowerCase(),
+        slug: slug,
         status: 'PENDING',
         subscriptionTier: 'FREE',
         maxUsers: 100,
@@ -173,11 +114,10 @@ export async function POST(request: NextRequest) {
         },
         domains: {
           create: {
-            domain: `${subdomain.toLowerCase()}.inr99.academy`,
-            type: 'SUBDOMAIN',
-            status: domainStatus,
-            dnsProvisioned: dnsProvisioningResult?.sslStatus === 'provisioned',
-            dnsRecords: dnsProvisioningResult?.dnsRecords as any,
+            domain: customDomain.toLowerCase(),
+            type: 'CUSTOM',
+            status: 'PENDING', // DNS verification required
+            dnsProvisioned: false,
           },
         },
         settings: {
@@ -221,7 +161,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Return success with DNS provisioning details
+    // Return success with domain details
     return NextResponse.json({
       success: true,
       message: 'Institution registered successfully',
@@ -229,8 +169,8 @@ export async function POST(request: NextRequest) {
         id: tenant.id,
         name: tenant.name,
         slug: tenant.slug,
-        subdomain: `${subdomain.toLowerCase()}.inr99.academy`,
-        domainStatus: domainStatus,
+        customDomain: customDomain.toLowerCase(),
+        domainStatus: 'PENDING',
         studentCount: studentCount,
         eligibilityStatus: eligibilityStatus,
         eligibilityDeadline: eligibilityDeadline,
@@ -241,14 +181,12 @@ export async function POST(request: NextRequest) {
         email: user.email,
         name: user.name,
       },
-      dnsProvisioning: dnsProvisioningResult
-        ? {
-            subdomain: dnsProvisioningResult.subdomain,
-            fullDomain: dnsProvisioningResult.fullDomain,
-            sslStatus: dnsProvisioningResult.sslStatus,
-            records: dnsProvisioningResult.dnsRecords,
-          }
-        : null,
+      dnsConfiguration: {
+        type: 'CNAME',
+        name: '@',
+        value: 'cname.inr99.academy',
+        ttl: 3600,
+      },
       verificationRequired: isEligible,
       verificationDeadline: eligibilityDeadline,
     })

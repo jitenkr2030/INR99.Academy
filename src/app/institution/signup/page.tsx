@@ -12,8 +12,8 @@ export default function InstitutionSignupPage() {
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [subdomainAvailable, setSubdomainAvailable] = useState<boolean | null>(null)
-  const [checkingSubdomain, setCheckingSubdomain] = useState(false)
+  const [domainAvailable, setDomainAvailable] = useState<boolean | null>(null)
+  const [checkingDomain, setCheckingDomain] = useState(false)
   const [eligible, setEligible] = useState<boolean | null>(null)
 
   const [formData, setFormData] = useState({
@@ -24,18 +24,18 @@ export default function InstitutionSignupPage() {
     adminName: '',
     adminPassword: '',
     confirmPassword: '',
-    subdomain: '',
+    customDomain: '',
     studentCount: '',
   })
 
-  // Check subdomain availability
+  // Check domain availability
   useEffect(() => {
-    if (formData.subdomain.length >= 3) {
-      checkSubdomain()
+    if (formData.customDomain.length >= 3) {
+      checkDomain()
     } else {
-      setSubdomainAvailable(null)
+      setDomainAvailable(null)
     }
-  }, [formData.subdomain])
+  }, [formData.customDomain])
 
   // Check eligibility based on student count
   useEffect(() => {
@@ -47,23 +47,23 @@ export default function InstitutionSignupPage() {
     }
   }, [formData.studentCount])
 
-  const checkSubdomain = async () => {
-    setCheckingSubdomain(true)
-    setSubdomainAvailable(null)
+  const checkDomain = async () => {
+    setCheckingDomain(true)
+    setDomainAvailable(null)
 
     try {
-      const response = await fetch(`/api/subdomains/check?name=${formData.subdomain}`)
+      const response = await fetch(`/api/domains/check?name=${formData.customDomain}`)
       const data = await response.json()
 
       if (response.ok) {
-        setSubdomainAvailable(data.available)
+        setDomainAvailable(data.available)
       } else {
-        setSubdomainAvailable(false)
+        setDomainAvailable(false)
       }
     } catch (err) {
-      setSubdomainAvailable(false)
+      setDomainAvailable(false)
     } finally {
-      setCheckingSubdomain(false)
+      setCheckingDomain(false)
     }
   }
 
@@ -74,11 +74,11 @@ export default function InstitutionSignupPage() {
       [name]: value,
     }))
 
-    // Auto-convert subdomain to lowercase
-    if (name === 'subdomain') {
+    // Auto-convert custom domain to lowercase
+    if (name === 'customDomain') {
       setFormData((prev) => ({
         ...prev,
-        subdomain: value.toLowerCase().replace(/[^a-z0-9-]/g, ''),
+        customDomain: value.toLowerCase().replace(/[^a-z0-9-.]/g, ''),
       }))
     }
   }
@@ -102,11 +102,13 @@ export default function InstitutionSignupPage() {
   }
 
   const validateStep2 = () => {
-    if (!formData.subdomain || formData.subdomain.length < 3) {
-      return 'Subdomain must be at least 3 characters'
+    if (!formData.customDomain || formData.customDomain.length < 3) {
+      return 'Please enter a valid domain name'
     }
-    if (subdomainAvailable !== true) {
-      return 'Please choose an available subdomain'
+    // Validate domain format
+    const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*\.[a-z]{2,}$/
+    if (!domainRegex.test(formData.customDomain)) {
+      return 'Please enter a valid domain name (e.g., yourschool.com)'
     }
     return null
   }
@@ -169,7 +171,7 @@ export default function InstitutionSignupPage() {
           institutionName: formData.institutionName,
           email: formData.email,
           phone: formData.phone,
-          subdomain: formData.subdomain,
+          customDomain: formData.customDomain,
           adminName: formData.adminName,
           adminPassword: formData.adminPassword,
           studentCount: parseInt(formData.studentCount),
@@ -198,94 +200,102 @@ export default function InstitutionSignupPage() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block">
-            <h1 className="text-3xl font-bold text-gray-900">INR99 Academy</h1>
+          <Link href="/" className="inline-block mb-6">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-3xl font-bold text-orange-600">INR99</span>
+              <span className="text-3xl font-bold text-gray-900">.Academy</span>
+            </div>
           </Link>
-          <h2 className="mt-4 text-2xl font-semibold text-gray-900">
-            Create Your Institution Platform
-          </h2>
-          <p className="mt-2 text-gray-600">
-            Get a fully branded learning platform for your school or college - <span className="font-semibold text-green-600">100% FREE</span>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Register Your Institution
+          </h1>
+          <p className="text-gray-600">
+            Get started with your own branded learning platform
           </p>
-        </div>
-
-        {/* Schools/Colleges Statement */}
-        <div className="bg-white rounded-xl shadow-sm border border-green-200 p-6 mb-8">
-          <div className="text-center mb-4">
-            <h3 className="text-lg font-bold text-green-800">🏫 Schools / Colleges</h3>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-gray-700">Pay NOTHING</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-gray-700">Get full platform access</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-gray-700">Get ready-made content</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-gray-700">Get live sessions</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-gray-700">Get course builder</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-gray-700">Get branding/subdomain</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-gray-700">Get student dashboards</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-gray-700 font-semibold">Zero financial burden</span>
-            </div>
-          </div>
         </div>
 
         {/* Progress Steps */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
-            {['Institution Details', 'Subdomain', 'Admin Account'].map((label, index) => (
-              <div key={label} className="flex flex-col items-center">
+          <div className="flex items-center justify-center">
+            {[1, 2, 3].map((s) => (
+              <div key={s} className="flex items-center">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                    step > index + 1
-                      ? 'bg-green-500 text-white'
-                      : step === index + 1
-                      ? 'bg-blue-600 text-white'
+                    step >= s
+                      ? 'bg-orange-600 text-white'
                       : 'bg-gray-200 text-gray-500'
                   }`}
                 >
-                  {step > index + 1 ? '✓' : index + 1}
+                  {s}
                 </div>
-                <span className="mt-2 text-sm text-gray-600 hidden sm:block">
-                  {label}
-                </span>
+                {s < 3 && (
+                  <div
+                    className={`w-16 h-1 ${
+                      step > s ? 'bg-orange-600' : 'bg-gray-200'
+                    }`}
+                  />
+                )}
               </div>
             ))}
           </div>
-          <div className="mt-2 relative">
-            <div className="absolute top-0 left-5 right-5 h-1 bg-gray-200 -z-10"></div>
-            <div
-              className="absolute top-0 left-5 h-1 bg-blue-600 -z-10 transition-all duration-300"
-              style={{ width: `${((step - 1) / 2) * 100}%` }}
-            ></div>
+          <div className="flex justify-center mt-2">
+            <span className="text-sm text-gray-600">
+              {step === 1 && 'Institution Details'}
+              {step === 2 && 'Custom Domain'}
+              {step === 3 && 'Admin Account'}
+            </span>
           </div>
         </div>
 
-        {/* Form Card */}
-        <div className="bg-white rounded-xl shadow-sm border p-8">
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center">
+            <svg
+              className="w-5 h-5 text-red-600 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span className="text-red-800">{error}</span>
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-2xl overflow-hidden">
           {/* Step 1: Institution Details */}
           {step === 1 && (
-            <div className="space-y-6">
+            <div className="p-8 space-y-6">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                  <svg
+                    className="w-8 h-8 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Institution Details
+                </h3>
+                <p className="text-gray-600">
+                  Tell us about your institution
+                </p>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Institution Name *
@@ -296,7 +306,7 @@ export default function InstitutionSignupPage() {
                   value={formData.institutionName}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="e.g., Delhi Public School"
+                  placeholder="Delhi Public School"
                 />
               </div>
 
@@ -311,8 +321,7 @@ export default function InstitutionSignupPage() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="school">School</option>
-                  <option value="college">College</option>
-                  <option value="university">University</option>
+                  <option value="college">College/University</option>
                   <option value="coaching">Coaching Institute</option>
                   <option value="corporate">Corporate Training</option>
                   <option value="other">Other</option>
@@ -329,24 +338,18 @@ export default function InstitutionSignupPage() {
                   value={formData.studentCount}
                   onChange={handleChange}
                   min="10"
-                  max="100000"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="e.g., 2000"
+                  placeholder="Enter total number of students"
                 />
-                <p className="mt-1 text-sm text-gray-500">
-                  Enter the total number of students enrolled in your institution
-                </p>
-                
-                {/* Eligibility Indicator */}
                 {formData.studentCount && (
-                  <div className="mt-3 flex items-center p-3 rounded-lg">
+                  <div className="mt-2">
                     {eligible === true ? (
                       <div className="flex items-center text-green-700 bg-green-50 w-full p-3 rounded-lg">
                         <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                         <span className="font-medium">
-                          ✓ Your institution qualifies for free white-label access!
+                          Congratulations! Your institution qualifies for free white-label access
                         </span>
                       </div>
                     ) : eligible === false ? (
@@ -393,7 +396,7 @@ export default function InstitutionSignupPage() {
             </div>
           )}
 
-          {/* Step 2: Subdomain */}
+          {/* Step 2: Custom Domain */}
           {step === 2 && (
             <div className="space-y-6">
               <div className="text-center mb-6">
@@ -413,114 +416,123 @@ export default function InstitutionSignupPage() {
                   </svg>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Choose Your Subdomain
+                  Set Up Your Custom Domain
                 </h3>
                 <p className="text-gray-600">
-                  Your institution will be accessible at:
+                  Your institution will have its own branded domain
                 </p>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Subdomain *
-                </label>
-                <div className="flex rounded-lg shadow-sm">
+              <div className="p-8 space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Custom Domain *
+                  </label>
                   <input
                     type="text"
-                    name="subdomain"
-                    value={formData.subdomain}
+                    name="customDomain"
+                    value={formData.customDomain}
                     onChange={handleChange}
-                    maxLength={63}
-                    className="flex-1 px-4 py-3 border border-r-0 border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="yourschool"
+                    maxLength={253}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="yourschool.com"
                   />
-                  <span className="inline-flex items-center px-4 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 rounded-r-lg">
-                    .inr99.academy
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-gray-500">
-                  Use lowercase letters, numbers, and hyphens only
-                </p>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Enter your domain name (e.g., schoolname.com). You will need to configure DNS settings after registration.
+                  </p>
 
-                {/* Subdomain Status */}
-                {formData.subdomain.length >= 3 && (
-                  <div className="mt-3 flex items-center">
-                    {checkingSubdomain ? (
-                      <>
-                        <svg
-                          className="animate-spin h-5 w-5 text-blue-600 mr-2"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
+                  {/* Domain Status */}
+                  {formData.customDomain.length >= 3 && (
+                    <div className="mt-3 flex items-center">
+                      {checkingDomain ? (
+                        <>
+                          <svg
+                            className="animate-spin h-5 w-5 text-blue-600 mr-2"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            />
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            />
+                          </svg>
+                          <span className="text-gray-600">Checking availability...</span>
+                        </>
+                      ) : domainAvailable === true ? (
+                        <>
+                          <svg
+                            className="h-5 w-5 text-green-500 mr-2"
+                            fill="none"
                             stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
-                        <span className="text-gray-600">Checking availability...</span>
-                      </>
-                    ) : subdomainAvailable === true ? (
-                      <>
-                        <svg
-                          className="h-5 w-5 text-green-500 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        <span className="text-green-600">
-                          {formData.subdomain}.inr99.academy is available!
-                        </span>
-                      </>
-                    ) : subdomainAvailable === false ? (
-                      <>
-                        <svg
-                          className="h-5 w-5 text-red-500 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                        <span className="text-red-600">
-                          This subdomain is not available
-                        </span>
-                      </>
-                    ) : null}
-                  </div>
-                )}
-              </div>
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          <span className="text-green-600">
+                            {formData.customDomain} is available!
+                          </span>
+                        </>
+                      ) : domainAvailable === false ? (
+                        <>
+                          <svg
+                            className="h-5 w-5 text-red-500 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                          <span className="text-red-600">
+                            This domain is already registered
+                          </span>
+                        </>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
 
-              {/* Preview */}
-              <div className="bg-gray-50 rounded-lg p-4 text-center">
-                <p className="text-sm text-gray-600 mb-2">Your platform will look like:</p>
-                <div className="inline-flex items-center bg-white border rounded-lg px-4 py-2">
-                  <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
-                    <span className="text-white font-bold text-sm">I</span>
+                {/* DNS Instructions */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-900 mb-2">
+                    DNS Configuration Required
+                  </h4>
+                  <p className="text-sm text-blue-800 mb-3">
+                    After registration, you will need to add the following DNS record to your domain:
+                  </p>
+                  <div className="bg-white rounded p-3 font-mono text-sm">
+                    <p><strong>Type:</strong> CNAME</p>
+                    <p><strong>Name:</strong> @ (or leave blank)</p>
+                    <p><strong>Value:</strong> cname.inr99.academy</p>
+                    <p><strong>TTL:</strong> 3600 (1 hour)</p>
                   </div>
-                  <span className="font-medium text-gray-900">
-                    {formData.subdomain || 'yourschool'}.inr99.academy
-                  </span>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-amber-900 mb-2">
+                    Important Note
+                  </h4>
+                  <p className="text-sm text-amber-800">
+                    Your custom domain will be activated after DNS verification, which may take up to 24-48 hours due to DNS propagation.
+                  </p>
                 </div>
               </div>
             </div>
@@ -528,7 +540,7 @@ export default function InstitutionSignupPage() {
 
           {/* Step 3: Admin Account */}
           {step === 3 && (
-            <div className="space-y-6">
+            <div className="p-8 space-y-6">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
                   <svg
@@ -549,7 +561,7 @@ export default function InstitutionSignupPage() {
                   Create Admin Account
                 </h3>
                 <p className="text-gray-600">
-                  This account will manage your institution
+                  Set up your administrator login credentials
                 </p>
               </div>
 
@@ -563,7 +575,7 @@ export default function InstitutionSignupPage() {
                   value={formData.adminName}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Full Name"
+                  placeholder="Enter admin name"
                 />
               </div>
 
@@ -577,7 +589,7 @@ export default function InstitutionSignupPage() {
                   value={formData.adminPassword}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="At least 8 characters"
+                  placeholder="Minimum 8 characters"
                 />
               </div>
 
@@ -591,113 +603,55 @@ export default function InstitutionSignupPage() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Confirm your password"
+                  placeholder="Re-enter your password"
                 />
               </div>
 
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="flex items-center justify-center mb-3">
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-green-100 text-green-800">
-                    🏫 School Plan - Completely FREE
-                  </span>
-                </div>
-                <h4 className="font-medium text-green-900 mb-2">
-                  What your institution gets (at ZERO cost):
-                </h4>
-                <ul className="text-sm text-green-800 space-y-2">
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span><strong>Custom branded platform</strong> with your logo, colors, and subdomain</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span><strong>Full platform access</strong> - All courses, live sessions, and assessments</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span><strong>Ready-made content</strong> - 1-12, college courses, competitive exam prep</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span><strong>Live learning sessions</strong> with expert instructors</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span><strong>Course builder tools</strong> - Create your own courses and content</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span><strong>Student & parent dashboards</strong> - Track progress and engagement</span>
-                  </li>
-                  <li className="flex items-start">
-                    <svg className="w-5 h-5 mr-2 mt-0.5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span><strong>Zero financial burden</strong> - Your institution pays NOTHING</span>
-                  </li>
-                </ul>
-                <div className="mt-4 pt-4 border-t border-green-200">
-                  <p className="text-sm font-medium text-green-900">
-                    💡 <strong>How it works:</strong> Students pay ₹99/month <em>directly to INR99 Academy</em>. 
-                    Your school simply facilitates access for them.
-                  </p>
+              {/* Summary */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 mb-3">Registration Summary</h4>
+                <div className="space-y-2 text-sm">
+                  <p><span className="text-gray-600">Institution:</span> <span className="font-medium">{formData.institutionName}</span></p>
+                  <p><span className="text-gray-600">Domain:</span> <span className="font-medium">{formData.customDomain}</span></p>
+                  <p><span className="text-gray-600">Students:</span> <span className="font-medium">{formData.studentCount}</span></p>
+                  <p><span className="text-gray-600">Plan:</span> <span className="font-medium text-green-600">{eligible ? 'Free White-Label' : 'Standard'}</span></p>
                 </div>
               </div>
-            </div>
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm">{error}</p>
             </div>
           )}
 
           {/* Navigation Buttons */}
-          <div className="mt-8 flex justify-between">
+          <div className="px-8 py-6 bg-gray-50 border-t border-gray-200 flex justify-between">
             {step > 1 ? (
               <button
                 type="button"
                 onClick={handleBack}
-                className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50"
+                className="px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-100 transition"
               >
                 Back
               </button>
             ) : (
-              <div></div>
+              <div />
             )}
 
             {step < 3 ? (
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+                className="px-8 py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition"
               >
                 Continue
               </button>
             ) : (
               <button
-                type="button"
-                onClick={handleSubmit}
+                type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="px-8 py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition disabled:opacity-50"
               >
                 {loading ? (
-                  <>
+                  <span className="flex items-center">
                     <svg
-                      className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+                      className="animate-spin h-5 w-5 mr-2"
                       fill="none"
                       viewBox="0 0 24 24"
                     >
@@ -715,23 +669,25 @@ export default function InstitutionSignupPage() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    Creating Free Account...
-                  </>
+                    Registering...
+                  </span>
                 ) : (
-                  'Create Free Account'
+                  'Complete Registration'
                 )}
               </button>
             )}
           </div>
-        </div>
+        </form>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-sm text-gray-500">
-          Already have an account?{' '}
-          <Link href="/auth/login" className="text-blue-600 hover:underline">
-            Sign in
-          </Link>
-        </p>
+        <div className="mt-8 text-center text-sm text-gray-600">
+          <p>
+            Already have an account?{' '}
+            <Link href="/auth/login" className="text-orange-600 hover:text-orange-700 font-medium">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )
