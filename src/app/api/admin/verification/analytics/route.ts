@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       monthSubmissions,
     ] = await Promise.all([
       db.tenant.count({
-        where: { studentCount: { gte: 1500 } },
+        where: { studentCount: { gte: 1000 } },
       }),
       db.tenant.count({
         where: { eligibilityStatus: 'PENDING' },
@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
     const studentDistribution = await db.tenant.groupBy({
       by: ['studentCount'],
       where: {
-        studentCount: { gte: 1500 },
+        studentCount: { gte: 1000 },
       },
       _count: true,
       orderBy: { studentCount: 'asc' },

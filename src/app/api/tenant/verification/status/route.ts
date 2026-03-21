@@ -124,7 +124,7 @@ function getDocumentTypeDescription(type: string): string {
     AICTE_APPROVAL: 'Valid approval certificate from All India Council for Technical Education',
     NCTE_RECOGNITION: 'Recognition letter from National Council for Teacher Education',
     STATE_GOVERNMENT_APPROVAL: 'Approval from relevant State Government authority',
-    ENROLLMENT_DATA: 'Audited enrollment data for current academic year showing 1500+ students',
+    ENROLLMENT_DATA: 'Audited enrollment data for current academic year showing 1000+ students',
     STUDENT_ID_SAMPLE: 'Sample student ID cards (5-10 samples) to verify enrollment authenticity',
     INSTITUTION_REGISTRATION: 'Valid institution registration/society trust deed',
     UNIVERSITY_AFFILIATION: 'Affiliation agreement with recognized university',

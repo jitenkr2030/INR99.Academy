@@ -172,7 +172,7 @@ export async function GET(request: NextRequest) {
     const tenants = await db.tenant.findMany({
       where: {
         eligibilityStatus: status as any,
-        studentCount: { gte: 1500 },
+        studentCount: { gte: 1000 },
       },
       select: {
         id: true,

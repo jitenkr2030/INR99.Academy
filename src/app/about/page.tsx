@@ -338,7 +338,7 @@ export default function AboutPage() {
               <span style={{ fontSize: '1.25rem', color: '#6b7280' }}>per student/month</span>
             </div>
             <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
-              For institutions with fewer than 1500 students
+              For institutions with fewer than 1000 students
             </p>
 
             <div style={{
@@ -398,7 +398,7 @@ export default function AboutPage() {
               marginTop: '1.5rem'
             }}>
               <p style={{ color: '#166534', fontSize: '0.875rem', margin: 0 }}>
-                <strong>Free for Large Institutions:</strong> Schools and colleges with 1500+ students get full access absolutely free.
+                <strong>Free for Large Institutions:</strong> Schools and colleges with 1000+ students get full access absolutely free.
               </p>
             </div>
           </div>

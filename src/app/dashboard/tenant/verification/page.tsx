@@ -74,7 +74,7 @@ export default function TenantVerificationPortal() {
     {
       type: 'ENROLLMENT_DATA',
       label: 'Enrollment Data (Audited)',
-      description: 'Audited enrollment data for current academic year showing 1500+ students',
+      description: 'Audited enrollment data for current academic year showing 1000+ students',
       required: true
     },
     {

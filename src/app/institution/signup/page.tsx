@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 // Eligibility threshold constant
-const ELIGIBILITY_THRESHOLD = 1500
+const ELIGIBILITY_THRESHOLD = 1000
 
 export default function InstitutionSignupPage() {
   const router = useRouter()
@@ -355,7 +355,7 @@ export default function InstitutionSignupPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                         <span className="font-medium">
-                          Institutions with 1500+ students qualify for free white-label access
+                          Institutions with 1000+ students qualify for free white-label access
                         </span>
                       </div>
                     ) : null}

@@ -1378,7 +1378,7 @@ export default function NewLandingPage() {
                 fontSize: '0.875rem',
                 marginTop: '0.5rem'
               }}>
-                For institutions with 1500+ students
+                For institutions with 1000+ students
               </p>
             </div>
             <div style={{
@@ -1427,7 +1427,7 @@ export default function NewLandingPage() {
               textAlign: 'center'
             }}>
               <p style={{ color: '#166534', fontSize: '0.875rem' }}>
-                <strong>Eligibility:</strong> Institutions must have 1500+ students to qualify for free white-label access.
+                <strong>Eligibility:</strong> Institutions must have 1000+ students to qualify for free white-label access.
                 Verification required within 30 days of signup.
               </p>
             </div>

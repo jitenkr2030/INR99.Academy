@@ -475,7 +475,7 @@ export default function ForCoachingInstitutesPage() {
               marginTop: '1.5rem'
             }}>
               <p style={{ color: '#166534', fontSize: '0.875rem', margin: 0 }}>
-                <strong>Free for Large Institutes:</strong> Coaching centers with 1500+ students get full access absolutely free.
+                <strong>Free for Large Institutes:</strong> Coaching centers with 1000+ students get full access absolutely free.
               </p>
             </div>
           </div>

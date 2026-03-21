@@ -93,9 +93,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (tenant.eligibilityStatus === 'EXPIRED' && tenant.studentCount && tenant.studentCount < 1500) {
+    if (tenant.eligibilityStatus === 'EXPIRED' && tenant.studentCount && tenant.studentCount < 1000) {
       return NextResponse.json(
-        { error: 'Your institution does not meet the minimum student requirement (1500 students)' },
+        { error: 'Your institution does not meet the minimum student requirement (1000 students)' },
         { status: 400 }
       )
     }

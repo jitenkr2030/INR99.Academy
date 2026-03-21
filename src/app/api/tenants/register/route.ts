@@ -8,7 +8,7 @@ import {
 } from '@/lib/brand/dns-provider'
 
 // Eligibility threshold for free white-label access
-const ELIGIBILITY_THRESHOLD = 1500
+const ELIGIBILITY_THRESHOLD = 1000
 
 export async function POST(request: NextRequest) {
   try {

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       db.tenant.findMany({
         where: {
           eligibilityStatus: status as any,
-          studentCount: { gte: 1500 }, // Only show eligible institutions
+          studentCount: { gte: 1000 }, // Only show eligible institutions
         },
         include: {
           domains: true,
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       db.tenant.count({
         where: {
           eligibilityStatus: status as any,
-          studentCount: { gte: 1500 },
+          studentCount: { gte: 1000 },
         },
       }),
     ])

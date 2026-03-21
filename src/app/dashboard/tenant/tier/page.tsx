@@ -72,7 +72,7 @@ const TIER_PLANS: TierPlan[] = [
     description: 'For growing institutions with increasing verification needs',
     icon: <TrendingUp size={24} />,
     color: '#10B981',
-    maxStudents: 1500,
+    maxStudents: 1000,
     price: { monthly: 299, annual: 2990 }
   },
   {
