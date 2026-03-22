@@ -372,7 +372,7 @@ export default function ForCoachingInstitutesPage() {
         padding: '5rem 1rem',
         background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fef3c7 100%)'
       }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{
             fontSize: '2rem',
             fontWeight: '700',
@@ -385,100 +385,227 @@ export default function ForCoachingInstitutesPage() {
             color: '#6b7280',
             fontSize: '1.125rem',
             lineHeight: '1.6',
-            marginBottom: '2rem',
+            marginBottom: '3rem',
             maxWidth: '600px',
-            margin: '0 auto 2rem'
+            margin: '0 auto 3rem'
           }}>
-            No expensive setup. No monthly固定 fees. Just ₹99 per student per month.
+            Choose the plan that fits your institute size. Volume discounts automatically applied.
           </p>
 
+          {/* Pricing Cards */}
           <div style={{
-            background: 'white',
-            padding: '3rem',
-            borderRadius: '1.5rem',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-            maxWidth: '500px',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '1.5rem',
+            maxWidth: '900px',
             margin: '0 auto'
           }}>
+            {/* Starter Plan */}
             <div style={{
-              display: 'flex',
-              alignItems: 'baseline',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              marginBottom: '0.5rem'
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '1.5rem',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+              border: '2px solid #e5e7eb'
             }}>
-              <span style={{ fontSize: '4rem', fontWeight: '800', color: '#16a34a' }}>₹99</span>
-              <span style={{ fontSize: '1.25rem', color: '#6b7280' }}>per student/month</span>
-            </div>
-            <p style={{ color: '#6b7280', marginBottom: '2rem' }}>
-              Perfect for JEE, NEET, CAT, UPSC, SSC, Banking coaching
-            </p>
-
-            <div style={{
-              borderTop: '1px solid #e5e7eb',
-              paddingTop: '2rem',
-              marginBottom: '2rem',
-              textAlign: 'left'
-            }}>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-                <strong>Everything Included:</strong>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: '#dbeafe',
+                color: '#1e40af',
+                borderRadius: '9999px',
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                marginBottom: '1rem'
+              }}>
+                Starter
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'center',
+                gap: '0.25rem',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937' }}>₹199</span>
+                <span style={{ fontSize: '1rem', color: '#6b7280' }}>/student/month</span>
+              </div>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+                For institutes with up to 500 students
               </p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ color: '#374151' }}>Your branded platform</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ color: '#374151' }}>Live classes</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ color: '#374151' }}>Test series</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <span style={{ color: '#374151' }}>Content library</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#374151' }}>Student management</span>
-                <span style={{ fontWeight: '600', color: '#16a34a' }}>✓</span>
+              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem', textAlign: 'left' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Full platform access
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Live classes
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Test series
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Custom domain
+                </div>
               </div>
             </div>
 
-            <a href="/institution/signup" style={{
-              display: 'block',
-              background: '#16a34a',
-              color: 'white',
-              padding: '1rem 2rem',
-              borderRadius: '0.5rem',
-              textDecoration: 'none',
-              fontWeight: '600',
-              fontSize: '1.125rem',
-              transition: 'background 0.2s, transform 0.2s'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#15803d'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#16a34a'
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-            >
-              Start Your Digital Academy
-            </a>
-
+            {/* Growth Plan */}
             <div style={{
-              background: '#f0fdf4',
-              borderRadius: '0.5rem',
-              padding: '1rem',
-              marginTop: '1.5rem'
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '1.5rem',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              border: '2px solid #2563eb',
+              position: 'relative',
+              transform: 'scale(1.05)'
             }}>
-              <p style={{ color: '#166534', fontSize: '0.875rem', margin: 0 }}>
-                <strong>Free for Large Institutes:</strong> Coaching centers with 1000+ students get full access absolutely free.
+              <div style={{
+                position: 'absolute',
+                top: '-12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: '#2563eb',
+                color: 'white',
+                padding: '0.25rem 1rem',
+                borderRadius: '9999px',
+                fontSize: '0.75rem',
+                fontWeight: '600'
+              }}>
+                Most Popular
+              </div>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: '#dcfce7',
+                color: '#166534',
+                borderRadius: '9999px',
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                marginBottom: '1rem'
+              }}>
+                Growth
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'center',
+                gap: '0.25rem',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#16a34a' }}>₹149</span>
+                <span style={{ fontSize: '1rem', color: '#6b7280' }}>/student/month</span>
+              </div>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+                For institutes with up to 750 students
               </p>
+              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem', textAlign: 'left' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Everything in Starter
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Priority support
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Advanced analytics
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Custom branding
+                </div>
+              </div>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div style={{
+              background: 'white',
+              padding: '2rem',
+              borderRadius: '1.5rem',
+              boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+              border: '2px solid #e5e7eb'
+            }}>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                background: '#fef3c7',
+                color: '#92400e',
+                borderRadius: '9999px',
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                marginBottom: '1rem'
+              }}>
+                Enterprise
+              </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'center',
+                gap: '0.25rem',
+                marginBottom: '0.5rem'
+              }}>
+                <span style={{ fontSize: '2.5rem', fontWeight: '800', color: '#1f2937' }}>₹99</span>
+                <span style={{ fontSize: '1rem', color: '#6b7280' }}>/student/month</span>
+              </div>
+              <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1.5rem' }}>
+                For institutes with 1000+ students
+              </p>
+              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem', textAlign: 'left' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Everything in Growth
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Dedicated account manager
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> Custom integrations
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#374151' }}>
+                  <span style={{ color: '#16a34a' }}>✓</span> SLA guarantee
+                </div>
+              </div>
             </div>
           </div>
+
+          <div style={{
+            background: '#f0fdf4',
+            borderRadius: '1rem',
+            padding: '1.5rem',
+            marginTop: '2.5rem',
+            maxWidth: '600px',
+            margin: '2.5rem auto 0'
+          }}>
+            <p style={{ color: '#166534', fontSize: '0.9375rem', margin: 0 }}>
+              <strong>Volume Discounts:</strong> Larger institutes benefit from lower per-student rates. Contact our sales team for institutes above 2000 students.
+            </p>
+          </div>
+
+          <a href="/institution/signup" style={{
+            display: 'inline-block',
+            background: '#16a34a',
+            color: 'white',
+            padding: '1rem 2rem',
+            borderRadius: '0.5rem',
+            textDecoration: 'none',
+            fontWeight: '600',
+            fontSize: '1.125rem',
+            marginTop: '2rem',
+            transition: 'background 0.2s, transform 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#15803d'
+            e.currentTarget.style.transform = 'translateY(-2px)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = '#16a34a'
+            e.currentTarget.style.transform = 'translateY(0)'
+          }}
+          >
+            Start Your Digital Academy
+          </a>
         </div>
       </section>
 
@@ -602,7 +729,7 @@ export default function ForCoachingInstitutesPage() {
             margin: '0 auto 2rem',
             lineHeight: '1.6'
           }}>
-            Transform your coaching institute into a modern digital academy at just ₹99 per student per month.
+            Transform your coaching institute into a modern digital academy with volume-based pricing starting from ₹99 per student per month.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <a href="/institution/signup" style={{
