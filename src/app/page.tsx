@@ -1378,18 +1378,33 @@ export default function NewLandingPage() {
                 fontSize: '0.875rem',
                 marginTop: '0.5rem'
               }}>
-                For institutions with 1000+ students
+                Transparent pricing for all school sizes
               </p>
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1rem',
+              marginBottom: '1rem'
+            }}>
+              <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', textAlign: 'center' }}>
+                <p style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Up to 500 students</p>
+                <p style={{ color: '#111827', fontSize: '1.25rem', fontWeight: '700' }}>₹199/student/month</p>
+              </div>
+              <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', textAlign: 'center' }}>
+                <p style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>Up to 750 students</p>
+                <p style={{ color: '#111827', fontSize: '1.25rem', fontWeight: '700' }}>₹149/student/month</p>
+              </div>
+              <div style={{ background: 'white', borderRadius: '0.75rem', padding: '1rem', textAlign: 'center' }}>
+                <p style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}>1000+ students</p>
+                <p style={{ color: '#16a34a', fontSize: '1.25rem', fontWeight: '700' }}>₹99/student/month</p>
+              </div>
             </div>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: '1rem'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span style={{ color: '#16a34a', fontSize: '1.25rem' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '1rem' }}>Pay NOTHING</span>
-              </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <span style={{ color: '#16a34a', fontSize: '1.25rem' }}>✓</span>
                 <span style={{ color: '#374151', fontSize: '1rem' }}>Get full platform access</span>
@@ -1408,15 +1423,11 @@ export default function NewLandingPage() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <span style={{ color: '#16a34a', fontSize: '1.25rem' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '1rem' }}>Get branding/subdomain</span>
+                <span style={{ color: '#374151', fontSize: '1rem' }}>Get custom branding</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <span style={{ color: '#16a34a', fontSize: '1.25rem' }}>✓</span>
                 <span style={{ color: '#374151', fontSize: '1rem' }}>Get student dashboards</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span style={{ color: '#16a34a', fontSize: '1.25rem' }}>✓</span>
-                <span style={{ color: '#374151', fontSize: '1rem', fontWeight: '600' }}>Zero financial burden</span>
               </div>
             </div>
             <div style={{
@@ -1427,8 +1438,7 @@ export default function NewLandingPage() {
               textAlign: 'center'
             }}>
               <p style={{ color: '#166534', fontSize: '0.875rem' }}>
-                <strong>Eligibility:</strong> Institutions must have 1000+ students to qualify for free white-label access.
-                Verification required within 30 days of signup.
+                <strong>Pricing:</strong> Schools with more students pay less per student. All plans include custom domain branding.
               </p>
             </div>
           </div>

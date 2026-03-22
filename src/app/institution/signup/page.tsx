@@ -4,8 +4,12 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-// Eligibility threshold constant
-const ELIGIBILITY_THRESHOLD = 1000
+// Pricing tiers based on student count
+const PRICING_TIERS = [
+  { maxStudents: 500, pricePerStudent: 199, name: 'Starter' },
+  { maxStudents: 750, pricePerStudent: 149, name: 'Growth' },
+  { maxStudents: null, pricePerStudent: 99, name: 'Enterprise' }
+]
 
 export default function InstitutionSignupPage() {
   const router = useRouter()
@@ -14,7 +18,7 @@ export default function InstitutionSignupPage() {
   const [error, setError] = useState('')
   const [domainAvailable, setDomainAvailable] = useState<boolean | null>(null)
   const [checkingDomain, setCheckingDomain] = useState(false)
-  const [eligible, setEligible] = useState<boolean | null>(null)
+  const [pricingTier, setPricingTier] = useState<typeof PRICING_TIERS[0] | null>(null)
 
   const [formData, setFormData] = useState({
     institutionName: '',
@@ -37,13 +41,14 @@ export default function InstitutionSignupPage() {
     }
   }, [formData.customDomain])
 
-  // Check eligibility based on student count
+  // Calculate pricing tier based on student count
   useEffect(() => {
     const count = parseInt(formData.studentCount)
     if (formData.studentCount && !isNaN(count) && count > 0) {
-      setEligible(count >= ELIGIBILITY_THRESHOLD)
+      const tier = PRICING_TIERS.find(t => t.maxStudents === null || count <= t.maxStudents) || PRICING_TIERS[PRICING_TIERS.length - 1]
+      setPricingTier(tier)
     } else {
-      setEligible(null)
+      setPricingTier(null)
     }
   }, [formData.studentCount])
 
@@ -352,13 +357,13 @@ export default function InstitutionSignupPage() {
                           Congratulations! Your institution qualifies for free white-label access
                         </span>
                       </div>
-                    ) : eligible === false ? (
-                      <div className="flex items-center text-amber-700 bg-amber-50 w-full p-3 rounded-lg">
-                        <svg className="w-5 h-5 mr-2 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    ) : pricingTier ? (
+                      <div className="flex items-center text-green-700 bg-green-50 w-full p-3 rounded-lg">
+                        <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span className="font-medium">
-                          Institutions with 1000+ students qualify for free white-label access
+                          Your institution qualifies for the {pricingTier.name} plan: ₹{pricingTier.pricePerStudent}/student/month
                         </span>
                       </div>
                     ) : null}
@@ -614,7 +619,8 @@ export default function InstitutionSignupPage() {
                   <p><span className="text-gray-600">Institution:</span> <span className="font-medium">{formData.institutionName}</span></p>
                   <p><span className="text-gray-600">Domain:</span> <span className="font-medium">{formData.customDomain}</span></p>
                   <p><span className="text-gray-600">Students:</span> <span className="font-medium">{formData.studentCount}</span></p>
-                  <p><span className="text-gray-600">Plan:</span> <span className="font-medium text-green-600">{eligible ? 'Free White-Label' : 'Standard'}</span></p>
+                  <p><span className="text-gray-600">Plan:</span> <span className="font-medium text-green-600">{pricingTier ? `${pricingTier.name} - ₹${pricingTier.pricePerStudent}/student/month` : 'Standard'}</span></p>
+                  <p><span className="text-gray-600">Monthly Total:</span> <span className="font-medium text-orange-600">₹{pricingTier ? (parseInt(formData.studentCount) || 0) * pricingTier.pricePerStudent : 0}/month</span></p>
                 </div>
               </div>
             </div>

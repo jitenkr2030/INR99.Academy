@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/db'
 import { hash } from 'bcryptjs'
 
-// Eligibility threshold for free white-label access
-const ELIGIBILITY_THRESHOLD = 1000
+// Pricing tiers based on student count
+const PRICING_TIERS = [
+  { maxStudents: 500, pricePerStudent: 199, name: 'Starter' },
+  { maxStudents: 750, pricePerStudent: 149, name: 'Growth' },
+  { maxStudents: null, pricePerStudent: 99, name: 'Enterprise' }
+]
+
+// Helper function to get pricing tier
+function getPricingTier(studentCount: number) {
+  return PRICING_TIERS.find(tier => tier.maxStudents === null || studentCount <= tier.maxStudents) || PRICING_TIERS[PRICING_TIERS.length - 1]
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,14 +43,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Determine eligibility status based on student count
-    const isEligible = studentCount >= ELIGIBILITY_THRESHOLD
-    const eligibilityStatus = isEligible ? 'PENDING' : 'EXPIRED'
+    // Determine pricing tier based on student count
+    const pricingTier = getPricingTier(studentCount)
     
-    // Set verification deadline (30 days from now if eligible)
-    const eligibilityDeadline = isEligible 
-      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-      : null
+    // Calculate monthly subscription cost
+    const monthlySubscription = studentCount * pricingTier.pricePerStudent
 
     // Validate custom domain format
     const domainRegex = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*\.[a-z]{2,}$/
@@ -97,11 +103,12 @@ export async function POST(request: NextRequest) {
         name: institutionName,
         slug: slug,
         status: 'PENDING',
-        subscriptionTier: 'FREE',
-        maxUsers: 100,
+        subscriptionTier: pricingTier.name.toUpperCase(),
+        maxUsers: studentCount,
         studentCount: studentCount,
-        eligibilityStatus: eligibilityStatus,
-        eligibilityDeadline: eligibilityDeadline,
+        pricingTier: pricingTier.name,
+        pricePerStudent: pricingTier.pricePerStudent,
+        monthlySubscription: monthlySubscription,
         branding: {
           create: {
             primaryColor: '#3b82f6',
@@ -161,7 +168,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Return success with domain details
+    // Return success with domain and pricing details
     return NextResponse.json({
       success: true,
       message: 'Institution registered successfully',
@@ -172,9 +179,9 @@ export async function POST(request: NextRequest) {
         customDomain: customDomain.toLowerCase(),
         domainStatus: 'PENDING',
         studentCount: studentCount,
-        eligibilityStatus: eligibilityStatus,
-        eligibilityDeadline: eligibilityDeadline,
-        isEligible: isEligible,
+        pricingTier: pricingTier.name,
+        pricePerStudent: pricingTier.pricePerStudent,
+        monthlySubscription: monthlySubscription,
       },
       user: {
         id: user.id,
@@ -187,8 +194,6 @@ export async function POST(request: NextRequest) {
         value: 'cname.inr99.academy',
         ttl: 3600,
       },
-      verificationRequired: isEligible,
-      verificationDeadline: eligibilityDeadline,
     })
   } catch (error) {
     console.error('Tenant registration error:', error)
