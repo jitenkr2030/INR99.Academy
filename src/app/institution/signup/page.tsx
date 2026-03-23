@@ -348,16 +348,7 @@ export default function InstitutionSignupPage() {
                 />
                 {formData.studentCount && (
                   <div className="mt-2">
-                    {eligible === true ? (
-                      <div className="flex items-center text-green-700 bg-green-50 w-full p-3 rounded-lg">
-                        <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="font-medium">
-                          Congratulations! Your institution qualifies for free white-label access
-                        </span>
-                      </div>
-                    ) : pricingTier ? (
+                    {pricingTier ? (
                       <div className="flex items-center text-green-700 bg-green-50 w-full p-3 rounded-lg">
                         <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

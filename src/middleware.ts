@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 
 // Your platform domain
 const PLATFORM_DOMAIN = 'inr99.academy'
-const MAIN_HOSTNAMES = ['inr99.academy', 'www.inr99.academy', 'localhost']
+const MAIN_HOSTNAMES = ['inr99.academy', 'www.inr99.academy', 'localhost', '127.0.0.1']
 
 export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
@@ -27,35 +27,16 @@ export async function middleware(request: NextRequest) {
     domain => currentHostname === domain
   )
 
-  // If it's the main platform, continue normally
+  // If it's the main platform, continue normally without any rewriting
   if (isMainPlatform) {
     return NextResponse.next()
   }
 
-  // Check if this is a custom domain (not a subdomain of the platform)
-  // Custom domains are domains that don't end with .inr99.academy
-  const isCustomDomain = !currentHostname.endsWith(`.${PLATFORM_DOMAIN}`) && 
-                         !currentHostname.includes('localhost')
-
-  if (isCustomDomain) {
-    // Extract domain (e.g., "school.com" from "school.com")
-    const domain = currentHostname
-
-    // For custom domains, rewrite URL to use tenant route group
-    // This allows us to have a completely separate UI for tenants
-    const url = request.nextUrl.clone()
-    url.pathname = `/tenant-pages${pathname}`
-    url.search = request.nextUrl.search
-
-    // Add tenant info as header for downstream use
-    const response = NextResponse.rewrite(url)
-    response.headers.set('x-tenant-domain', domain)
-    response.headers.set('x-tenant-hostname', currentHostname)
-
-    return response
-  }
-
-  // Check if this is a tenant subdomain (e.g., school.inr99.academy)
+  // For all other hostnames (subdomains or custom domains), 
+  // we need to identify the tenant but NOT rewrite to non-existent routes
+  // Just add headers for downstream use and continue
+  
+  // Check if this is a subdomain of the platform
   const isSubdomain = currentHostname.endsWith(`.${PLATFORM_DOMAIN}`)
 
   if (isSubdomain) {
@@ -67,22 +48,22 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
-    // For tenant subdomains, rewrite URL to use tenant route group
-    // This allows us to have a completely separate UI for tenants
-    const url = request.nextUrl.clone()
-    url.pathname = `/tenant-pages${pathname}`
-    url.search = request.nextUrl.search
-
-    // Add tenant info as header for downstream use
-    const response = NextResponse.rewrite(url)
+    // Add tenant info as headers for downstream use
+    const response = NextResponse.next()
     response.headers.set('x-tenant-slug', subdomain)
     response.headers.set('x-tenant-hostname', currentHostname)
+    response.headers.set('x-tenant-type', 'subdomain')
 
     return response
   }
 
-  // Default: continue normally
-  return NextResponse.next()
+  // This is a custom domain - add headers for tenant identification
+  const response = NextResponse.next()
+  response.headers.set('x-tenant-domain', currentHostname)
+  response.headers.set('x-tenant-hostname', currentHostname)
+  response.headers.set('x-tenant-type', 'custom')
+
+  return response
 }
 
 // Run middleware on all routes except static files

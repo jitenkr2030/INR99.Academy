@@ -19,6 +19,8 @@ This guide provides comprehensive information about all demo accounts available 
 | admin1@inr99.com | demo123 | Demo Admin 1 | ADMIN | /dashboard/admin |
 | admin2@inr99.com | demo123 | Demo Admin 2 | ADMIN | /dashboard/admin |
 | admin3@inr99.com | demo123 | Demo Admin 3 | ADMIN | /dashboard/admin |
+| admin4@inr99.com | demo123 | Demo Admin 4 | ADMIN | /dashboard/admin |
+| admin5@inr99.com | demo123 | Demo Admin 5 | ADMIN | /dashboard/admin |
 
 **Admin Features:**
 
@@ -39,6 +41,7 @@ This guide provides comprehensive information about all demo accounts available 
 | instructor3@inr99.com | demo123 | Demo Instructor 3 | INSTRUCTOR | /dashboard/instructor |
 | teacher1@inr99.com | demo123 | Demo Teacher 1 | INSTRUCTOR | /dashboard/instructor |
 | teacher2@inr99.com | demo123 | Demo Teacher 2 | INSTRUCTOR | /dashboard/instructor |
+| teacher3@inr99.com | demo123 | Demo Teacher 3 | INSTRUCTOR | /dashboard/instructor |
 
 **Instructor Features:**
 
